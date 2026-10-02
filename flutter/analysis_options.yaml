@@ -10,3 +10,5 @@ linter:
     avoid_print: true
     prefer_final_locals: true
     use_build_context_synchronously: true
+    prefer_initializing_formals: false
+    prefer_interpolation_to_compose_strings: false
