@@ -1,0 +1,178 @@
+{
+  "@@locale": "pt",
+  "appTitle": "Wonderlog",
+  "navHome": "Início",
+  "navJourneys": "Viagens",
+  "navProfile": "Perfil",
+  "homeHeadline": "Guarda os lugares que foram importantes",
+  "homeDescription": "Cria um diário de viagem privado, útil antes, durante e depois de cada viagem.",
+  "recentJourneys": "Viagens recentes",
+  "journeysTitle": "As tuas viagens",
+  "noJourneys": "Ainda não há viagens",
+  "noJourneysDescription": "Cria a tua primeira viagem. Os dados são guardados primeiro localmente.",
+  "addJourney": "Adicionar viagem",
+  "newJourney": "Nova viagem",
+  "journeyTitle": "Título da viagem",
+  "destination": "Destino",
+  "startDate": "Data de início",
+  "endDate": "Data de fim",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "localDataError": "Não foi possível carregar os dados locais das viagens.",
+  "journeyCount": "{count, plural, =0{Sem viagens} =1{1 viagem} other{{count} viagens}}",
+  "@journeyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileTitle": "Perfil",
+  "appearance": "Aspeto",
+  "theme": "Tema",
+  "themeSystem": "Sistema",
+  "themeLight": "Claro",
+  "themeDark": "Escuro",
+  "language": "Idioma",
+  "languageDevice": "Usar idioma do dispositivo",
+  "languageEnglish": "Inglês",
+  "languageItalian": "Italiano",
+  "languageSpanish": "Espanhol",
+  "languageFrench": "Francês",
+  "languageGerman": "Alemão",
+  "languagePortuguese": "Português",
+  "account": "Conta",
+  "cloudOptional": "A conta cloud é opcional. O Wonderlog continua disponível offline.",
+  "localOnlyDescription": "O modo local-first está ativo. O diário principal não requer uma conta.",
+  "cloudNotConfigured": "O acesso cloud não está configurado nesta versão.",
+  "accountInitializing": "A preparar os serviços da conta…",
+  "continueWithGoogle": "Continuar com Google",
+  "emailLogin": "Conta de email",
+  "email": "Email",
+  "password": "Palavra-passe",
+  "signIn": "Entrar",
+  "signUp": "Criar conta",
+  "signOut": "Sair",
+  "accountConnected": "Conta ligada",
+  "accountError": "Não foi possível concluir a operação da conta.",
+  "ecosystemTitle": "Apps ligadas",
+  "ecosystemFoundationDescription": "O Wonderlog usa agora um contrato bridge versionado para se ligar em segurança ao restante ecossistema de apps.",
+  "lifeBridgeShareToAnna": "Partilhar com Anna's Diary",
+  "lifeBridgeCopyToAnna": "Copiar para Anna's Diary",
+  "lifeBridgeLinkToAnna": "Ligar no Anna's Diary",
+  "lifeBridgeCopiedForAnna": "Payload Life Bridge copiado. No Anna's Diary, abre Ecossistema de vida e escolhe Colar e importar.",
+  "journeyUnavailable": "Viagem indisponível",
+  "journeyOverview": "Visão geral",
+  "journeyMemories": "Memórias",
+  "journeyAlbum": "Álbum",
+  "journeyReplay": "Rever viagem",
+  "memoryAdd": "Adicionar memória",
+  "memoryNew": "Nova memória",
+  "memoryEdit": "Editar memória",
+  "memoryTitle": "Título",
+  "memoryJournal": "Diário",
+  "memoryLocation": "Lugar",
+  "memoryTags": "Etiquetas",
+  "memoryDate": "Data",
+  "memoryMood": "Humor",
+  "memoryTitleRequired": "Adiciona um título.",
+  "memoryEmpty": "Ainda não há memórias.",
+  "albumEmpty": "Ainda não há fotos neste álbum.",
+  "photo": "Foto",
+  "localFirstTitle": "Guardado primeiro localmente",
+  "localFirstDescription": "Viagem, memórias e álbum continuam disponíveis offline.",
+  "captureAddPhotos": "Adicionar fotos",
+  "captureAddFiles": "Adicionar documentos",
+  "captureItem": "Item partilhado",
+  "smartJourneyTitle": "Viagem Smart",
+  "smartJourneyDescription": "Seleciona as fotos da viagem. O Wonderlog agrupa-as localmente por dias e paragens antes de criar qualquer dado.",
+  "smartJourneyPickPhotos": "Selecionar fotos",
+  "smartJourneyDestinationUnknown": "Destino a rever",
+  "smartJourneyCreate": "Criar viagem",
+  "smartJourneyPhotoCount": "{count, plural, =1{1 foto} other{{count} fotos}}",
+  "smartJourneyDayCount": "{count, plural, =1{1 dia} other{{count} dias}}",
+  "smartJourneyStopCount": "{count, plural, =1{1 paragem} other{{count} paragens}}",
+  "smartJourneyStopPhotos": "{count, plural, =1{1 foto} other{{count} fotos}}",
+  "smartJourneyFreeLimit": "O plano Free importa agora {allowed} fotos; {blocked} fotos selecionadas continuam bloqueadas.",
+  "@smartJourneyPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyFreeLimit": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  },
+  "memoryUnavailable": "Memória indisponível",
+  "memoryDetail": "Memória",
+  "memoryPhotos": "Fotos",
+  "memoryNoPhotos": "Não há fotos ligadas a esta memória.",
+  "memoryKeepsakes": "Recordações de viagem",
+  "memoryNoKeepsakes": "Não há documentos de viagem anexados.",
+  "memoryKeepsakeDocument": "Documento de viagem",
+  "rediscoverSeeAll": "Ver tudo",
+  "rediscoverAll": "Tudo",
+  "rediscoverEmpty": "Hoje não há nada para redescobrir com este filtro.",
+  "albumImport": "Importar fotos",
+  "albumPhotoCount": "{count, plural, =0{Sem fotos} =1{1 foto} other{{count} fotos}}",
+  "albumLimit": "Atingiste o limite de fotos do plano Free.",
+  "albumPartialImport": "Foram importadas {allowed} fotos; {blocked} fotos selecionadas exigem Premium.",
+  "@albumPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@albumPartialImport": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  },
+  "pdfTravelBookTitle": "Livro de viagem",
+  "pdfTravelBookDescription": "Transforma esta viagem num livro para guardar e partilhar.",
+  "pdfStyleClassic": "Clássico",
+  "pdfStyleEditorial": "Editorial",
+  "pdfStyleScrapbook": "Scrapbook",
+  "pdfIncludeDescription": "Descrição da viagem",
+  "pdfIncludeMemories": "Memórias",
+  "pdfIncludeAlbum": "Fotos do álbum",
+  "pdfIncludeLocations": "Locais",
+  "pdfIncludeDates": "Datas",
+  "pdfExport": "Exportar PDF",
+  "pdfExported": "Livro de viagem exportado."
+}

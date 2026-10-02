@@ -1,0 +1,178 @@
+{
+  "@@locale": "fr",
+  "appTitle": "Wonderlog",
+  "navHome": "Accueil",
+  "navJourneys": "Voyages",
+  "navProfile": "Profil",
+  "homeHeadline": "Garde les lieux qui ont compté",
+  "homeDescription": "Crée un journal de voyage privé, utile avant, pendant et après chaque voyage.",
+  "recentJourneys": "Voyages récents",
+  "journeysTitle": "Tes voyages",
+  "noJourneys": "Aucun voyage pour le moment",
+  "noJourneysDescription": "Crée ton premier voyage. Les données sont d'abord enregistrées localement.",
+  "addJourney": "Ajouter un voyage",
+  "newJourney": "Nouveau voyage",
+  "journeyTitle": "Titre du voyage",
+  "destination": "Destination",
+  "startDate": "Date de début",
+  "endDate": "Date de fin",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "localDataError": "Impossible de charger tes données de voyage locales.",
+  "journeyCount": "{count, plural, =0{Aucun voyage} =1{1 voyage} other{{count} voyages}}",
+  "@journeyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileTitle": "Profil",
+  "appearance": "Apparence",
+  "theme": "Thème",
+  "themeSystem": "Système",
+  "themeLight": "Clair",
+  "themeDark": "Sombre",
+  "language": "Langue",
+  "languageDevice": "Utiliser la langue de l'appareil",
+  "languageEnglish": "Anglais",
+  "languageItalian": "Italien",
+  "languageSpanish": "Espagnol",
+  "languageFrench": "Français",
+  "languageGerman": "Allemand",
+  "languagePortuguese": "Portugais",
+  "account": "Compte",
+  "cloudOptional": "Le compte cloud est facultatif. Wonderlog reste utilisable hors ligne.",
+  "localOnlyDescription": "Le mode local-first est actif. Le journal principal ne nécessite pas de compte.",
+  "cloudNotConfigured": "La connexion cloud n'est pas configurée dans cette version.",
+  "accountInitializing": "Préparation des services de compte…",
+  "continueWithGoogle": "Continuer avec Google",
+  "emailLogin": "Compte email",
+  "email": "Email",
+  "password": "Mot de passe",
+  "signIn": "Se connecter",
+  "signUp": "Créer un compte",
+  "signOut": "Se déconnecter",
+  "accountConnected": "Compte connecté",
+  "accountError": "L'opération du compte n'a pas pu être terminée.",
+  "ecosystemTitle": "Apps connectées",
+  "ecosystemFoundationDescription": "Wonderlog utilise désormais un contrat bridge versionné conçu pour se connecter en toute sécurité au reste de ton écosystème d'apps.",
+  "lifeBridgeShareToAnna": "Partager avec Anna's Diary",
+  "lifeBridgeCopyToAnna": "Copier vers Anna's Diary",
+  "lifeBridgeLinkToAnna": "Lier dans Anna's Diary",
+  "lifeBridgeCopiedForAnna": "Payload Life Bridge copié. Dans Anna's Diary, ouvre Écosystème de vie puis choisis Coller et importer.",
+  "journeyUnavailable": "Voyage indisponible",
+  "journeyOverview": "Aperçu",
+  "journeyMemories": "Souvenirs",
+  "journeyAlbum": "Album",
+  "journeyReplay": "Revivre le voyage",
+  "memoryAdd": "Ajouter un souvenir",
+  "memoryNew": "Nouveau souvenir",
+  "memoryEdit": "Modifier le souvenir",
+  "memoryTitle": "Titre",
+  "memoryJournal": "Journal",
+  "memoryLocation": "Lieu",
+  "memoryTags": "Tags",
+  "memoryDate": "Date",
+  "memoryMood": "Humeur",
+  "memoryTitleRequired": "Ajoute un titre.",
+  "memoryEmpty": "Aucun souvenir pour le moment.",
+  "albumEmpty": "Aucune photo dans cet album pour le moment.",
+  "photo": "Photo",
+  "localFirstTitle": "Enregistré d'abord en local",
+  "localFirstDescription": "Voyage, souvenirs et album restent disponibles hors ligne.",
+  "captureAddPhotos": "Ajouter des photos",
+  "captureAddFiles": "Ajouter des documents",
+  "captureItem": "Élément partagé",
+  "smartJourneyTitle": "Voyage Smart",
+  "smartJourneyDescription": "Sélectionne les photos du voyage. Wonderlog les regroupe localement en jours et étapes avant toute création de données.",
+  "smartJourneyPickPhotos": "Sélectionner des photos",
+  "smartJourneyDestinationUnknown": "Destination à vérifier",
+  "smartJourneyCreate": "Créer le voyage",
+  "smartJourneyPhotoCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "smartJourneyDayCount": "{count, plural, =1{1 jour} other{{count} jours}}",
+  "smartJourneyStopCount": "{count, plural, =1{1 étape} other{{count} étapes}}",
+  "smartJourneyStopPhotos": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "smartJourneyFreeLimit": "Le plan Free importe maintenant {allowed} photos ; {blocked} photos sélectionnées restent bloquées.",
+  "@smartJourneyPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyFreeLimit": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  },
+  "memoryUnavailable": "Souvenir indisponible",
+  "memoryDetail": "Souvenir",
+  "memoryPhotos": "Photos",
+  "memoryNoPhotos": "Aucune photo liée à ce souvenir.",
+  "memoryKeepsakes": "Souvenirs de voyage",
+  "memoryNoKeepsakes": "Aucun document de voyage joint.",
+  "memoryKeepsakeDocument": "Document de voyage",
+  "rediscoverSeeAll": "Tout voir",
+  "rediscoverAll": "Tout",
+  "rediscoverEmpty": "Il n'y a rien à redécouvrir aujourd'hui pour ce filtre.",
+  "albumImport": "Importer des photos",
+  "albumPhotoCount": "{count, plural, =0{Aucune photo} =1{1 photo} other{{count} photos}}",
+  "albumLimit": "La limite de photos du plan Free est atteinte.",
+  "albumPartialImport": "{allowed} photos importées ; {blocked} photos sélectionnées nécessitent Premium.",
+  "@albumPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@albumPartialImport": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  },
+  "pdfTravelBookTitle": "Carnet de voyage",
+  "pdfTravelBookDescription": "Transforme ce voyage en un livre à conserver et partager.",
+  "pdfStyleClassic": "Classique",
+  "pdfStyleEditorial": "Éditorial",
+  "pdfStyleScrapbook": "Scrapbook",
+  "pdfIncludeDescription": "Description du voyage",
+  "pdfIncludeMemories": "Souvenirs",
+  "pdfIncludeAlbum": "Photos de l'album",
+  "pdfIncludeLocations": "Lieux",
+  "pdfIncludeDates": "Dates",
+  "pdfExport": "Exporter en PDF",
+  "pdfExported": "Carnet de voyage exporté."
+}

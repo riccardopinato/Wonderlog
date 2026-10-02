@@ -1,0 +1,226 @@
+{
+  "@@locale": "en",
+  "appTitle": "Wonderlog",
+  "navHome": "Home",
+  "navJourneys": "Journeys",
+  "navProfile": "Profile",
+  "homeHeadline": "Keep the places that mattered",
+  "homeDescription": "Build a private travel journal that stays useful before, during and after each trip.",
+  "recentJourneys": "Recent journeys",
+  "journeysTitle": "Your journeys",
+  "noJourneys": "No journeys yet",
+  "noJourneysDescription": "Create your first journey. Everything is stored locally first.",
+  "addJourney": "Add journey",
+  "newJourney": "New journey",
+  "journeyTitle": "Journey title",
+  "destination": "Destination",
+  "startDate": "Start date",
+  "endDate": "End date",
+  "save": "Save",
+  "cancel": "Cancel",
+  "localDataError": "Your local travel data could not be loaded.",
+  "journeyCount": "{count, plural, =0{No journeys} =1{1 journey} other{{count} journeys}}",
+  "@journeyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileTitle": "Profile",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "language": "Language",
+  "languageDevice": "Use device language",
+  "languageEnglish": "English",
+  "languageItalian": "Italian",
+  "languageSpanish": "Spanish",
+  "languageFrench": "French",
+  "languageGerman": "German",
+  "languagePortuguese": "Portuguese",
+  "account": "Account",
+  "cloudOptional": "Cloud account is optional. Wonderlog remains usable offline.",
+  "localOnlyDescription": "Local-first mode is active. Your core journal does not require an account.",
+  "cloudNotConfigured": "Cloud sign-in is not configured in this build.",
+  "accountInitializing": "Preparing account services…",
+  "continueWithGoogle": "Continue with Google",
+  "emailLogin": "Email account",
+  "email": "Email",
+  "password": "Password",
+  "signIn": "Sign in",
+  "signUp": "Create account",
+  "signOut": "Sign out",
+  "accountConnected": "Account connected",
+  "accountError": "The account action could not be completed.",
+  "ecosystemTitle": "Connected apps",
+  "ecosystemFoundationDescription": "Wonderlog now uses a versioned bridge contract designed to connect safely with the rest of your app ecosystem.",
+  "lifeBridgeShareToAnna": "Share with Anna's Diary",
+  "lifeBridgeCopyToAnna": "Copy to Anna's Diary",
+  "lifeBridgeLinkToAnna": "Link in Anna's Diary",
+  "lifeBridgeCopiedForAnna": "Life Bridge payload copied. In Anna's Diary, open Life Ecosystem and choose Paste & import.",
+  "journeyUnavailable": "Journey unavailable",
+  "journeyOverview": "Overview",
+  "journeyMemories": "Memories",
+  "journeyAlbum": "Album",
+  "journeyReplay": "Replay journey",
+  "memoryAdd": "Add memory",
+  "memoryNew": "New memory",
+  "memoryEdit": "Edit memory",
+  "memoryTitle": "Title",
+  "memoryJournal": "Journal",
+  "memoryLocation": "Place",
+  "memoryTags": "Tags",
+  "memoryDate": "Date",
+  "memoryMood": "Mood",
+  "memoryTitleRequired": "Add a title.",
+  "memoryEmpty": "No memories yet.",
+  "albumEmpty": "No photos in this album yet.",
+  "photo": "Photo",
+  "localFirstTitle": "Saved locally first",
+  "localFirstDescription": "Your Journey, Memories and Album remain available offline.",
+  "journeyMap": "Map",
+  "mapAll": "All",
+  "mapPhotos": "Photos",
+  "mapMemories": "Memories",
+  "mapEmpty": "Add a place or a geotagged photo to see this Journey on the map.",
+  "rediscoverTitle": "Rediscover",
+  "rediscoverSubtitle": "A few older moments worth seeing again.",
+  "searchTitle": "Search",
+  "searchHint": "Search journeys, memories, places or tags",
+  "searchStartTyping": "Start typing to search your Wonderlog.",
+  "searchNoResults": "No matching journeys or memories.",
+  "journeyTimeline": "Timeline",
+  "timelineOldest": "Oldest",
+  "timelineNewest": "Newest",
+  "timelineFavorites": "Favorites",
+  "timelineMood": "Mood",
+  "timelineLocation": "Place",
+  "timelineWithPhotos": "With photos",
+  "timelineEmpty": "No memories match these timeline filters.",
+  "premiumTitle": "Wonderlog Premium",
+  "premiumHeadline": "Unlock the full travel journal",
+  "premiumDescription": "Unlimited journeys and memories, secure cloud backup, offline maps and PDF travel books.",
+  "premiumUnlimited": "Unlimited journeys and memories",
+  "premiumCloud": "Secure cloud backup and restore",
+  "premiumPdf": "PDF travel books",
+  "premiumOfflineMaps": "Offline maps",
+  "premiumActive": "Premium active",
+  "premiumActiveDescription": "All Premium capabilities are unlocked for this account.",
+  "premiumStoreUnavailable": "Store unavailable",
+  "premiumStoreUnavailableDescription": "This build has no configured store credentials. Local Wonderlog remains available.",
+  "premiumRestore": "Restore purchases",
+  "premiumPurchaseSuccess": "Premium unlocked.",
+  "premiumPurchaseCancelled": "Purchase cancelled.",
+  "premiumRestoreSuccess": "Purchases restored.",
+  "premiumGenericError": "The store operation could not be completed.",
+  "premiumProfileDescription": "Manage Premium and available plans.",
+  "captureTitle": "Quick Capture",
+  "captureJourney": "Journey",
+  "captureExistingMemory": "Add to an existing Memory",
+  "captureMemory": "Memory",
+  "captureCreateMemory": "Create a new Memory",
+  "captureText": "Thoughts, notes or links",
+  "captureSaved": "Saved to Wonderlog.",
+  "captureError": "Unable to save this capture.",
+  "done": "Done",
+  "onboardingHeadline": "Turn every trip into a living memory.",
+  "onboardingDescription": "Save photos, places, notes and emotions from every destination.",
+  "onboardingStart": "Start journaling",
+  "captureAddPhotos": "Add photos",
+  "captureAddFiles": "Add documents",
+  "captureItem": "Shared item",
+  "smartJourneyTitle": "Smart Journey",
+  "smartJourneyDescription": "Select travel photos. Wonderlog groups them locally into days and stops before creating anything.",
+  "smartJourneyPickPhotos": "Select photos",
+  "smartJourneyDestinationUnknown": "Destination to review",
+  "smartJourneyCreate": "Create Journey",
+  "smartJourneyPhotoCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "smartJourneyDayCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "smartJourneyStopCount": "{count, plural, =1{1 stop} other{{count} stops}}",
+  "smartJourneyStopPhotos": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "smartJourneyFreeLimit": "Free plan imports {allowed} photos now; {blocked} selected photos remain locked.",
+  "@smartJourneyPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyFreeLimit": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  },
+  "memoryUnavailable": "Memory unavailable",
+  "memoryDetail": "Memory",
+  "memoryPhotos": "Photos",
+  "memoryNoPhotos": "No photos linked to this Memory.",
+  "memoryKeepsakes": "Keepsakes",
+  "memoryNoKeepsakes": "No travel documents attached.",
+  "memoryKeepsakeDocument": "Travel document",
+  "rediscoverSeeAll": "See all",
+  "rediscoverAll": "All",
+  "rediscoverEmpty": "There is nothing to rediscover for this filter today.",
+  "albumImport": "Import photos",
+  "albumPhotoCount": "{count, plural, =0{No photos} =1{1 photo} other{{count} photos}}",
+  "albumLimit": "Photo limit reached for the Free plan.",
+  "albumPartialImport": "Imported {allowed} photos; {blocked} selected photos require Premium.",
+  "@albumPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@albumPartialImport": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  },
+  "pdfTravelBookTitle": "Travel Book",
+  "pdfTravelBookDescription": "Turn this Journey into a book you can keep and share.",
+  "pdfStyleClassic": "Classic",
+  "pdfStyleEditorial": "Editorial",
+  "pdfStyleScrapbook": "Scrapbook",
+  "pdfIncludeDescription": "Journey description",
+  "pdfIncludeMemories": "Memories",
+  "pdfIncludeAlbum": "Album photos",
+  "pdfIncludeLocations": "Locations",
+  "pdfIncludeDates": "Dates",
+  "pdfExport": "Export PDF",
+  "pdfExported": "Travel Book exported."
+}
