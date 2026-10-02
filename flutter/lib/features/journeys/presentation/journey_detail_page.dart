@@ -476,7 +476,7 @@ final class _AlbumTabState extends State<_AlbumTab> {
 
     try {
       final incoming = await _picker.pickImages();
-      if (incoming.isEmpty) return;
+      if (incoming.isEmpty || !mounted) return;
 
       final services = WonderlogServicesScope.of(context);
       const gate = PremiumGate();
