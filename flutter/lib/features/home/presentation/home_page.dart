@@ -6,6 +6,8 @@ import '../../journeys/domain/journey.dart';
 import '../../journeys/presentation/journey_detail_page.dart';
 import '../../journeys/presentation/journey_widgets.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../rediscover/presentation/rediscover_home_section.dart';
+import '../../search/presentation/global_search_page.dart';
 
 final class HomePage extends StatelessWidget {
   const HomePage({
@@ -20,7 +22,21 @@ final class HomePage extends StatelessWidget {
     final strings = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(strings.appTitle)),
+      appBar: AppBar(
+        title: Text(strings.appTitle),
+        actions: [
+          IconButton(
+            tooltip: strings.searchTitle,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                builder: (_) => GlobalSearchPage(repository: repository),
+              ),
+            ),
+            icon: const Icon(Icons.search),
+          ),
+        ],
+      ),
       body: StreamBuilder<List<Journey>>(
         stream: repository.watchJourneys(),
         builder: (context, snapshot) {
@@ -41,6 +57,10 @@ final class HomePage extends StatelessWidget {
                   context,
                   repository,
                 ),
+              ),
+              RediscoverHomeSection(
+                repository: repository,
+                journeys: journeys,
               ),
               const SizedBox(height: WonderlogSpacing.large),
               Row(

@@ -85,5 +85,11 @@
   "mapAll": "All",
   "mapPhotos": "Photos",
   "mapMemories": "Memories",
-  "mapEmpty": "Add a place or a geotagged photo to see this Journey on the map."
+  "mapEmpty": "Add a place or a geotagged photo to see this Journey on the map.",
+  "rediscoverTitle": "Rediscover",
+  "rediscoverSubtitle": "A few older moments worth seeing again.",
+  "searchTitle": "Search",
+  "searchHint": "Search journeys, memories, places or tags",
+  "searchStartTyping": "Start typing to search your Wonderlog.",
+  "searchNoResults": "No matching journeys or memories."
 }
