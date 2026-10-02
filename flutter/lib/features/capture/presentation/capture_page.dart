@@ -120,14 +120,26 @@ final class _CapturePageState extends State<CapturePage> {
                     : (value) => widget.controller.selectJourney(value),
               ),
               const SizedBox(height: WonderlogSpacing.medium),
-              RadioListTile<bool>(
-                value: false,
-                groupValue: draft.createNewMemory,
-                onChanged: saving
+              SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment<bool>(
+                    value: false,
+                    icon: const Icon(Icons.auto_stories_outlined),
+                    label: Text(strings.captureExistingMemory),
+                  ),
+                  ButtonSegment<bool>(
+                    value: true,
+                    icon: const Icon(Icons.note_add_outlined),
+                    label: Text(strings.captureCreateMemory),
+                  ),
+                ],
+                selected: {draft.createNewMemory},
+                onSelectionChanged: saving
                     ? null
-                    : (_) => widget.controller.setCreateNewMemory(false),
-                title: Text(strings.captureExistingMemory),
+                    : (values) => widget.controller
+                        .setCreateNewMemory(values.single),
               ),
+              const SizedBox(height: WonderlogSpacing.small),
               if (!draft.createNewMemory)
                 DropdownButtonFormField<String>(
                   initialValue: draft.memoryId,
@@ -144,14 +156,6 @@ final class _CapturePageState extends State<CapturePage> {
                   onChanged:
                       saving ? null : widget.controller.selectMemory,
                 ),
-              RadioListTile<bool>(
-                value: true,
-                groupValue: draft.createNewMemory,
-                onChanged: saving
-                    ? null
-                    : (_) => widget.controller.setCreateNewMemory(true),
-                title: Text(strings.captureCreateMemory),
-              ),
               if (draft.createNewMemory) ...[
                 TextFormField(
                   initialValue: draft.memoryTitle,
