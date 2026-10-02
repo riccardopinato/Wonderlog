@@ -125,5 +125,8 @@
   "captureText": "Thoughts, notes or links",
   "captureSaved": "Saved to Wonderlog.",
   "captureError": "Unable to save this capture.",
-  "done": "Done"
+  "done": "Done",
+  "onboardingHeadline": "Turn every trip into a living memory.",
+  "onboardingDescription": "Save photos, places, notes and emotions from every destination.",
+  "onboardingStart": "Start journaling"
 }
