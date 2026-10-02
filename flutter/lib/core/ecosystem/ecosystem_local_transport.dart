@@ -33,14 +33,19 @@ final class EcosystemHandoffPacket {
       throw const FormatException('Invalid ecosystem handoff packet.');
     }
 
-    final protocolVersion = decoded['protocolVersion'] as String?;
-    if (protocolVersion != ecosystemLocalHandoffProtocolVersion) {
-      throw FormatException(
-        'Unsupported ecosystem handoff protocol: $protocolVersion',
-      );
-    }
-
     try {
+      final protocolVersion = decoded['protocolVersion'];
+      if (protocolVersion is! String) {
+        throw const FormatException(
+          'Ecosystem handoff protocolVersion must be a string.',
+        );
+      }
+      if (protocolVersion != ecosystemLocalHandoffProtocolVersion) {
+        throw FormatException(
+          'Unsupported ecosystem handoff protocol: $protocolVersion',
+        );
+      }
+
       return EcosystemHandoffPacket(
         targetApp: EcosystemAppId.fromWire(decoded['targetApp']! as String),
         envelope: EcosystemEnvelope.fromJson(
