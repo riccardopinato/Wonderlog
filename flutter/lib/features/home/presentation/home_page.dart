@@ -17,9 +17,11 @@ final class HomePage extends StatelessWidget {
   const HomePage({
     super.key,
     required this.repository,
+    required this.isPremium,
   });
 
   final WonderlogRepository repository;
+  final bool Function() isPremium;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ final class HomePage extends StatelessWidget {
               final captureRepository = WonderlogCaptureRepository(
                 repository: repository,
                 mediaPort: const UnsupportedCaptureMediaPort(),
-                isPremium: () => true,
+                isPremium: isPremium,
               );
               Navigator.push(
                 context,
