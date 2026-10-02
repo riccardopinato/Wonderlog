@@ -9,6 +9,13 @@ on:
     paths:
       - "flutter/**"
       - ".github/workflows/flutter-foundation.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "flutter/**"
+      - ".github/workflows/flutter-foundation.yml"
+      - "docs/FLUTTER_MIGRATION.md"
 
 permissions:
   contents: read
@@ -40,7 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf android ios web /tmp/wonderlog_platform
-          flutter create             --project-name wonderlog             --org com.riccardopinato             --platforms=android,ios,web             /tmp/wonderlog_platform
+          flutter create --project-name wonderlog --org com.riccardopinato --platforms=android,ios,web /tmp/wonderlog_platform
           cp -R /tmp/wonderlog_platform/android .
           cp -R /tmp/wonderlog_platform/ios .
           cp -R /tmp/wonderlog_platform/web .
@@ -74,9 +81,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/foundation-artifacts
-          cp build/app/outputs/flutter-apk/app-release.apk             build/foundation-artifacts/wonderlog-flutter-foundation.apk
-          cp build/app/outputs/bundle/release/app-release.aab             build/foundation-artifacts/wonderlog-flutter-foundation.aab
-          tar -czf build/foundation-artifacts/wonderlog-web.tar.gz             -C build/web .
+          cp build/app/outputs/flutter-apk/app-release.apk build/foundation-artifacts/wonderlog-flutter-foundation.apk
+          cp build/app/outputs/bundle/release/app-release.aab build/foundation-artifacts/wonderlog-flutter-foundation.aab
+          tar -czf build/foundation-artifacts/wonderlog-web.tar.gz -C build/web .
           cd build/foundation-artifacts
           sha256sum *.apk *.aab *.tar.gz > SHA256SUMS.txt
 
