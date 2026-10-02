@@ -49,43 +49,53 @@ non-Android platforms use the Flutter database path.
 
 ## Ecosystem direction
 
-The shared interoperability primitive is `EcosystemEnvelope v1`.
+The canonical interoperability primitive is now **Shared Ecosystem Core v1**.
 
-Every app keeps its own database and domain model. Cross-app exchange happens
-through a versioned envelope with explicit source identity, entity identity,
-timestamps, tags, people, places, media references and an idempotency key.
+Every app keeps its own database, repository and domain model. No app reads
+another app's private database directly.
 
-No app is allowed to read another app's private database directly.
+The common `EcosystemEnvelope v1` carries:
+- stable `bridgeId`;
+- explicit COPY or LINK semantics;
+- source revision and idempotency key;
+- canonical-owner provenance;
+- fallback data;
+- tags, people and places;
+- safe media metadata plus explicit handoff descriptors.
 
-Transport is intentionally separate from the envelope. Planned adapters are:
+`bridgeId` is stable across revisions. The idempotency key combines
+`bridgeId + revision + transfer mode`, so COPY and LINK are distinct
+deliveries and a new source revision remains independently deliverable.
 
-- local Android/iOS share/deep-link transport;
-- optional authenticated Supabase inbox/outbox;
-- import confirmation in the destination app.
+Private local media URIs are not part of the wire contract. Binary media is
+represented by an explicit handoff descriptor. Wonderlog E1 currently uses
+the safe `omitted` handoff until a binary transport is separately certified.
 
-## Anna's Diary Life Bridge v1 adapter
+Transport remains separate from the envelope:
+- local v1 deep link: `<targetScheme>://ecosystem/import?payload=...`;
+- portable clipboard fallback: `ECOSYSTEM_BRIDGE_V1:...`;
+- optional cloud transport later, behind provider-specific adapters.
 
-The Flutter migration now contains the first concrete cross-app adapter for
-Anna's Diary.
+### Anna's Diary first integration
 
-- Wonderlog keeps `EcosystemEnvelope v1` as its internal interoperability
-  primitive, then projects an explicitly shared Journey into Anna's canonical
-  `Life Bridge v1` wire contract.
-- Journey export supports distinct `COPY` and `LINK` intents.
-- The exported `bridgeId` is deterministic for
-  `source app + entity type + entity id + revision`, so repeating the same
-  export is idempotent in Anna.
-- A private envelope cannot cross the bridge boundary. Export requires
-  `explicitShare`.
-- Local media URIs are never exported. v1 carries only safe media metadata and
-  declares binary transfer as omitted.
-- Anna remains the destination owner after materialization: Wonderlog never
-  reads Anna's database, keys, sync state or private stores.
-- Current transport is deliberately explicit clipboard handoff. This is a
-  real end-to-end contract test, not background synchronization.
-- The adapter is part of the Flutter migration branch and must not be marketed
-  as a production connection until the Flutter client passes the migration
-  gates below.
+Wonderlog is the first producer implementation.
+
+- Journey and Memory adapters emit Shared Core v1 envelopes.
+- COPY keeps the source original canonical in Wonderlog and permits an
+  independent destination copy.
+- LINK requires a canonical Wonderlog deep link and preserves source
+  ownership.
+- Anna's Diary is registered with the target route
+  `annasdiary://ecosystem/import`.
+- If Anna's Diary is unavailable, Wonderlog copies a machine-readable portable
+  package and keeps the outbox delivery retryable.
+- Life Bridge v1 remains only a compatibility projection from the common
+  envelope; it is no longer the primary shared contract.
+
+The candidate Golden is frozen in
+`docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`. It becomes eligible for
+COPY-READY promotion only after Anna's Diary implements its definitive
+consumer adapter and both apps pass the same cross-app contract tests.
 
 ## Migration gates
 
@@ -105,10 +115,10 @@ The Flutter build cannot become the main Wonderlog release until:
 
 ## Current certification snapshot
 
-The Flutter foundation CI currently passes localization/code generation,
-static analysis, unit tests, Web release build, Android release APK, Android
-AAB and artifact packaging on the migration branch. The PR remains the
-integration boundary until the branch is merged into `main`.
+The Flutter foundation has been merged into `main` after passing
+localization/code generation, static analysis, unit tests, Web release build,
+Android release APK, Android AAB and artifact packaging. Ecosystem E1 is
+validated through its own pull-request gate before merge.
 
 The remaining production cutover evidence is primarily real-device validation
 of the existing Room database migration and a macOS/iOS build gate.
