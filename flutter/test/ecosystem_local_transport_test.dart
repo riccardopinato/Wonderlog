@@ -197,6 +197,45 @@ void main() {
     expect(inbox.single.envelope.media.single.fileName, 'photo.jpg');
   });
 
+  test('incoming packet cannot under-declare required capabilities', () async {
+    final limitedRegistry = EcosystemRegistry(
+      const [
+        EcosystemAppRegistration(
+          appId: EcosystemAppId.annasDiary,
+          acceptedEntityTypes: {
+            EcosystemEntityType.memory,
+          },
+          transferModes: {
+            EcosystemTransferMode.copy,
+          },
+          capabilities: {
+            EcosystemCapability.copy,
+            EcosystemCapability.places,
+            EcosystemCapability.sourceDeepLink,
+            EcosystemCapability.fallbackText,
+          },
+          importScheme: 'annasdiary',
+        ),
+      ],
+    );
+    final receiver = EcosystemLocalTransport(
+      localApp: EcosystemAppId.annasDiary,
+      registry: limitedRegistry,
+      store: store,
+    );
+    final packet = EcosystemHandoffPacket(
+      targetApp: EcosystemAppId.annasDiary,
+      envelope: sampleEnvelope(),
+      createdAtUtc: DateTime.utc(2026, 10, 2),
+    );
+
+    await expectLater(
+      receiver.receiveEncoded(packet.encode()),
+      throwsA(isA<EcosystemTransportException>()),
+    );
+    expect(await store.watchPendingInbox().first, isEmpty);
+  });
+
   test('private envelopes fail closed before entering the outbox', () async {
     final transport = EcosystemLocalTransport(
       localApp: EcosystemAppId.wonderlog,
@@ -237,6 +276,20 @@ void main() {
     await expectLater(
       wrongReceiver.receiveEncoded(plan.fallbackPayload),
       throwsA(isA<EcosystemTransportException>()),
+    );
+  });
+
+  test('malformed packet fields fail as FormatException', () {
+    final malformed = jsonEncode({
+      'protocolVersion': ecosystemLocalHandoffProtocolVersion,
+      'targetApp': 'unknown_app',
+      'createdAtUtc': 'not-a-date',
+      'envelope': sampleEnvelope().toJson(),
+    });
+
+    expect(
+      () => EcosystemHandoffPacket.decode(malformed),
+      throwsFormatException,
     );
   });
 
