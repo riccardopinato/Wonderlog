@@ -39,6 +39,10 @@ void main() {
       'ecosystem:v1:wonderlog:memory:memory-42:1',
     );
     expect(
+      restored.handoffIdempotencyKey,
+      'wonderlog:memory:memory-42:1:copy',
+    );
+    expect(
       restored.effectiveProvenance.canonicalApp,
       EcosystemAppId.wonderlog,
     );
