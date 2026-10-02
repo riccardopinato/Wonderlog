@@ -40,10 +40,12 @@ Room model:
 - geocoding_cache;
 - offline_map_regions.
 
-The development database file is deliberately separate. Matching table names
-does not mean the Android sandbox can read the legacy Room database. A later
-migration step must export from the legacy app and import transactionally into
-Flutter, with checksum/idempotency validation.
+The Android cutover path now preserves the legacy Room database in place.
+Flutter detects the production Android database filename and opens it through
+Drift using schema-compatible table/column mappings, including the Room v6
+tag converter format. Flutter advances the schema non-destructively to v8,
+adding only the new ecosystem inbox/outbox tables. Fresh installs and
+non-Android platforms use the Flutter database path.
 
 ## Ecosystem direction
 
@@ -96,7 +98,17 @@ The Flutter build cannot become the main Wonderlog release until:
 - Rediscover/Replay parity is complete;
 - Premium/RevenueCat parity is complete;
 - cloud backup/sync parity is complete;
-- legacy data import is verified on a real device;
-- Android release and Web deploy pass;
+- legacy Android Room v6 -> Flutter Drift v8 cutover is verified on a real device;
+- Android release and Web release builds pass;
 - iOS build passes on macOS;
 - no destructive migration or silent data loss is possible.
+
+## Current certification snapshot
+
+The Flutter foundation CI currently passes localization/code generation,
+static analysis, unit tests, Web release build, Android release APK, Android
+AAB and artifact packaging on the migration branch. The PR remains the
+integration boundary until the branch is merged into `main`.
+
+The remaining production cutover evidence is primarily real-device validation
+of the existing Room database migration and a macOS/iOS build gate.
