@@ -3,31 +3,28 @@ import 'ecosystem_models.dart';
 import 'ecosystem_registry.dart';
 
 abstract final class EcosystemTransferPlanner {
+  static EcosystemCapability requiredCapability(
+    EcosystemEntityType entityType,
+  ) =>
+      switch (entityType) {
+        EcosystemEntityType.journey => EcosystemCapability.receiveJourney,
+        EcosystemEntityType.memory ||
+        EcosystemEntityType.note ||
+        EcosystemEntityType.generic =>
+          EcosystemCapability.receiveText,
+        EcosystemEntityType.place => EcosystemCapability.receivePlace,
+        EcosystemEntityType.route => EcosystemCapability.receiveRoute,
+        EcosystemEntityType.photo => EcosystemCapability.receivePhoto,
+      };
+
   static bool canSend(
     EcosystemEnvelope envelope,
     EcosystemAppId target,
   ) {
-    EcosystemAppDefinition? definition;
-    for (final app in EcosystemRegistry.apps) {
-      if (app.id == target) {
-        definition = app;
-        break;
-      }
-    }
-    if (definition == null) return false;
+    final definition = EcosystemRegistry.definition(target);
+    final capability = requiredCapability(envelope.sourceEntityType);
 
-    final requiredCapability = switch (envelope.sourceEntityType) {
-      EcosystemEntityType.journey => EcosystemCapability.receiveJourney,
-      EcosystemEntityType.memory ||
-      EcosystemEntityType.note =>
-        EcosystemCapability.receiveText,
-      EcosystemEntityType.place => EcosystemCapability.receivePlace,
-      EcosystemEntityType.route => EcosystemCapability.receiveRoute,
-      EcosystemEntityType.photo => EcosystemCapability.receivePhoto,
-      EcosystemEntityType.generic => EcosystemCapability.receiveText,
-    };
-
-    if (!definition.capabilities.contains(requiredCapability)) {
+    if (!definition.capabilities.contains(capability)) {
       return false;
     }
 

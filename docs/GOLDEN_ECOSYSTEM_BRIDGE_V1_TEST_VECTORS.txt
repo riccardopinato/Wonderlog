@@ -1,0 +1,100 @@
+GOLDEN ECOSYSTEM BRIDGE v1 — SHARED CONTRACT TEST VECTORS
+========================================================
+
+Purpose
+-------
+These vectors are the cross-app compatibility fixtures for Wonderlog,
+Anna's Diary and future ecosystem apps.
+
+The producer and consumer MUST agree on the semantic values below even if
+their internal domain models differ.
+
+VECTOR A — WONDERLOG -> ANNA / COPY
+-----------------------------------
+ownerApp: wonderlog
+ownerEntityType: journey
+ownerEntityId: journey-42
+ownerRevision: 1790929800000
+bridgeId: ecosystem:v1:wonderlog:journey:journey-42
+transferMode: copy
+idempotencyKey:
+  ecosystem:v1:wonderlog:journey:journey-42:1790929800000:copy
+targetApp: annas_diary
+privacyScope: explicitShare
+canonicalDeepLink: wonderlog://journey/journey-42
+
+Expected destination semantic:
+- materialize an independent Anna entity only after destination workflow;
+- preserve provenance to Wonderlog;
+- do not subscribe to future Wonderlog revisions automatically.
+
+VECTOR B — WONDERLOG -> ANNA / LINK
+-----------------------------------
+Same canonical owner as VECTOR A.
+
+transferMode: link
+idempotencyKey:
+  ecosystem:v1:wonderlog:journey:journey-42:1790929800000:link
+
+Expected destination semantic:
+- bridgeId remains identical to COPY;
+- idempotencyKey differs from COPY;
+- canonical source remains Wonderlog;
+- canonicalDeepLink is mandatory.
+
+VECTOR C — ANNA -> WONDERLOG / COPY
+-----------------------------------
+ownerApp: annas_diary
+ownerEntityType: note
+ownerEntityId: moment-42
+ownerRevision: 7
+bridgeId: ecosystem:v1:annas_diary:note:moment-42
+transferMode: copy
+idempotencyKey:
+  ecosystem:v1:annas_diary:note:moment-42:7:copy
+targetApp: wonderlog
+privacyScope: explicitShare
+canonicalDeepLink: annasdiary://moment/moment-42
+
+Expected Wonderlog behavior:
+- validate contract;
+- accept into ecosystem inbox;
+- deduplicate repeated delivery;
+- DO NOT materialize a Journey/Memory automatically;
+- later UI/domain adapter decides whether and where to import.
+
+VECTOR D — MEDIA OMITTED
+------------------------
+media.id: photo-1
+media.kind: photo
+media.mimeType: image/jpeg
+media.fileName: photo.jpg
+media.handoff.kind: omitted
+
+Forbidden anywhere in wire payload:
+- file://
+- content://
+- media://
+- /data/
+- /private/
+
+VECTOR E — FAIL CLOSED
+----------------------
+Reject:
+- schemaVersion != 1;
+- privacyScope != explicitShare;
+- LINK without canonicalDeepLink;
+- private local media locator;
+- missing shareToken token;
+- missing cloudObject locator;
+- target app without required capability.
+
+Transport independence
+----------------------
+The same EcosystemEnvelope v1 must remain valid whether transported by:
+- local deep link;
+- portable clipboard fallback;
+- future optional cloud transport.
+
+No transport is allowed to redefine canonical ownership or COPY/LINK
+semantics.
