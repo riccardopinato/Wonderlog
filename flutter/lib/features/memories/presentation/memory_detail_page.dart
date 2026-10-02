@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
-import '../../../core/ecosystem/life_bridge_v1.dart';
+import '../../../core/ecosystem/ecosystem_models.dart';
+import '../../../core/ecosystem/ecosystem_transfer_service.dart';
+import '../../../core/ecosystem/wonderlog_ecosystem_adapter.dart';
+import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
-import '../application/memory_life_bridge_adapter.dart';
 import '../domain/memory_models.dart';
 import '../domain/wonderlog_repository.dart';
 import 'memory_editor_page.dart';
@@ -47,7 +48,7 @@ final class MemoryDetailPage extends StatelessWidget {
           appBar: AppBar(
             title: Text(strings.memoryDetail),
             actions: [
-              PopupMenuButton<LifeBridgeTransferMode>(
+              PopupMenuButton<EcosystemTransferMode>(
                 tooltip: strings.lifeBridgeShareToAnna,
                 icon: const Icon(Icons.hub_outlined),
                 onSelected: (mode) => _shareToAnna(
@@ -57,11 +58,11 @@ final class MemoryDetailPage extends StatelessWidget {
                 ),
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                    value: LifeBridgeTransferMode.copy,
+                    value: EcosystemTransferMode.copy,
                     child: Text(strings.lifeBridgeCopyToAnna),
                   ),
                   PopupMenuItem(
-                    value: LifeBridgeTransferMode.link,
+                    value: EcosystemTransferMode.link,
                     child: Text(strings.lifeBridgeLinkToAnna),
                   ),
                 ],
@@ -207,19 +208,28 @@ final class MemoryDetailPage extends StatelessWidget {
   Future<void> _shareToAnna(
     BuildContext context,
     MemoryWithPhotos item,
-    LifeBridgeTransferMode mode,
+    EcosystemTransferMode mode,
   ) async {
-    final payload = MemoryLifeBridgeAdapter.payloadForAnna(
-      item.memory,
-      photos: item.photos,
-      transferMode: mode,
-    );
-    await Clipboard.setData(ClipboardData(text: payload.encode()));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context).lifeBridgeCopiedForAnna),
+    final services = WonderlogServicesScope.of(context);
+    final result = await services.ecosystemTransferService.send(
+      targetApp: EcosystemAppId.annasDiary,
+      envelope: WonderlogEcosystemAdapter.memory(
+        item.memory,
+        photos: item.photos,
+        mode: mode,
       ),
+    );
+    if (!context.mounted) return;
+    final strings = AppLocalizations.of(context);
+    final message = switch (result.status) {
+      EcosystemDeliveryStatus.openedTarget => strings.ecosystemOpenedAnna,
+      EcosystemDeliveryStatus.fallbackCopied =>
+        strings.lifeBridgeCopiedForAnna,
+      EcosystemDeliveryStatus.unsupported =>
+        strings.ecosystemUnsupportedAnna,
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }
