@@ -5,6 +5,8 @@ import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../core/picker/device_content_picker.dart';
 import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../export/application/journey_pdf_export_service.dart';
+import '../../export/presentation/journey_pdf_export_page.dart';
 import '../../map_memories/presentation/journey_map_page.dart';
 import '../../memories/data/photo_import_service.dart';
 import '../../memories/domain/memory_models.dart';
@@ -12,6 +14,7 @@ import '../../memories/domain/wonderlog_repository.dart';
 import '../../memories/presentation/memory_detail_page.dart';
 import '../../memories/presentation/memory_editor_page.dart';
 import '../../premium/domain/premium_gate.dart';
+import '../../premium/presentation/premium_page.dart';
 import '../../rediscover/domain/journey_replay_builder.dart';
 import '../../rediscover/domain/rediscover_models.dart';
 import '../../rediscover/presentation/journey_replay_page.dart';
@@ -65,6 +68,11 @@ final class JourneyDetailPage extends StatelessWidget {
               ),
               actions: [
                 IconButton(
+                  tooltip: AppLocalizations.of(context).pdfTravelBookTitle,
+                  onPressed: () => _openPdfExport(context, journey),
+                  icon: const Icon(Icons.picture_as_pdf_outlined),
+                ),
+                IconButton(
                   tooltip: AppLocalizations.of(context).journeyReplay,
                   onPressed: () => _openReplay(context, journey),
                   icon: const Icon(Icons.play_circle_outline),
@@ -108,6 +116,38 @@ final class JourneyDetailPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _openPdfExport(
+    BuildContext context,
+    Journey journey,
+  ) async {
+    final services = WonderlogServicesScope.of(context);
+    if (!services.controller.isPremium) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => PremiumPage(
+            service: services.controller.premiumService,
+          ),
+        ),
+      );
+      return;
+    }
+
+    final service = JourneyPdfExportService(
+      repository: repository,
+      photoImportService: services.photoImportService,
+    );
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => JourneyPdfExportPage(
+          service: service,
+          journeyId: journey.id,
+        ),
+      ),
     );
   }
 
