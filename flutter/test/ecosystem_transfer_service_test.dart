@@ -23,6 +23,7 @@ void main() {
     final store = DriftEcosystemTransferStore(database);
     final port = _FakePort(opened: true);
     final service = EcosystemTransferService(
+      localApp: EcosystemAppId.wonderlog,
       store: store,
       localTransport: port,
     );
@@ -44,6 +45,7 @@ void main() {
     final store = DriftEcosystemTransferStore(database);
     final port = _FakePort(opened: false);
     final service = EcosystemTransferService(
+      localApp: EcosystemAppId.wonderlog,
       store: store,
       localTransport: port,
     );
@@ -65,6 +67,52 @@ void main() {
     final pending = await store.watchPendingOutbox().first;
     expect(pending, hasLength(1));
     expect(pending.single.attemptCount, 1);
+    await database.close();
+  });
+  test('local transport cannot impersonate another source app', () async {
+    final database = WonderlogDatabase(NativeDatabase.memory());
+    final store = DriftEcosystemTransferStore(database);
+    final service = EcosystemTransferService(
+      localApp: EcosystemAppId.wonderlog,
+      store: store,
+      localTransport: _FakePort(opened: true),
+    );
+    final foreign = EcosystemEnvelope(
+      sourceApp: EcosystemAppId.annasDiary,
+      sourceEntityType: EcosystemEntityType.note,
+      sourceEntityId: 'n1',
+      createdAtUtc: DateTime.utc(2026),
+      title: 'Anna note',
+    );
+
+    expect(
+      () => service.send(
+        targetApp: EcosystemAppId.notes,
+        envelope: foreign,
+      ),
+      throwsStateError,
+    );
+    expect(await store.watchPendingOutbox().first, isEmpty);
+    await database.close();
+  });
+
+  test('self-targeting transfer fails before persistence', () async {
+    final database = WonderlogDatabase(NativeDatabase.memory());
+    final store = DriftEcosystemTransferStore(database);
+    final service = EcosystemTransferService(
+      localApp: EcosystemAppId.wonderlog,
+      store: store,
+      localTransport: _FakePort(opened: true),
+    );
+
+    expect(
+      () => service.send(
+        targetApp: EcosystemAppId.wonderlog,
+        envelope: envelope(),
+      ),
+      throwsStateError,
+    );
+    expect(await store.watchPendingOutbox().first, isEmpty);
     await database.close();
   });
 }

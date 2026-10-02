@@ -35,7 +35,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
           ..where(
             (row) =>
                 row.targetApp.equals(targetApp.wireValue) &
-                row.idempotencyKey.equals(envelope.idempotencyKey),
+                _idempotencyExpression(row.idempotencyKey, envelope),
           ))
         .getSingleOrNull();
     if (existing != null) return existing.id;
@@ -95,7 +95,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
           ..where(
             (row) =>
                 row.sourceApp.equals(envelope.sourceApp.wireValue) &
-                row.idempotencyKey.equals(envelope.idempotencyKey),
+                _idempotencyExpression(row.idempotencyKey, envelope),
           ))
         .getSingleOrNull();
     if (existing != null) return;
@@ -133,6 +133,27 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
         consumedAt: Value(consumedAt.toUtc().millisecondsSinceEpoch),
       ),
     );
+  }
+
+  Expression<bool> _idempotencyExpression(
+    GeneratedColumn<String> column,
+    EcosystemEnvelope envelope,
+  ) {
+    final current = column.equals(envelope.idempotencyKey);
+    if (envelope.transferMode != EcosystemTransferMode.copy) {
+      return current;
+    }
+
+    // Pre-E1 rows did not encode COPY/LINK mode and used this key shape.
+    // Treat them as COPY deliveries so an upgrade cannot duplicate an
+    // already queued/imported transfer.
+    final legacy = [
+      envelope.sourceApp.wireValue,
+      envelope.sourceEntityType.name,
+      envelope.sourceEntityId,
+      envelope.revision.toString(),
+    ].join(':');
+    return current | column.equals(legacy);
   }
 
   EcosystemOutboxItem _outbox(db.EcosystemOutboxData row) =>

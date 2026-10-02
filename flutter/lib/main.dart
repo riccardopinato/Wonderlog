@@ -6,6 +6,7 @@ import 'core/config/app_config.dart';
 import 'core/database/wonderlog_database.dart';
 import 'core/ecosystem/drift_ecosystem_transfer_store.dart';
 import 'core/ecosystem/ecosystem_inbound_transfer_service.dart';
+import 'core/ecosystem/ecosystem_models.dart';
 import 'core/ecosystem/ecosystem_transfer_service.dart';
 import 'core/ecosystem/flutter_local_ecosystem_transport_port.dart';
 import 'core/identity/supabase_identity_service.dart';
@@ -23,6 +24,7 @@ Future<void> main() async {
   final locationRepository = OpenStreetMapRepository(database);
   final ecosystemTransferStore = DriftEcosystemTransferStore(database);
   final ecosystemTransferService = EcosystemTransferService(
+    localApp: EcosystemAppId.wonderlog,
     store: ecosystemTransferStore,
     localTransport: const FlutterLocalEcosystemTransportPort(),
   );
