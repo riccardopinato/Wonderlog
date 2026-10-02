@@ -1,0 +1,29 @@
+import '../../journeys/domain/journey.dart';
+import 'memory_models.dart';
+
+abstract interface class WonderlogRepository {
+  Stream<List<Journey>> watchJourneys();
+  Stream<Journey?> watchJourney(String id);
+  Stream<List<MemoryEntry>> watchMemories(String journeyId);
+  Stream<MemoryWithPhotos?> watchMemory(String memoryId);
+  Stream<List<AlbumPhotoEntry>> watchAlbum(String journeyId);
+  Stream<List<MemoryAttachment>> watchAttachments(String memoryId);
+
+  Future<void> saveJourney(Journey journey);
+  Future<void> saveMemory(MemoryEntry memory);
+  Future<void> deleteMemory(String memoryId);
+  Future<void> savePhoto(AlbumPhotoEntry photo);
+  Future<void> deletePhoto(String photoId);
+  Future<void> linkPhotoToMemory({
+    required String memoryId,
+    required String photoId,
+    required int displayOrder,
+    required bool isHero,
+  });
+  Future<void> replaceMemoryPhotoLinks({
+    required String memoryId,
+    required List<String> photoIds,
+  });
+  Future<void> saveAttachment(MemoryAttachment attachment);
+  Future<void> deleteAttachment(String attachmentId);
+}
