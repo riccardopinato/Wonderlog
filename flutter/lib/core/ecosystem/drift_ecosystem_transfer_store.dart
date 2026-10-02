@@ -38,7 +38,10 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
           ..where(
             (row) =>
                 row.targetApp.equals(targetApp.wireValue) &
-                row.idempotencyKey.equals(envelope.handoffIdempotencyKey),
+                _idempotencyExpression(
+                  row.idempotencyKey,
+                  envelope,
+                ),
           ))
         .getSingleOrNull();
     if (existing != null) return;
@@ -51,6 +54,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
             idempotencyKey: envelope.handoffIdempotencyKey,
             createdAt: DateTime.now().toUtc().millisecondsSinceEpoch,
           ),
+          mode: InsertMode.insertOrIgnore,
         );
   }
 
@@ -95,7 +99,10 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
           ..where(
             (row) =>
                 row.sourceApp.equals(envelope.sourceApp.wireValue) &
-                row.idempotencyKey.equals(envelope.handoffIdempotencyKey),
+                _idempotencyExpression(
+                  row.idempotencyKey,
+                  envelope,
+                ),
           ))
         .getSingleOrNull();
     if (existing != null) return;
@@ -108,6 +115,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
             idempotencyKey: envelope.handoffIdempotencyKey,
             receivedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
           ),
+          mode: InsertMode.insertOrIgnore,
         );
   }
 
@@ -133,6 +141,21 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
         consumedAt: Value(consumedAt.toUtc().millisecondsSinceEpoch),
       ),
     );
+  }
+
+  Expression<bool> _idempotencyExpression(
+    GeneratedColumn<String> column,
+    EcosystemEnvelope envelope,
+  ) {
+    final handoff = column.equals(envelope.handoffIdempotencyKey);
+    if (envelope.transferMode != EcosystemTransferMode.copy) {
+      return handoff;
+    }
+
+    // v8 rows written before mode-aware handoff keys used the canonical key.
+    // Those legacy rows represented COPY semantics because transferMode did
+    // not yet exist and therefore decoded as copy.
+    return handoff | column.equals(envelope.idempotencyKey);
   }
 
   EcosystemOutboxItem _outbox(db.EcosystemOutboxData row) =>
