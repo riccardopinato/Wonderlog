@@ -40,6 +40,7 @@ abstract final class EcosystemRegistry {
         EcosystemCapability.receiveText,
         EcosystemCapability.receivePhoto,
         EcosystemCapability.receivePlace,
+        EcosystemCapability.receiveJourney,
       },
     ),
     EcosystemAppDefinition(
