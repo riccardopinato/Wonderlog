@@ -19,6 +19,19 @@ def patch_android() -> None:
     if application is None:
         raise SystemExit("Android application node not found.")
 
+    deep_link_meta = None
+    for meta in application.findall("meta-data"):
+        if meta.get(f"{{{ANDROID_NS}}}name") == "flutter_deeplinking_enabled":
+            deep_link_meta = meta
+            break
+    if deep_link_meta is None:
+        deep_link_meta = ET.SubElement(application, "meta-data")
+        deep_link_meta.set(
+            f"{{{ANDROID_NS}}}name",
+            "flutter_deeplinking_enabled",
+        )
+    deep_link_meta.set(f"{{{ANDROID_NS}}}value", "false")
+
     target = None
     for activity in application.findall("activity"):
         name = activity.get(f"{{{ANDROID_NS}}}name", "")
@@ -139,6 +152,8 @@ def patch_ios() -> None:
 
     with plist_path.open("rb") as handle:
         data = plistlib.load(handle)
+
+    data["FlutterDeepLinkingEnabled"] = False
 
     url_types = data.setdefault("CFBundleURLTypes", [])
     scheme = "com.riccardopinato.wonderlog"
