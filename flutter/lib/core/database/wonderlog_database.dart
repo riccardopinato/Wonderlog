@@ -188,6 +188,48 @@ class CloudSyncQueue extends Table {
       ];
 }
 
+class EcosystemOutbox extends Table {
+  @override
+  String get tableName => 'ecosystem_outbox';
+
+  TextColumn get id => text()();
+  TextColumn get targetApp => text()();
+  TextColumn get envelopeJson => text()();
+  TextColumn get idempotencyKey => text()();
+  IntColumn get createdAt => integer()();
+  IntColumn get deliveredAt => integer().nullable()();
+  IntColumn get attemptCount => integer().withDefault(const Constant(0))();
+  TextColumn get lastError => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {targetApp, idempotencyKey},
+      ];
+}
+
+class EcosystemInbox extends Table {
+  @override
+  String get tableName => 'ecosystem_inbox';
+
+  TextColumn get id => text()();
+  TextColumn get sourceApp => text()();
+  TextColumn get envelopeJson => text()();
+  TextColumn get idempotencyKey => text()();
+  IntColumn get receivedAt => integer()();
+  IntColumn get consumedAt => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {sourceApp, idempotencyKey},
+      ];
+}
+
 class OfflineMapRegions extends Table {
   @override
   String get tableName => 'offline_map_regions';
@@ -219,6 +261,8 @@ class OfflineMapRegions extends Table {
     GeocodingCache,
     OfflineMapRegions,
     CloudSyncQueue,
+    EcosystemOutbox,
+    EcosystemInbox,
   ],
 )
 class WonderlogDatabase extends _$WonderlogDatabase {
@@ -226,7 +270,7 @@ class WonderlogDatabase extends _$WonderlogDatabase {
       : super(executor ?? driftDatabase(name: 'wonderlog_flutter'));
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -237,6 +281,10 @@ class WonderlogDatabase extends _$WonderlogDatabase {
           // v6 -> v7 is intentionally metadata-only.
           if (from < 2) {
             await migrator.createTable(cloudSyncQueue);
+          }
+          if (from < 8) {
+            await migrator.createTable(ecosystemOutbox);
+            await migrator.createTable(ecosystemInbox);
           }
         },
         beforeOpen: (_) async {
