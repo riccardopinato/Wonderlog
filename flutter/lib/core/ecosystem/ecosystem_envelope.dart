@@ -1,3 +1,4 @@
+import 'ecosystem_contract.dart';
 import 'ecosystem_models.dart';
 
 abstract final class EcosystemBridgeIdentity {
@@ -12,7 +13,7 @@ abstract final class EcosystemBridgeIdentity {
 
 final class EcosystemEnvelope {
   EcosystemEnvelope({
-    this.schemaVersion = 1,
+    this.schemaVersion = EcosystemContract.schemaVersion,
     String? bridgeId,
     required this.sourceApp,
     required this.sourceEntityType,
@@ -96,7 +97,7 @@ final class EcosystemEnvelope {
 
   factory EcosystemEnvelope.fromJson(Map<String, Object?> json) {
     final schemaVersion = (json['schemaVersion'] as num?)?.toInt() ?? 1;
-    if (schemaVersion != 1) {
+    if (schemaVersion != EcosystemContract.schemaVersion) {
       throw FormatException(
         'Unsupported EcosystemEnvelope schema version: $schemaVersion',
       );

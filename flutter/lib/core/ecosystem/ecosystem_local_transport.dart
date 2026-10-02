@@ -1,13 +1,17 @@
 import 'dart:convert';
 
+import 'ecosystem_contract.dart';
 import 'ecosystem_contract_validator.dart';
 import 'ecosystem_envelope.dart';
 import 'ecosystem_models.dart';
 import 'ecosystem_registry.dart';
 
-const int ecosystemLocalTransportVersion = 1;
-const String ecosystemClipboardPrefix = 'ECOSYSTEM_BRIDGE_V1:';
-const int ecosystemMaxLocalPayloadCharacters = 24576;
+const int ecosystemLocalTransportVersion =
+    EcosystemContract.localTransportVersion;
+const String ecosystemClipboardPrefix =
+    EcosystemContract.clipboardPrefix;
+const int ecosystemMaxLocalPayloadCharacters =
+    EcosystemContract.maxLocalPayloadCharacters;
 
 final class EcosystemTransferPackage {
   const EcosystemTransferPackage({
