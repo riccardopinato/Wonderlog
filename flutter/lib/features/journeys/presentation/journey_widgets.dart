@@ -13,9 +13,11 @@ final class JourneyCard extends StatelessWidget {
   const JourneyCard({
     super.key,
     required this.journey,
+    this.onOpen,
   });
 
   final Journey journey;
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,10 @@ final class JourneyCard extends StatelessWidget {
     final dateFormat = DateFormat.yMMMd(locale);
 
     return Card(
-      child: Padding(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onOpen,
+        child: Padding(
         padding: const EdgeInsets.all(WonderlogSpacing.medium),
         child: Row(
           children: [
@@ -105,6 +110,7 @@ final class JourneyCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
