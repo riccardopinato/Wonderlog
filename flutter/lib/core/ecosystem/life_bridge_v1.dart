@@ -1,11 +1,10 @@
 import 'dart:convert';
 
+import 'ecosystem_contract_validator.dart';
 import 'ecosystem_envelope.dart';
 import 'ecosystem_models.dart';
 
 const String lifeBridgeProtocolVersion = '1.0';
-
-enum LifeBridgeTransferMode { copy, link }
 
 final class LifeBridgeV1Payload {
   const LifeBridgeV1Payload({
@@ -27,7 +26,7 @@ final class LifeBridgeV1Payload {
   final String bridgeId;
   final Map<String, Object?> source;
   final String objectType;
-  final LifeBridgeTransferMode transferMode;
+  final EcosystemTransferMode transferMode;
   final String title;
   final String text;
   final DateTime occurredAt;
@@ -61,15 +60,10 @@ final class LifeBridgeV1Payload {
 abstract final class LifeBridgeV1Adapter {
   static LifeBridgeV1Payload fromEnvelope(
     EcosystemEnvelope envelope, {
-    required LifeBridgeTransferMode transferMode,
     DateTime? exportedAt,
     Map<String, Object?> extensions = const {},
   }) {
-    if (envelope.privacyScope != EcosystemPrivacyScope.explicitShare) {
-      throw StateError(
-        'Life Bridge export requires explicitShare privacy scope.',
-      );
-    }
+    EcosystemContractValidator.ensureValid(envelope);
 
     final objectType = switch (envelope.sourceEntityType) {
       EcosystemEntityType.journey => 'journey',
@@ -88,31 +82,32 @@ abstract final class LifeBridgeV1Adapter {
     final media = envelope.media
         .map(
           (item) => <String, Object?>{
+            'id': item.id,
             'kind': item.kind,
             if (item.mimeType != null) 'mimeType': item.mimeType,
             if (item.fileName != null) 'fileName': item.fileName,
-            'transfer': 'omitted',
+            'transfer': item.handoff.kind == EcosystemMediaHandoffKind.omitted
+                ? 'omitted'
+                : item.handoff.kind.name,
+            'handoff': item.handoff.toJson(),
           },
         )
         .toList(growable: false);
 
-    final bridgeId =
-        'life-bridge:v1:${envelope.sourceApp.wireValue}:'
-        '${envelope.sourceEntityType.name}:'
-        '${envelope.sourceEntityId}:'
-        '${envelope.revision}';
-
     return LifeBridgeV1Payload(
-      bridgeId: bridgeId,
+      bridgeId: envelope.bridgeId,
       source: <String, Object?>{
         'appId': envelope.sourceApp.wireValue,
         'objectId': envelope.sourceEntityId,
         if (envelope.sourceDeepLink != null)
           'deepLink': envelope.sourceDeepLink,
         'revision': envelope.revision.toString(),
+        'idempotencyKey': envelope.idempotencyKey,
+        'ownerAppId': envelope.provenance.ownerApp.wireValue,
+        'ownerObjectId': envelope.provenance.ownerEntityId,
       },
       objectType: objectType,
-      transferMode: transferMode,
+      transferMode: envelope.transferMode,
       title: envelope.title?.trim() ?? '',
       text: envelope.text?.trim() ?? '',
       occurredAt: envelope.createdAtUtc,
@@ -127,10 +122,12 @@ abstract final class LifeBridgeV1Adapter {
       people: List<String>.unmodifiable(envelope.people),
       tags: List<String>.unmodifiable(envelope.tags),
       extensions: <String, Object?>{
-        'wonderlog': <String, Object?>{
-          'sourceEnvelopeId': envelope.id,
+        'ecosystem': <String, Object?>{
+          'sourceEnvelopeId': envelope.bridgeId,
           'privacyScope': envelope.privacyScope.name,
-          'mediaTransfer': media.isEmpty ? 'none' : 'omitted',
+          'revision': envelope.revision,
+          'idempotencyKey': envelope.idempotencyKey,
+          'fallback': envelope.fallback.toJson(),
           ...extensions,
         },
       },
