@@ -106,6 +106,23 @@ abstract final class EcosystemLocalTransportCodec {
     );
   }
 
+  static EcosystemTransferPackage decodeTargetUri(Uri uri) {
+    if (uri.host != 'ecosystem' || uri.path != '/import') {
+      throw const FormatException('Unsupported ecosystem import URI.');
+    }
+    final payload = uri.queryParameters['payload'];
+    if (payload == null || payload.trim().isEmpty) {
+      throw const FormatException('Missing ecosystem import payload.');
+    }
+    final package = decode(payload);
+    final expectedScheme =
+        EcosystemRegistry.definition(package.targetApp).deepLinkScheme;
+    if (uri.scheme != expectedScheme) {
+      throw const FormatException('Ecosystem target scheme mismatch.');
+    }
+    return package;
+  }
+
   static String clipboardText(EcosystemTransferPackage package) =>
       ecosystemClipboardPrefix + encode(package);
 
