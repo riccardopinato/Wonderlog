@@ -38,7 +38,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
           ..where(
             (row) =>
                 row.targetApp.equals(targetApp.wireValue) &
-                row.idempotencyKey.equals(envelope.idempotencyKey),
+                row.idempotencyKey.equals(envelope.handoffIdempotencyKey),
           ))
         .getSingleOrNull();
     if (existing != null) return;
@@ -48,7 +48,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
             id: _uuid.v4(),
             targetApp: targetApp.wireValue,
             envelopeJson: EcosystemCodec.encode(envelope),
-            idempotencyKey: envelope.idempotencyKey,
+            idempotencyKey: envelope.handoffIdempotencyKey,
             createdAt: DateTime.now().toUtc().millisecondsSinceEpoch,
           ),
         );
@@ -95,7 +95,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
           ..where(
             (row) =>
                 row.sourceApp.equals(envelope.sourceApp.wireValue) &
-                row.idempotencyKey.equals(envelope.idempotencyKey),
+                row.idempotencyKey.equals(envelope.handoffIdempotencyKey),
           ))
         .getSingleOrNull();
     if (existing != null) return;
@@ -105,7 +105,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
             id: _uuid.v4(),
             sourceApp: envelope.sourceApp.wireValue,
             envelopeJson: EcosystemCodec.encode(envelope),
-            idempotencyKey: envelope.idempotencyKey,
+            idempotencyKey: envelope.handoffIdempotencyKey,
             receivedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
           ),
         );
