@@ -36,6 +36,13 @@ void main() {
     expect(uri.queryParameters['payload'], isNotEmpty);
   });
 
+  test('target URI round-trips through the shared decoder', () {
+    final uri = EcosystemLocalTransportCodec.targetUri(package());
+    final decoded = EcosystemLocalTransportCodec.decodeTargetUri(uri);
+    expect(decoded.targetApp, EcosystemAppId.annasDiary);
+    expect(decoded.envelope.sourceEntityId, 'm1');
+  });
+
   test('clipboard fallback remains machine-readable and portable', () {
     final value = EcosystemLocalTransportCodec.clipboardText(package());
     expect(value, startsWith(ecosystemClipboardPrefix));
