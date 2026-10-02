@@ -50,6 +50,9 @@ final class EcosystemEnvelope {
   String get idempotencyKey =>
       '${sourceApp.wireValue}:${sourceEntityType.name}:$sourceEntityId:$revision';
 
+  String get handoffIdempotencyKey =>
+      '$idempotencyKey:${transferMode.name}';
+
   EcosystemProvenance get effectiveProvenance =>
       provenance ??
       EcosystemProvenance(
