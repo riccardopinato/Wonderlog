@@ -4,8 +4,9 @@ This directory is the cross-platform migration target for Wonderlog.
 
 ## Current role
 
-The existing Kotlin/Compose application remains the functional donor and source
-of implementation truth while feature parity is rebuilt in Flutter.
+Flutter is now the repository baseline for Wonderlog. The former
+Kotlin/Compose implementation remains a donor/reference for parity checks and
+regression analysis during the production cutover.
 
 This Flutter foundation already provides:
 
@@ -15,8 +16,9 @@ This Flutter foundation already provides:
 - functional local Journey creation and listing;
 - optional Supabase identity with Google OAuth and email/password fallback;
 - profile language/theme preferences;
-- versioned EcosystemEnvelope contracts for future Anna's Diary / Notes /
-  TrailPath interoperability;
+- Shared Ecosystem Core v1 with stable bridge identity, provenance,
+  COPY/LINK semantics, local explicit transport, portable fallback and
+  durable inbox/outbox for Anna's Diary / Notes / TrailPath interoperability;
 - Android, iOS and Web platform generation in CI.
 
 ## Safety rule
@@ -64,3 +66,21 @@ generation, analyze, unit tests, Web release build, Android release APK and AAB
 build before it can be considered for merge. The current migration branch has
 passed this complete CI gate.
 
+
+## Ecosystem E1
+
+The first ecosystem integration layer is provider-independent.
+
+- `bridgeId` is stable for the canonical owner/entity.
+- `revision` plus COPY/LINK mode forms the idempotent delivery identity.
+- provenance and fallback are part of the common wire contract.
+- private media URIs never cross apps; media uses explicit handoff metadata.
+- local transport uses target deep links with a machine-readable clipboard
+  fallback.
+- cloud transport remains optional and separate from the data contract.
+- no app reads another app's private database.
+
+The candidate Golden contract is documented in
+`docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`.
+It is intentionally not promoted to COPY-READY until Anna's Diary implements
+and certifies the consumer side.
