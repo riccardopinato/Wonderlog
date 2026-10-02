@@ -141,5 +141,26 @@
   "memoryKeepsakeDocument": "Documento di viaggio",
   "rediscoverSeeAll": "Vedi tutto",
   "rediscoverAll": "Tutto",
-  "rediscoverEmpty": "Oggi non c'è nulla da riscoprire per questo filtro."
+  "rediscoverEmpty": "Oggi non c'è nulla da riscoprire per questo filtro.",
+  "albumImport": "Importa foto",
+  "albumPhotoCount": "{count, plural, =0{Nessuna foto} =1{1 foto} other{{count} foto}}",
+  "albumLimit": "Hai raggiunto il limite foto del piano Free.",
+  "albumPartialImport": "Importate {allowed} foto; {blocked} foto selezionate richiedono Premium.",
+  "@albumPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@albumPartialImport": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -189,5 +189,26 @@
   "memoryKeepsakeDocument": "Travel document",
   "rediscoverSeeAll": "See all",
   "rediscoverAll": "All",
-  "rediscoverEmpty": "There is nothing to rediscover for this filter today."
+  "rediscoverEmpty": "There is nothing to rediscover for this filter today.",
+  "albumImport": "Import photos",
+  "albumPhotoCount": "{count, plural, =0{No photos} =1{1 photo} other{{count} photos}}",
+  "albumLimit": "Photo limit reached for the Free plan.",
+  "albumPartialImport": "Imported {allowed} photos; {blocked} selected photos require Premium.",
+  "@albumPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@albumPartialImport": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  }
 }
