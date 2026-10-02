@@ -80,5 +80,56 @@
   "albumEmpty": "Aucune photo dans cet album pour le moment.",
   "photo": "Photo",
   "localFirstTitle": "Enregistré d'abord en local",
-  "localFirstDescription": "Voyage, souvenirs et album restent disponibles hors ligne."
+  "localFirstDescription": "Voyage, souvenirs et album restent disponibles hors ligne.",
+  "captureAddPhotos": "Ajouter des photos",
+  "captureAddFiles": "Ajouter des documents",
+  "captureItem": "Élément partagé",
+  "smartJourneyTitle": "Voyage Smart",
+  "smartJourneyDescription": "Sélectionne les photos du voyage. Wonderlog les regroupe localement en jours et étapes avant toute création de données.",
+  "smartJourneyPickPhotos": "Sélectionner des photos",
+  "smartJourneyDestinationUnknown": "Destination à vérifier",
+  "smartJourneyCreate": "Créer le voyage",
+  "smartJourneyPhotoCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "smartJourneyDayCount": "{count, plural, =1{1 jour} other{{count} jours}}",
+  "smartJourneyStopCount": "{count, plural, =1{1 étape} other{{count} étapes}}",
+  "smartJourneyStopPhotos": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "smartJourneyFreeLimit": "Le plan Free importe maintenant {allowed} photos ; {blocked} photos sélectionnées restent bloquées.",
+  "@smartJourneyPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyFreeLimit": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  }
 }

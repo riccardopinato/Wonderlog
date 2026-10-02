@@ -80,5 +80,56 @@
   "albumEmpty": "Noch keine Fotos in diesem Album.",
   "photo": "Foto",
   "localFirstTitle": "Zuerst lokal gespeichert",
-  "localFirstDescription": "Reise, Erinnerungen und Album bleiben offline verfügbar."
+  "localFirstDescription": "Reise, Erinnerungen und Album bleiben offline verfügbar.",
+  "captureAddPhotos": "Fotos hinzufügen",
+  "captureAddFiles": "Dokumente hinzufügen",
+  "captureItem": "Geteiltes Element",
+  "smartJourneyTitle": "Smart Journey",
+  "smartJourneyDescription": "Wähle Reisefotos aus. Wonderlog gruppiert sie lokal nach Tagen und Stopps, bevor Daten erstellt werden.",
+  "smartJourneyPickPhotos": "Fotos auswählen",
+  "smartJourneyDestinationUnknown": "Ziel prüfen",
+  "smartJourneyCreate": "Reise erstellen",
+  "smartJourneyPhotoCount": "{count, plural, =1{1 Foto} other{{count} Fotos}}",
+  "smartJourneyDayCount": "{count, plural, =1{1 Tag} other{{count} Tage}}",
+  "smartJourneyStopCount": "{count, plural, =1{1 Stopp} other{{count} Stopps}}",
+  "smartJourneyStopPhotos": "{count, plural, =1{1 Foto} other{{count} Fotos}}",
+  "smartJourneyFreeLimit": "Der Free-Plan importiert jetzt {allowed} Fotos; {blocked} ausgewählte Fotos bleiben gesperrt.",
+  "@smartJourneyPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyFreeLimit": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  }
 }

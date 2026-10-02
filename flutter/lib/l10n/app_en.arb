@@ -128,5 +128,56 @@
   "done": "Done",
   "onboardingHeadline": "Turn every trip into a living memory.",
   "onboardingDescription": "Save photos, places, notes and emotions from every destination.",
-  "onboardingStart": "Start journaling"
+  "onboardingStart": "Start journaling",
+  "captureAddPhotos": "Add photos",
+  "captureAddFiles": "Add documents",
+  "captureItem": "Shared item",
+  "smartJourneyTitle": "Smart Journey",
+  "smartJourneyDescription": "Select travel photos. Wonderlog groups them locally into days and stops before creating anything.",
+  "smartJourneyPickPhotos": "Select photos",
+  "smartJourneyDestinationUnknown": "Destination to review",
+  "smartJourneyCreate": "Create Journey",
+  "smartJourneyPhotoCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "smartJourneyDayCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "smartJourneyStopCount": "{count, plural, =1{1 stop} other{{count} stops}}",
+  "smartJourneyStopPhotos": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "smartJourneyFreeLimit": "Free plan imports {allowed} photos now; {blocked} selected photos remain locked.",
+  "@smartJourneyPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyStopPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@smartJourneyFreeLimit": {
+    "placeholders": {
+      "allowed": {
+        "type": "int"
+      },
+      "blocked": {
+        "type": "int"
+      }
+    }
+  }
 }
