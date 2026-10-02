@@ -29,7 +29,10 @@ final class _WonderlogShellState extends State<WonderlogShell> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final pages = <Widget>[
-      HomePage(repository: widget.repository),
+      HomePage(
+        repository: widget.repository,
+        isPremium: () => widget.controller.isPremium,
+      ),
       JourneysPage(repository: widget.repository),
       ProfilePage(controller: widget.controller),
     ];
