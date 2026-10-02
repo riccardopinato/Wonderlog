@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/database/wonderlog_database.dart' as db;
 import '../../journeys/domain/journey.dart';
@@ -9,7 +10,9 @@ import '../domain/wonderlog_repository.dart';
 
 final class DriftWonderlogRepository implements WonderlogRepository {
   DriftWonderlogRepository(this.database);
+
   final db.WonderlogDatabase database;
+  final Uuid _uuid = const Uuid();
 
   @override
   Stream<List<Journey>> watchJourneys() {
@@ -45,12 +48,36 @@ final class DriftWonderlogRepository implements WonderlogRepository {
   }
 
   @override
+  Stream<List<MemoryEntry>> watchAllMemories() {
+    final query = database.select(database.memories)
+      ..orderBy([
+        (row) => OrderingTerm.desc(row.date),
+        (row) => OrderingTerm.desc(row.updatedAt),
+      ]);
+    return query.watch().map(
+      (rows) => rows.map(_memory).toList(growable: false),
+    );
+  }
+
+  @override
   Stream<List<AlbumPhotoEntry>> watchAlbum(String journeyId) {
     final query = database.select(database.albumPhotos)
       ..where((row) => row.journeyId.equals(journeyId))
       ..orderBy([
         (row) => OrderingTerm.asc(row.displayOrder),
         (row) => OrderingTerm.asc(row.createdAt),
+      ]);
+    return query.watch().map(
+      (rows) => rows.map(_photo).toList(growable: false),
+    );
+  }
+
+  @override
+  Stream<List<AlbumPhotoEntry>> watchAllPhotos() {
+    final query = database.select(database.albumPhotos)
+      ..orderBy([
+        (row) => OrderingTerm.desc(row.capturedAt),
+        (row) => OrderingTerm.desc(row.createdAt),
       ]);
     return query.watch().map(
       (rows) => rows.map(_photo).toList(growable: false),
@@ -99,6 +126,51 @@ final class DriftWonderlogRepository implements WonderlogRepository {
         attachments: attachments.map(_attachment).toList(growable: false),
       );
     });
+  }
+
+  @override
+  Future<Journey> createJourney({
+    required String title,
+    required String destination,
+    required DateTime startDate,
+    required DateTime endDate,
+    String country = '',
+    String description = '',
+  }) async {
+    final normalizedTitle = title.trim();
+    final normalizedDestination = destination.trim();
+    if (normalizedTitle.isEmpty) {
+      throw ArgumentError.value(title, 'title', 'Title is required.');
+    }
+    if (normalizedDestination.isEmpty) {
+      throw ArgumentError.value(
+        destination,
+        'destination',
+        'Destination is required.',
+      );
+    }
+    if (endDate.isBefore(startDate)) {
+      throw ArgumentError('End date cannot be before start date.');
+    }
+
+    final now = DateTime.now().toUtc();
+    final journey = Journey(
+      id: _uuid.v4(),
+      title: normalizedTitle,
+      destination: normalizedDestination,
+      country: country.trim(),
+      startDate: startDate,
+      endDate: endDate,
+      description: description.trim(),
+      latitude: 0,
+      longitude: 0,
+      favorite: false,
+      archived: false,
+      createdAt: now,
+      updatedAt: now,
+    );
+    await saveJourney(journey);
+    return journey;
   }
 
   @override
