@@ -210,5 +210,17 @@
         "type": "int"
       }
     }
-  }
+  },
+  "pdfTravelBookTitle": "Travel Book",
+  "pdfTravelBookDescription": "Turn this Journey into a book you can keep and share.",
+  "pdfStyleClassic": "Classic",
+  "pdfStyleEditorial": "Editorial",
+  "pdfStyleScrapbook": "Scrapbook",
+  "pdfIncludeDescription": "Journey description",
+  "pdfIncludeMemories": "Memories",
+  "pdfIncludeAlbum": "Album photos",
+  "pdfIncludeLocations": "Locations",
+  "pdfIncludeDates": "Dates",
+  "pdfExport": "Export PDF",
+  "pdfExported": "Travel Book exported."
 }

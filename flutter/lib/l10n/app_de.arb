@@ -162,5 +162,17 @@
         "type": "int"
       }
     }
-  }
+  },
+  "pdfTravelBookTitle": "Reisebuch",
+  "pdfTravelBookDescription": "Verwandle diese Reise in ein Buch zum Aufbewahren und Teilen.",
+  "pdfStyleClassic": "Klassisch",
+  "pdfStyleEditorial": "Editorial",
+  "pdfStyleScrapbook": "Scrapbook",
+  "pdfIncludeDescription": "Reisebeschreibung",
+  "pdfIncludeMemories": "Erinnerungen",
+  "pdfIncludeAlbum": "Albumfotos",
+  "pdfIncludeLocations": "Orte",
+  "pdfIncludeDates": "Daten",
+  "pdfExport": "PDF exportieren",
+  "pdfExported": "Reisebuch exportiert."
 }

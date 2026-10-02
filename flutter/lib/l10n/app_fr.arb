@@ -162,5 +162,17 @@
         "type": "int"
       }
     }
-  }
+  },
+  "pdfTravelBookTitle": "Carnet de voyage",
+  "pdfTravelBookDescription": "Transforme ce voyage en un livre à conserver et partager.",
+  "pdfStyleClassic": "Classique",
+  "pdfStyleEditorial": "Éditorial",
+  "pdfStyleScrapbook": "Scrapbook",
+  "pdfIncludeDescription": "Description du voyage",
+  "pdfIncludeMemories": "Souvenirs",
+  "pdfIncludeAlbum": "Photos de l'album",
+  "pdfIncludeLocations": "Lieux",
+  "pdfIncludeDates": "Dates",
+  "pdfExport": "Exporter en PDF",
+  "pdfExported": "Carnet de voyage exporté."
 }
