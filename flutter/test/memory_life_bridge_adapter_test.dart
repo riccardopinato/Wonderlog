@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:wonderlog/core/ecosystem/life_bridge_v1.dart';
+import 'package:wonderlog/core/ecosystem/ecosystem_models.dart';
 import 'package:wonderlog/features/memories/application/memory_life_bridge_adapter.dart';
 import 'package:wonderlog/features/memories/domain/memory_models.dart';
 
@@ -38,12 +38,13 @@ void main() {
     final payload = MemoryLifeBridgeAdapter.payloadForAnna(
       memory,
       photos: [photo],
-      transferMode: LifeBridgeTransferMode.copy,
+      transferMode: EcosystemTransferMode.copy,
     );
     final encoded = payload.encode();
 
     expect(payload.objectType, 'travel_memory');
     expect(payload.location?['name'], 'Cascate di Riva');
+    expect(payload.bridgeId, 'ecosystem:v1:wonderlog:memory:m1');
     expect(encoded, isNot(contains('/private/photo.jpg')));
     expect(encoded, contains('"transfer": "omitted"'));
   });

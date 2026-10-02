@@ -34,100 +34,105 @@ void main() {
     final source = json['source'] as Map<String, dynamic>;
     final location = json['location'] as Map<String, dynamic>;
     final extensions = json['extensions'] as Map<String, dynamic>;
-    final wonderlog = extensions['wonderlog'] as Map<String, dynamic>;
+    final ecosystem = extensions['ecosystem'] as Map<String, dynamic>;
 
     expect(json['protocolVersion'], '1.0');
     expect(json['objectType'], 'journey');
     expect(json['transferMode'], 'copy');
+    expect(json['bridgeId'], 'ecosystem:v1:wonderlog:journey:journey-42');
     expect(source['appId'], 'wonderlog');
     expect(source['objectId'], 'journey-42');
     expect(source['deepLink'], 'wonderlog://journey/journey-42');
+    expect(
+      source['idempotencyKey'],
+      contains(':copy'),
+    );
     expect(location['name'], 'Campo Tures');
     expect(location['latitude'], 46.919);
     expect(json['occurredAt'], '2026-08-10T00:00:00.000Z');
-    expect(wonderlog['endAt'], '2026-08-14T00:00:00.000Z');
+    expect(ecosystem['endAt'], '2026-08-14T00:00:00.000Z');
   });
 
-  test('LINK and COPY keep a stable bridgeId for the same source revision', () {
+  test('LINK and COPY keep bridgeId stable and idempotency distinct', () {
     final journey = sampleJourney();
 
     final copy = JourneyLifeBridgeAdapter.payloadFor(
       journey,
-      transferMode: LifeBridgeTransferMode.copy,
+      transferMode: EcosystemTransferMode.copy,
     );
     final link = JourneyLifeBridgeAdapter.payloadFor(
       journey,
-      transferMode: LifeBridgeTransferMode.link,
+      transferMode: EcosystemTransferMode.link,
     );
 
     expect(copy.bridgeId, link.bridgeId);
-    expect(link.transferMode, LifeBridgeTransferMode.link);
+    expect(link.transferMode, EcosystemTransferMode.link);
     expect(
       copy.bridgeId,
-      'life-bridge:v1:wonderlog:journey:journey-42:'
-      '${journey.updatedAt.toUtc().millisecondsSinceEpoch}',
+      'ecosystem:v1:wonderlog:journey:journey-42',
+    );
+    expect(
+      copy.source['idempotencyKey'],
+      isNot(link.source['idempotencyKey']),
     );
   });
 
   test('private envelopes cannot cross the Life Bridge boundary', () {
     final envelope = EcosystemEnvelope(
-      id: 'private-1',
       sourceApp: EcosystemAppId.wonderlog,
       sourceEntityType: EcosystemEntityType.memory,
       sourceEntityId: 'memory-1',
       createdAtUtc: DateTime.utc(2026, 10, 2),
+      title: 'Private memory',
       privacyScope: EcosystemPrivacyScope.private,
     );
 
     expect(
-      () => LifeBridgeV1Adapter.fromEnvelope(
-        envelope,
-        transferMode: LifeBridgeTransferMode.copy,
-      ),
+      () => LifeBridgeV1Adapter.fromEnvelope(envelope),
       throwsStateError,
     );
   });
 
-  test('local media references never leak into Anna payloads', () {
+  test('media projection carries explicit handoff without local URI', () {
     final envelope = EcosystemEnvelope(
-      id: 'memory-2',
       sourceApp: EcosystemAppId.wonderlog,
       sourceEntityType: EcosystemEntityType.memory,
       sourceEntityId: 'memory-2',
       createdAtUtc: DateTime.utc(2026, 10, 2),
+      title: 'Memory',
       media: const [
         EcosystemMediaReference(
+          id: 'photo-1',
           kind: 'photo',
-          localReference: 'file:///private/wonderlog/photo.jpg',
           mimeType: 'image/jpeg',
           fileName: 'photo.jpg',
+          handoff: EcosystemMediaHandoff(
+            kind: EcosystemMediaHandoffKind.omitted,
+            reason: 'explicit_binary_handoff_not_enabled_in_v1',
+          ),
         ),
       ],
     );
 
-    final encoded = LifeBridgeV1Adapter.fromEnvelope(
-      envelope,
-      transferMode: LifeBridgeTransferMode.copy,
-    ).encode();
+    final encoded = LifeBridgeV1Adapter.fromEnvelope(envelope).encode();
 
-    expect(encoded, isNot(contains('file:///private/wonderlog/photo.jpg')));
+    expect(encoded, isNot(contains('file://')));
+    expect(encoded, isNot(contains('content://')));
     expect(encoded, contains('"transfer": "omitted"'));
+    expect(encoded, contains('"handoff"'));
   });
 
   test('unsupported route objects fail closed for Anna v1', () {
     final envelope = EcosystemEnvelope(
-      id: 'route-1',
       sourceApp: EcosystemAppId.wonderlog,
       sourceEntityType: EcosystemEntityType.route,
       sourceEntityId: 'route-1',
       createdAtUtc: DateTime.utc(2026, 10, 2),
+      title: 'Route',
     );
 
     expect(
-      () => LifeBridgeV1Adapter.fromEnvelope(
-        envelope,
-        transferMode: LifeBridgeTransferMode.copy,
-      ),
+      () => LifeBridgeV1Adapter.fromEnvelope(envelope),
       throwsUnsupportedError,
     );
   });
