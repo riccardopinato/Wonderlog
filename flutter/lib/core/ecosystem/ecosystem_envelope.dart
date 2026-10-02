@@ -36,13 +36,7 @@ final class EcosystemEnvelope {
   final int revision;
 
   String get idempotencyKey =>
-      sourceApp.wireValue +
-      ':' +
-      sourceEntityType.name +
-      ':' +
-      sourceEntityId +
-      ':' +
-      revision.toString();
+      '${sourceApp.wireValue}:${sourceEntityType.name}:$sourceEntityId:$revision';
 
   Map<String, Object?> toJson() => {
         'schemaVersion': schemaVersion,
@@ -66,8 +60,7 @@ final class EcosystemEnvelope {
     final schemaVersion = json['schemaVersion']! as int;
     if (schemaVersion != 1) {
       throw FormatException(
-        'Unsupported EcosystemEnvelope schema version: ' +
-            schemaVersion.toString(),
+        'Unsupported EcosystemEnvelope schema version: $schemaVersion',
       );
     }
 
