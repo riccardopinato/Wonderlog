@@ -22,9 +22,9 @@ final class DriftSyncQueueStore implements SyncQueueStore {
     final existing = await (database.select(database.cloudSyncQueue)
           ..where(
             (row) =>
-                row.entityType.equals(item.entityType.name) &
+                row.entityType.equals(_entityTypeWire(item.entityType)) &
                 row.localEntityId.equals(item.localEntityId) &
-                row.operation.equals(item.operation.name),
+                row.operation.equals(_operationWire(item.operation)),
           ))
         .getSingleOrNull();
 
@@ -32,9 +32,9 @@ final class DriftSyncQueueStore implements SyncQueueStore {
     await database.into(database.cloudSyncQueue).insertOnConflictUpdate(
           db.CloudSyncQueueCompanion.insert(
             id: id,
-            entityType: item.entityType.name,
+            entityType: _entityTypeWire(item.entityType),
             localEntityId: item.localEntityId,
-            operation: item.operation.name,
+            operation: _operationWire(item.operation),
             createdAt: item.createdAt.toUtc().millisecondsSinceEpoch,
             attemptCount: Value(item.attemptCount),
             lastError: Value(item.lastError),
@@ -85,9 +85,9 @@ final class DriftSyncQueueStore implements SyncQueueStore {
 
   SyncQueueItem _toDomain(db.CloudSyncQueueData row) => SyncQueueItem(
         id: row.id,
-        entityType: SyncEntityType.values.byName(row.entityType),
+        entityType: _parseEntityType(row.entityType),
         localEntityId: row.localEntityId,
-        operation: SyncOperation.values.byName(row.operation),
+        operation: _parseOperation(row.operation),
         createdAt: DateTime.fromMillisecondsSinceEpoch(
           row.createdAt,
           isUtc: true,
@@ -95,4 +95,29 @@ final class DriftSyncQueueStore implements SyncQueueStore {
         attemptCount: row.attemptCount,
         lastError: row.lastError,
       );
+
+  String _entityTypeWire(SyncEntityType value) => switch (value) {
+        SyncEntityType.journey => 'JOURNEY',
+        SyncEntityType.memory => 'MEMORY',
+        SyncEntityType.albumPhoto => 'ALBUM_PHOTO',
+      };
+
+  String _operationWire(SyncOperation value) => switch (value) {
+        SyncOperation.createOrUpdate => 'CREATE_OR_UPDATE',
+        SyncOperation.delete => 'DELETE',
+      };
+
+  SyncEntityType _parseEntityType(String value) => switch (value) {
+        'JOURNEY' || 'journey' => SyncEntityType.journey,
+        'MEMORY' || 'memory' => SyncEntityType.memory,
+        'ALBUM_PHOTO' || 'albumPhoto' => SyncEntityType.albumPhoto,
+        _ => throw FormatException('Unknown sync entity type: ' + value),
+      };
+
+  SyncOperation _parseOperation(String value) => switch (value) {
+        'CREATE_OR_UPDATE' || 'createOrUpdate' =>
+          SyncOperation.createOrUpdate,
+        'DELETE' || 'delete' => SyncOperation.delete,
+        _ => throw FormatException('Unknown sync operation: ' + value),
+      };
 }
