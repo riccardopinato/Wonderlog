@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_controller.dart';
+import '../features/location/domain/location_repository.dart';
+import '../features/memories/data/photo_import_service.dart';
 import '../features/memories/domain/wonderlog_repository.dart';
 import '../features/onboarding/presentation/onboarding_gate.dart';
 import '../features/shell/presentation/wonderlog_shell.dart';
@@ -12,10 +14,14 @@ final class WonderlogApp extends StatelessWidget {
     super.key,
     required this.controller,
     required this.repository,
+    required this.locationRepository,
+    required this.photoImportService,
   });
 
   final AppController controller;
   final WonderlogRepository repository;
+  final LocationRepository locationRepository;
+  final PhotoImportService photoImportService;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +40,8 @@ final class WonderlogApp extends StatelessWidget {
           child: WonderlogShell(
             controller: controller,
             repository: repository,
+            locationRepository: locationRepository,
+            photoImportService: photoImportService,
           ),
         ),
       ),

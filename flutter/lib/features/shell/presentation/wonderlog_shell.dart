@@ -4,7 +4,9 @@ import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../core/app_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../home/presentation/home_page.dart';
+import '../../location/domain/location_repository.dart';
 import '../../journeys/presentation/journeys_page.dart';
+import '../../memories/data/photo_import_service.dart';
 import '../../memories/domain/wonderlog_repository.dart';
 import '../../profile/presentation/profile_page.dart';
 
@@ -13,10 +15,14 @@ final class WonderlogShell extends StatefulWidget {
     super.key,
     required this.controller,
     required this.repository,
+    required this.locationRepository,
+    required this.photoImportService,
   });
 
   final AppController controller;
   final WonderlogRepository repository;
+  final LocationRepository locationRepository;
+  final PhotoImportService photoImportService;
 
   @override
   State<WonderlogShell> createState() => _WonderlogShellState();
@@ -32,6 +38,8 @@ final class _WonderlogShellState extends State<WonderlogShell> {
       HomePage(
         repository: widget.repository,
         isPremium: () => widget.controller.isPremium,
+        locationRepository: widget.locationRepository,
+        photoImportService: widget.photoImportService,
       ),
       JourneysPage(repository: widget.repository),
       ProfilePage(controller: widget.controller),

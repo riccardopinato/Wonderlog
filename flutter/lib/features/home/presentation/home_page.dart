@@ -4,24 +4,33 @@ import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../capture/application/capture_controller.dart';
 import '../../capture/data/wonderlog_capture_repository.dart';
-import '../../capture/domain/capture_media_port.dart';
+import '../../capture/data/photo_capture_media_port.dart';
 import '../../capture/presentation/capture_page.dart';
 import '../../journeys/domain/journey.dart';
+import '../../location/domain/location_repository.dart';
 import '../../journeys/presentation/journey_detail_page.dart';
 import '../../journeys/presentation/journey_widgets.dart';
+import '../../memories/data/photo_import_service.dart';
 import '../../memories/domain/wonderlog_repository.dart';
 import '../../rediscover/presentation/rediscover_home_section.dart';
 import '../../search/presentation/global_search_page.dart';
+import '../../smart_journey/application/smart_journey_integration_repository.dart';
+import '../../smart_journey/data/photo_import_service_smart_journey_adapter.dart';
+import '../../smart_journey/presentation/smart_journey_import_page.dart';
 
 final class HomePage extends StatelessWidget {
   const HomePage({
     super.key,
     required this.repository,
     required this.isPremium,
+    required this.locationRepository,
+    required this.photoImportService,
   });
 
   final WonderlogRepository repository;
   final bool Function() isPremium;
+  final LocationRepository locationRepository;
+  final PhotoImportService photoImportService;
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +41,35 @@ final class HomePage extends StatelessWidget {
         title: Text(strings.appTitle),
         actions: [
           IconButton(
+            tooltip: strings.smartJourneyTitle,
+            onPressed: () {
+              final integration = SmartJourneyIntegrationRepository(
+                repository: repository,
+                photoImporter: PhotoImportServiceSmartJourneyAdapter(
+                  photoImportService,
+                ),
+                isPremium: isPremium,
+              );
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => SmartJourneyImportPage(
+                    integration: integration,
+                    locationRepository: locationRepository,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.auto_awesome_motion_outlined),
+          ),
+          IconButton(
             tooltip: strings.captureTitle,
             onPressed: () {
               final captureRepository = WonderlogCaptureRepository(
                 repository: repository,
-                mediaPort: const UnsupportedCaptureMediaPort(),
+                mediaPort: PhotoCaptureMediaPort(
+                  photoImportService: photoImportService,
+                ),
                 isPremium: isPremium,
               );
               Navigator.push(
