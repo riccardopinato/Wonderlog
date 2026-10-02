@@ -166,6 +166,27 @@ class GeocodingCache extends Table {
   Set<Column> get primaryKey => {query};
 }
 
+class CloudSyncQueue extends Table {
+  @override
+  String get tableName => 'cloud_sync_queue';
+
+  TextColumn get id => text()();
+  TextColumn get entityType => text()();
+  TextColumn get localEntityId => text()();
+  TextColumn get operation => text()();
+  IntColumn get createdAt => integer()();
+  IntColumn get attemptCount => integer().withDefault(const Constant(0))();
+  TextColumn get lastError => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {entityType, localEntityId, operation},
+      ];
+}
+
 class OfflineMapRegions extends Table {
   @override
   String get tableName => 'offline_map_regions';
@@ -196,6 +217,7 @@ class OfflineMapRegions extends Table {
     LocationPlaces,
     GeocodingCache,
     OfflineMapRegions,
+    CloudSyncQueue,
   ],
 )
 class WonderlogDatabase extends _$WonderlogDatabase {
@@ -203,11 +225,16 @@ class WonderlogDatabase extends _$WonderlogDatabase {
       : super(executor ?? driftDatabase(name: 'wonderlog_flutter'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (migrator) => migrator.createAll(),
+        onUpgrade: (migrator, from, to) async {
+          if (from < 2) {
+            await migrator.createTable(cloudSyncQueue);
+          }
+        },
         beforeOpen: (_) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
