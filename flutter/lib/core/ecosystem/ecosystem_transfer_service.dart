@@ -26,10 +26,12 @@ final class EcosystemDeliveryResult {
 
 final class EcosystemTransferService {
   const EcosystemTransferService({
+    required this.localApp,
     required this.store,
     required this.localTransport,
   });
 
+  final EcosystemAppId localApp;
   final EcosystemTransferStore store;
   final EcosystemLocalTransportPort localTransport;
 
@@ -38,6 +40,15 @@ final class EcosystemTransferService {
     required EcosystemEnvelope envelope,
   }) async {
     EcosystemContractValidator.ensureValid(envelope);
+
+    if (envelope.sourceApp != localApp) {
+      throw StateError(
+        'Local transport cannot impersonate another source app.',
+      );
+    }
+    if (targetApp == localApp) {
+      throw StateError('Cross-app transfer target must differ from source.');
+    }
 
     final package = EcosystemTransferPackage(
       targetApp: targetApp,
