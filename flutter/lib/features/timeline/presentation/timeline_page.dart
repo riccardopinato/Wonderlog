@@ -5,7 +5,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../journeys/domain/journey.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
-import '../../memories/presentation/memory_editor_page.dart';
+import '../../memories/presentation/memory_detail_page.dart';
 import '../domain/timeline_engine.dart';
 import '../domain/timeline_models.dart';
 
@@ -177,15 +177,12 @@ final class _TimelinePageState extends State<TimelinePage> {
     BuildContext context,
     String memoryId,
   ) async {
-    final item = await widget.repository.watchMemory(memoryId).first;
-    if (item == null || !context.mounted) return;
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => MemoryEditorPage(
+        builder: (_) => MemoryDetailPage(
           repository: widget.repository,
-          journeyId: widget.journey.id,
-          existing: item.memory,
+          memoryId: memoryId,
         ),
       ),
     );

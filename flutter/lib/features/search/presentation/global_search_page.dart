@@ -6,7 +6,7 @@ import '../../journeys/domain/journey.dart';
 import '../../journeys/presentation/journey_detail_page.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
-import '../../memories/presentation/memory_editor_page.dart';
+import '../../memories/presentation/memory_detail_page.dart';
 import '../domain/search_engine.dart';
 
 final class GlobalSearchPage extends StatefulWidget {
@@ -124,10 +124,9 @@ final class _GlobalSearchPageState extends State<GlobalSearchPage> {
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute<void>(
-                                  builder: (_) => MemoryEditorPage(
+                                  builder: (_) => MemoryDetailPage(
                                     repository: widget.repository,
-                                    journeyId: memory.journeyId,
-                                    existing: memory,
+                                    memoryId: memory.id,
                                   ),
                                 ),
                               ),

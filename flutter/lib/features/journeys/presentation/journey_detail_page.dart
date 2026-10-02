@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../map_memories/presentation/journey_map_page.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../memories/presentation/memory_detail_page.dart';
 import '../../memories/presentation/memory_editor_page.dart';
 import '../../rediscover/domain/journey_replay_builder.dart';
 import '../../rediscover/domain/rediscover_models.dart';
@@ -266,10 +267,9 @@ final class _MemoriesTab extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (_) => MemoryEditorPage(
+                    builder: (_) => MemoryDetailPage(
                       repository: repository,
-                      journeyId: journeyId,
-                      existing: memory,
+                      memoryId: memory.id,
                     ),
                   ),
                 ),
