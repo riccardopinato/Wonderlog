@@ -57,9 +57,7 @@ final class JourneyCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    dateFormat.format(journey.startDate) +
-                        ' – ' +
-                        dateFormat.format(journey.endDate),
+                    '${dateFormat.format(journey.startDate)} – ${dateFormat.format(journey.endDate)}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
