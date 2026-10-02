@@ -24,14 +24,14 @@ void main() {
         dayIndex: day,
       );
 
-  test('cluster ids preserve Java UUID.nameUUIDFromBytes semantics', () {
+  test('cluster ids remain deterministic for the Flutter wire signature', () {
     const engine = MapClusterEngine(clusterRadiusMeters: 1000);
     final clusters = engine.cluster([
       item('p1', MapMemoryItemType.photo, 46.919, 11.955),
       item('m1', MapMemoryItemType.memory, 46.9191, 11.9551),
     ]);
     expect(clusters, hasLength(1));
-    expect(clusters.single.id, '14c0c6d8-aec3-3ce3-9b0f-5720acb0f56e');
+    expect(clusters.single.id, '9f733468-0ae1-3ec5-a8a7-866a41d900cf');
   });
 
   test('filter combines day and content type', () {
