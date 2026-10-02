@@ -37,6 +37,18 @@ final class PhotoImportService {
   final SourceByteReader byteReader;
   final Uuid _uuid = const Uuid();
 
+  Future<List<int>?> readReference(String reference) async {
+    final assetId = MediaAssetReference.tryDecode(reference);
+    if (assetId != null) {
+      return mediaStore.read(assetId);
+    }
+    try {
+      return byteReader.read(reference);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<AlbumPhotoEntry> importPhoto({
     required String journeyId,
     required String sourceUri,
