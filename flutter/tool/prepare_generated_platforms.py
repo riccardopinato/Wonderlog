@@ -61,6 +61,74 @@ def patch_android() -> None:
             },
         )
 
+    # Canonical Wonderlog deep links used by LINK semantics and future
+    # ecosystem imports. Keep one filter per host to avoid Android data
+    # element cross-product matching.
+    for host in ("journey", "memory", "ecosystem"):
+        host_present = False
+        for intent_filter in target.findall("intent-filter"):
+            data_nodes = intent_filter.findall("data")
+            host_present = any(
+                data.get(f"{{{ANDROID_NS}}}scheme") == "wonderlog"
+                and data.get(f"{{{ANDROID_NS}}}host") == host
+                for data in data_nodes
+            )
+            if host_present:
+                break
+
+        if not host_present:
+            intent_filter = ET.SubElement(target, "intent-filter")
+            ET.SubElement(
+                intent_filter,
+                "action",
+                {f"{{{ANDROID_NS}}}name": "android.intent.action.VIEW"},
+            )
+            ET.SubElement(
+                intent_filter,
+                "category",
+                {f"{{{ANDROID_NS}}}name": "android.intent.category.DEFAULT"},
+            )
+            ET.SubElement(
+                intent_filter,
+                "category",
+                {f"{{{ANDROID_NS}}}name": "android.intent.category.BROWSABLE"},
+            )
+            ET.SubElement(
+                intent_filter,
+                "data",
+                {
+                    f"{{{ANDROID_NS}}}scheme": "wonderlog",
+                    f"{{{ANDROID_NS}}}host": host,
+                },
+            )
+
+    # url_launcher canLaunchUrl() needs package visibility declarations on
+    # Android 11+ for custom schemes used by sibling ecosystem apps.
+    queries = root.find("queries")
+    if queries is None:
+        queries = ET.Element("queries")
+        root.insert(0, queries)
+
+    existing_query_schemes = {
+        data.get(f"{{{ANDROID_NS}}}scheme")
+        for intent in queries.findall("intent")
+        for data in intent.findall("data")
+    }
+    for scheme in ("annasdiary", "notesapp", "trailpath"):
+        if scheme in existing_query_schemes:
+            continue
+        intent = ET.SubElement(queries, "intent")
+        ET.SubElement(
+            intent,
+            "action",
+            {f"{{{ANDROID_NS}}}name": "android.intent.action.VIEW"},
+        )
+        ET.SubElement(
+            intent,
+            "data",
+            {f"{{{ANDROID_NS}}}scheme": scheme},
+        )
+
     tree.write(manifest_path, encoding="utf-8", xml_declaration=True)
 
 
@@ -86,6 +154,25 @@ def patch_ios() -> None:
                 "CFBundleURLSchemes": [scheme],
             }
         )
+
+    wonderlog_scheme = "wonderlog"
+    has_wonderlog_scheme = any(
+        wonderlog_scheme in entry.get("CFBundleURLSchemes", [])
+        for entry in url_types
+        if isinstance(entry, dict)
+    )
+    if not has_wonderlog_scheme:
+        url_types.append(
+            {
+                "CFBundleTypeRole": "Editor",
+                "CFBundleURLSchemes": [wonderlog_scheme],
+            }
+        )
+
+    query_schemes = data.setdefault("LSApplicationQueriesSchemes", [])
+    for ecosystem_scheme in ("annasdiary", "notesapp", "trailpath"):
+        if ecosystem_scheme not in query_schemes:
+            query_schemes.append(ecosystem_scheme)
 
     with plist_path.open("wb") as handle:
         plistlib.dump(data, handle, sort_keys=False)
