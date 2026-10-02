@@ -34,7 +34,7 @@ void main() {
     expect(ids.toSet(), hasLength(1));
     final pending = await store.watchPendingOutbox().first;
     expect(pending, hasLength(1));
-    expect(pending.single.id, ids.single);
+    expect(pending.single.id, ids.toSet().single);
     expect(pending.single.envelope.sourceEntityId, 'm1');
 
     await database.close();
