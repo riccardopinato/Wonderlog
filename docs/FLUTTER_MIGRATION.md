@@ -112,3 +112,29 @@ integration boundary until the branch is merged into `main`.
 
 The remaining production cutover evidence is primarily real-device validation
 of the existing Room database migration and a macOS/iOS build gate.
+
+
+## Shared Ecosystem Core v1 — E1 candidate
+
+The migration now extracts the existing ecosystem groundwork into a reusable
+Shared Ecosystem Core v1 candidate.
+
+- EcosystemEnvelope keeps canonical source identity and now exposes a
+  deterministic bridgeId, explicit transfer mode, provenance, fallback and
+  required capabilities.
+- COPY and LINK are separate intents while the canonical source revision keeps
+  one stable bridge identity/idempotency identity.
+- Cross-app serialization strips private local media references and preserves
+  only safe metadata.
+- EcosystemRegistry performs target capability negotiation before a handoff.
+- EcosystemLocalTransport persists the outbox first, then prepares a
+  target-specific deep-link packet plus explicit encoded/plain-text fallback.
+- Receiving a packet persists it in the inbox and does not silently materialize
+  destination data.
+- The cloud bridge remains outside E1 and must be implemented as a separate,
+  optional transport.
+
+The extraction is documented as
+GOLDEN_ECOSYSTEM_BRIDGE_FLUTTER_v1_CANDIDATE. It must not be promoted to
+Golden until Wonderlog <-> Anna real-device COPY/LINK round-trip and all
+certification gates pass.
