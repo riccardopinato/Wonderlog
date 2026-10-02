@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
+import '../../../core/picker/device_content_picker.dart';
+import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map_memories/presentation/journey_map_page.dart';
+import '../../memories/data/photo_import_service.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
 import '../../memories/presentation/memory_detail_page.dart';
 import '../../memories/presentation/memory_editor_page.dart';
+import '../../premium/domain/premium_gate.dart';
 import '../../rediscover/domain/journey_replay_builder.dart';
 import '../../rediscover/domain/rediscover_models.dart';
 import '../../rediscover/presentation/journey_replay_page.dart';
@@ -282,7 +286,7 @@ final class _MemoriesTab extends StatelessWidget {
   }
 }
 
-final class _AlbumTab extends StatelessWidget {
+final class _AlbumTab extends StatefulWidget {
   const _AlbumTab({
     required this.repository,
     required this.journeyId,
@@ -292,59 +296,204 @@ final class _AlbumTab extends StatelessWidget {
   final String journeyId;
 
   @override
+  State<_AlbumTab> createState() => _AlbumTabState();
+}
+
+final class _AlbumTabState extends State<_AlbumTab> {
+  final DeviceContentPicker _picker = const DeviceContentPicker();
+  bool _importing = false;
+  String? _error;
+
+  @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
 
     return StreamBuilder<List<AlbumPhotoEntry>>(
-      stream: repository.watchAlbum(journeyId),
+      stream: widget.repository.watchAlbum(widget.journeyId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
         final photos = snapshot.data!;
-        if (photos.isEmpty) {
-          return Center(child: Text(strings.albumEmpty));
-        }
 
-        return GridView.builder(
-          padding: const EdgeInsets.all(WonderlogSpacing.medium),
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 180,
-            mainAxisSpacing: WonderlogSpacing.small,
-            crossAxisSpacing: WonderlogSpacing.small,
-          ),
-          itemCount: photos.length,
-          itemBuilder: (context, index) {
-            final photo = photos[index];
-            return Card(
-              clipBehavior: Clip.antiAlias,
-              child: Tooltip(
-                message: photo.fileName,
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(WonderlogSpacing.small),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.photo_outlined, size: 40),
-                        const SizedBox(height: WonderlogSpacing.xSmall),
-                        Text(
-                          photo.fileName.isEmpty
-                              ? strings.photo
-                              : photo.fileName,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                WonderlogSpacing.medium,
+                WonderlogSpacing.small,
+                WonderlogSpacing.medium,
+                0,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      strings.albumPhotoCount(photos.length),
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: _importing
+                        ? null
+                        : () => _importPhotos(context, photos),
+                    icon: _importing
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.add_photo_alternate_outlined),
+                    label: Text(strings.albumImport),
+                  ),
+                ],
+              ),
+            ),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.all(WonderlogSpacing.small),
+                child: Text(
+                  _error!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
               ),
-            );
-          },
+            Expanded(
+              child: photos.isEmpty
+                  ? Center(child: Text(strings.albumEmpty))
+                  : GridView.builder(
+                      padding: const EdgeInsets.all(WonderlogSpacing.medium),
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 180,
+                        mainAxisSpacing: WonderlogSpacing.small,
+                        crossAxisSpacing: WonderlogSpacing.small,
+                      ),
+                      itemCount: photos.length,
+                      itemBuilder: (context, index) {
+                        final photo = photos[index];
+                        return Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: Tooltip(
+                            message: photo.fileName,
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(
+                                  WonderlogSpacing.small,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      photo.favorite
+                                          ? Icons.favorite
+                                          : Icons.photo_outlined,
+                                      size: 40,
+                                    ),
+                                    const SizedBox(
+                                      height: WonderlogSpacing.xSmall,
+                                    ),
+                                    Text(
+                                      photo.fileName.isEmpty
+                                          ? strings.photo
+                                          : photo.fileName,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    if (photo.locationName.trim().isNotEmpty)
+                                      Text(
+                                        photo.locationName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         );
       },
     );
+  }
+
+  Future<void> _importPhotos(
+    BuildContext context,
+    List<AlbumPhotoEntry> currentPhotos,
+  ) async {
+    setState(() {
+      _importing = true;
+      _error = null;
+    });
+
+    try {
+      final incoming = await _picker.pickImages();
+      if (incoming.isEmpty) return;
+
+      final services = WonderlogServicesScope.of(context);
+      const gate = PremiumGate();
+      final allowance = gate.calculatePhotoImportAllowance(
+        currentPhotos.length,
+        incoming.length,
+        services.controller.isPremium,
+      );
+
+      if (allowance.allowedCount <= 0) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context).albumLimit)),
+          );
+        }
+        return;
+      }
+
+      final imported = <AlbumPhotoEntry>[...currentPhotos];
+      var displayOrder = currentPhotos.length;
+
+      for (final item in incoming.take(allowance.allowedCount)) {
+        final uri = item.uri;
+        if (uri == null || uri.trim().isEmpty) continue;
+        try {
+          final photo = await services.photoImportService.importPhoto(
+            journeyId: widget.journeyId,
+            sourceUri: uri,
+            displayOrder: displayOrder,
+            existingPhotos: imported,
+            fileName: item.title,
+            mimeType: item.mimeType,
+          );
+          await widget.repository.savePhoto(photo);
+          imported.add(photo);
+          displayOrder++;
+        } on PhotoImportException catch (error) {
+          _error = error.message;
+        }
+      }
+
+      if (allowance.blockedCount > 0 && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).albumPartialImport(
+                allowance.allowedCount,
+                allowance.blockedCount,
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      _error = error.toString();
+    } finally {
+      if (mounted) setState(() => _importing = false);
+    }
   }
 }
