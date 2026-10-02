@@ -60,7 +60,7 @@
   "lifeBridgeShareToAnna": "Mit Anna's Diary teilen",
   "lifeBridgeCopyToAnna": "In Anna's Diary kopieren",
   "lifeBridgeLinkToAnna": "In Anna's Diary verknüpfen",
-  "lifeBridgeCopiedForAnna": "Life-Bridge-Payload kopiert. Öffne in Anna's Diary das Life Ecosystem und wähle Einfügen und importieren.",
+  "lifeBridgeCopiedForAnna": "Anna's Diary ist nicht verfügbar. Eine portable Ökosystem-Übertragung wurde für den manuellen Import kopiert.",
   "journeyUnavailable": "Reise nicht verfügbar",
   "journeyOverview": "Übersicht",
   "journeyMemories": "Erinnerungen",
@@ -174,5 +174,7 @@
   "pdfIncludeLocations": "Orte",
   "pdfIncludeDates": "Daten",
   "pdfExport": "PDF exportieren",
-  "pdfExported": "Reisebuch exportiert."
+  "pdfExported": "Reisebuch exportiert.",
+  "ecosystemOpenedAnna": "Übertragung in Anna's Diary geöffnet.",
+  "ecosystemUnsupportedAnna": "Dieses Element wird von Anna's Diary nicht unterstützt."
 }
