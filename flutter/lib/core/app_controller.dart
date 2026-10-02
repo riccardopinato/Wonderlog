@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../features/premium/application/premium_entitlement_service.dart';
 import 'identity/identity_models.dart';
 import 'identity/identity_service.dart';
 import 'profile/app_profile.dart';
@@ -11,10 +12,12 @@ final class AppController extends ChangeNotifier {
   AppController({
     required ProfileRepository profileRepository,
     required this.identityService,
+    required this.premiumService,
   }) : _profileRepository = profileRepository;
 
   final ProfileRepository _profileRepository;
   final IdentityService identityService;
+  final PremiumEntitlementService premiumService;
 
   AppProfile _profile = const AppProfile.defaults();
   IdentitySession _identity = const IdentitySession.localOnly();
@@ -22,6 +25,7 @@ final class AppController extends ChangeNotifier {
 
   AppProfile get profile => _profile;
   IdentitySession get identity => _identity;
+  bool get isPremium => premiumService.hasPremiumAccess;
 
   ThemeMode get themeMode => switch (_profile.themePreference) {
         ThemePreference.light => ThemeMode.light,
@@ -40,8 +44,15 @@ final class AppController extends ChangeNotifier {
     _profile = await _profileRepository.load();
     await identityService.initialize();
     _identity = identityService.current;
+
+    await premiumService.initialize(
+      appUserId: _identity.user?.id,
+    );
+    premiumService.addListener(notifyListeners);
+
     _identitySubscription = identityService.watch().listen((value) {
       _identity = value;
+      unawaited(premiumService.syncIdentity(value.user?.id));
       notifyListeners();
     });
   }
@@ -73,7 +84,9 @@ final class AppController extends ChangeNotifier {
   @override
   void dispose() {
     _identitySubscription?.cancel();
+    premiumService.removeListener(notifyListeners);
     identityService.dispose();
+    premiumService.dispose();
     super.dispose();
   }
 }
