@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import '../../memories/data/photo_import_service.dart';
+import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
 import '../domain/pdf_export_models.dart';
 import 'pdf_travel_book_builder.dart';
@@ -26,8 +29,14 @@ final class JourneyPdfExportService {
     final photos = await repository.watchAlbum(journeyId).first;
     final memories = await repository.watchMemoriesWithPhotos(journeyId).first;
 
-    final cover = photos.where((photo) => photo.isCoverPhoto).firstOrNull ??
-        (photos.isEmpty ? null : photos.first);
+    AlbumPhotoEntry? cover;
+    for (final photo in photos) {
+      if (photo.isCoverPhoto) {
+        cover = photo;
+        break;
+      }
+    }
+    cover ??= photos.isEmpty ? null : photos.first;
 
     final data = JourneyExportData(
       journeyId: journey.id,
