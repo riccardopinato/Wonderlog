@@ -61,6 +61,30 @@ Transport is intentionally separate from the envelope. Planned adapters are:
 - optional authenticated Supabase inbox/outbox;
 - import confirmation in the destination app.
 
+## Anna's Diary Life Bridge v1 adapter
+
+The Flutter migration now contains the first concrete cross-app adapter for
+Anna's Diary.
+
+- Wonderlog keeps `EcosystemEnvelope v1` as its internal interoperability
+  primitive, then projects an explicitly shared Journey into Anna's canonical
+  `Life Bridge v1` wire contract.
+- Journey export supports distinct `COPY` and `LINK` intents.
+- The exported `bridgeId` is deterministic for
+  `source app + entity type + entity id + revision`, so repeating the same
+  export is idempotent in Anna.
+- A private envelope cannot cross the bridge boundary. Export requires
+  `explicitShare`.
+- Local media URIs are never exported. v1 carries only safe media metadata and
+  declares binary transfer as omitted.
+- Anna remains the destination owner after materialization: Wonderlog never
+  reads Anna's database, keys, sync state or private stores.
+- Current transport is deliberately explicit clipboard handoff. This is a
+  real end-to-end contract test, not background synchronization.
+- The adapter is part of the Flutter migration branch and must not be marketed
+  as a production connection until the Flutter client passes the migration
+  gates below.
+
 ## Migration gates
 
 The Flutter build cannot become the main Wonderlog release until:
