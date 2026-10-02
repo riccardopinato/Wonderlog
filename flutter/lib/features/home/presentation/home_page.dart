@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../journeys/domain/journey.dart';
-import '../../journeys/domain/journey_repository.dart';
+import '../../journeys/presentation/journey_detail_page.dart';
 import '../../journeys/presentation/journey_widgets.dart';
+import '../../memories/domain/wonderlog_repository.dart';
 
 final class HomePage extends StatelessWidget {
   const HomePage({
     super.key,
-    required this.journeyRepository,
+    required this.repository,
   });
 
-  final JourneyRepository journeyRepository;
+  final WonderlogRepository repository;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +22,7 @@ final class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(strings.appTitle)),
       body: StreamBuilder<List<Journey>>(
-        stream: journeyRepository.watchJourneys(),
+        stream: repository.watchJourneys(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text(strings.localDataError));
@@ -38,7 +39,7 @@ final class HomePage extends StatelessWidget {
                 journeyCount: journeys.length,
                 onAdd: () => showCreateJourneyDialog(
                   context,
-                  journeyRepository,
+                  repository,
                 ),
               ),
               const SizedBox(height: WonderlogSpacing.large),
@@ -53,7 +54,7 @@ final class HomePage extends StatelessWidget {
                   TextButton.icon(
                     onPressed: () => showCreateJourneyDialog(
                       context,
-                      journeyRepository,
+                      repository,
                     ),
                     icon: const Icon(Icons.add),
                     label: Text(strings.addJourney),
@@ -84,19 +85,32 @@ final class HomePage extends StatelessWidget {
                   ),
                 )
               else
-                ...journeys
-                    .take(3)
-                    .map(
+                ...journeys.take(3).map(
                       (journey) => Padding(
                         padding: const EdgeInsets.only(
                           bottom: WonderlogSpacing.small,
                         ),
-                        child: JourneyCard(journey: journey),
+                        child: JourneyCard(
+                          journey: journey,
+                          onOpen: () => _openJourney(context, journey.id),
+                        ),
                       ),
                     ),
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _openJourney(BuildContext context, String id) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => JourneyDetailPage(
+          repository: repository,
+          journeyId: id,
+        ),
       ),
     );
   }

@@ -4,19 +4,19 @@ import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../core/app_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../home/presentation/home_page.dart';
-import '../../journeys/domain/journey_repository.dart';
 import '../../journeys/presentation/journeys_page.dart';
+import '../../memories/domain/wonderlog_repository.dart';
 import '../../profile/presentation/profile_page.dart';
 
 final class WonderlogShell extends StatefulWidget {
   const WonderlogShell({
     super.key,
     required this.controller,
-    required this.journeyRepository,
+    required this.repository,
   });
 
   final AppController controller;
-  final JourneyRepository journeyRepository;
+  final WonderlogRepository repository;
 
   @override
   State<WonderlogShell> createState() => _WonderlogShellState();
@@ -29,8 +29,8 @@ final class _WonderlogShellState extends State<WonderlogShell> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final pages = <Widget>[
-      HomePage(journeyRepository: widget.journeyRepository),
-      JourneysPage(journeyRepository: widget.journeyRepository),
+      HomePage(repository: widget.repository),
+      JourneysPage(repository: widget.repository),
       ProfilePage(controller: widget.controller),
     ];
 
@@ -73,7 +73,12 @@ final class _WonderlogShellState extends State<WonderlogShell> {
                     ],
                   ),
                   const VerticalDivider(width: 1),
-                  Expanded(child: IndexedStack(index: _index, children: pages)),
+                  Expanded(
+                    child: IndexedStack(
+                      index: _index,
+                      children: pages,
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../memories/domain/wonderlog_repository.dart';
 import '../domain/journey.dart';
-import '../domain/journey_repository.dart';
+import 'journey_detail_page.dart';
 import 'journey_widgets.dart';
 
 final class JourneysPage extends StatelessWidget {
   const JourneysPage({
     super.key,
-    required this.journeyRepository,
+    required this.repository,
   });
 
-  final JourneyRepository journeyRepository;
+  final WonderlogRepository repository;
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +24,13 @@ final class JourneysPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showCreateJourneyDialog(
           context,
-          journeyRepository,
+          repository,
         ),
         icon: const Icon(Icons.add),
         label: Text(strings.addJourney),
       ),
       body: StreamBuilder<List<Journey>>(
-        stream: journeyRepository.watchJourneys(),
+        stream: repository.watchJourneys(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text(strings.localDataError));
@@ -73,8 +74,21 @@ final class JourneysPage extends StatelessWidget {
             itemCount: journeys.length,
             separatorBuilder: (_, _) =>
                 const SizedBox(height: WonderlogSpacing.small),
-            itemBuilder: (context, index) =>
-                JourneyCard(journey: journeys[index]),
+            itemBuilder: (context, index) {
+              final journey = journeys[index];
+              return JourneyCard(
+                journey: journey,
+                onOpen: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => JourneyDetailPage(
+                      repository: repository,
+                      journeyId: journey.id,
+                    ),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

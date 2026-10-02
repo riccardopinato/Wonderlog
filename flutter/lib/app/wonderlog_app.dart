@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_controller.dart';
-import '../features/journeys/domain/journey_repository.dart';
+import '../features/memories/domain/wonderlog_repository.dart';
 import '../features/shell/presentation/wonderlog_shell.dart';
 import '../l10n/app_localizations.dart';
 import 'theme/wonderlog_theme.dart';
@@ -10,11 +10,11 @@ final class WonderlogApp extends StatelessWidget {
   const WonderlogApp({
     super.key,
     required this.controller,
-    required this.journeyRepository,
+    required this.repository,
   });
 
   final AppController controller;
-  final JourneyRepository journeyRepository;
+  final WonderlogRepository repository;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ final class WonderlogApp extends StatelessWidget {
         supportedLocales: AppLocalizations.supportedLocales,
         home: WonderlogShell(
           controller: controller,
-          journeyRepository: journeyRepository,
+          repository: repository,
         ),
       ),
     );
