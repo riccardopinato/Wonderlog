@@ -1,0 +1,83 @@
+name: v0.96 Inspect Kotlin donor
+
+on:
+  push:
+    branches:
+      - v096-kotlin-life-bridge
+    paths:
+      - ".github/workflows/v096-inspect-kotlin-donor.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract donor
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wonderlog-donor
+          mkdir -p /tmp/wonderlog-donor
+          unzip -q "wanderlog-memories (2).zip" -d /tmp/wonderlog-donor
+
+      - name: Print project structure
+        run: |
+          set -euo pipefail
+          echo "=== ROOT ==="
+          find /tmp/wonderlog-donor -maxdepth 3 -type f | sort | head -200
+          echo "=== KOTLIN FILES ==="
+          find /tmp/wonderlog-donor -type f -name "*.kt" | sort
+
+      - name: Locate domain and UI anchors
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path("/tmp/wonderlog-donor")
+          needles=[
+              "data class Journey","class Journey","data class Trip","class Trip",
+              "data class Memory","class Memory","NavHost","NavController",
+              "JourneyScreen","TripScreen","MemoryScreen","Share","Clipboard",
+              "ACTION_SEND","Intent.createChooser","RoomDatabase","@Entity",
+              "build.gradle","AndroidManifest"
+          ]
+          allowed={".kt",".kts",".xml",".toml",".properties"}
+          for p in sorted(root.rglob("*")):
+              if not p.is_file() or p.suffix.lower() not in allowed:
+                  continue
+              try:
+                  text=p.read_text(errors="ignore")
+              except Exception:
+                  continue
+              hits=[]
+              lines=text.splitlines()
+              for i,line in enumerate(lines,1):
+                  if any(n.lower() in line.lower() for n in needles):
+                      hits.append((i,line.rstrip()))
+              if hits:
+                  print(f"\n=== {p.relative_to(root)} ===")
+                  for i,line in hits[:120]:
+                      print(f"{i}: {line}")
+          PY
+
+      - name: Print likely source files
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path("/tmp/wonderlog-donor")
+          terms=("Journey","Trip","Memory","Database","Navigation","NavGraph","Detail","Screen","ViewModel")
+          candidates=[]
+          for p in root.rglob("*.kt"):
+              if any(t.lower() in p.name.lower() for t in terms):
+                  candidates.append(p)
+          for p in sorted(candidates)[:80]:
+              text=p.read_text(errors="ignore").splitlines()
+              print(f"\n===== FILE {p.relative_to(root)} ({len(text)} lines) =====")
+              for i,line in enumerate(text[:260],1):
+                  print(f"{i:04d}: {line}")
+          PY
