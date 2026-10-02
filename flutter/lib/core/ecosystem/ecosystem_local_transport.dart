@@ -40,14 +40,20 @@ final class EcosystemHandoffPacket {
       );
     }
 
-    return EcosystemHandoffPacket(
-      targetApp: EcosystemAppId.fromWire(decoded['targetApp']! as String),
-      envelope: EcosystemEnvelope.fromJson(
-        Map<String, Object?>.from(decoded['envelope']! as Map),
-      ),
-      createdAtUtc:
-          DateTime.parse(decoded['createdAtUtc']! as String).toUtc(),
-    );
+    try {
+      return EcosystemHandoffPacket(
+        targetApp: EcosystemAppId.fromWire(decoded['targetApp']! as String),
+        envelope: EcosystemEnvelope.fromJson(
+          Map<String, Object?>.from(decoded['envelope']! as Map),
+        ),
+        createdAtUtc:
+            DateTime.parse(decoded['createdAtUtc']! as String).toUtc(),
+      );
+    } on FormatException {
+      rethrow;
+    } catch (error) {
+      throw FormatException('Invalid ecosystem handoff packet: $error');
+    }
   }
 }
 
@@ -180,9 +186,15 @@ final class EcosystemLocalTransport {
       );
     }
 
+    final prepared = packet.envelope.copyWith(
+      requiredCapabilities: _requiredCapabilitiesFor(
+        packet.envelope,
+        packet.envelope.transferMode,
+      ),
+    );
     final compatibility = registry.check(
       targetApp: localApp,
-      envelope: packet.envelope,
+      envelope: prepared,
     );
     if (!compatibility.isCompatible) {
       throw EcosystemTransportException(
@@ -190,7 +202,7 @@ final class EcosystemLocalTransport {
       );
     }
 
-    await store.receiveInbox(packet.envelope);
+    await store.receiveInbox(prepared);
   }
 
   Set<EcosystemCapability> _requiredCapabilitiesFor(
