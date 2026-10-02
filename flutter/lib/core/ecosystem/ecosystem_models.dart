@@ -27,6 +27,21 @@ enum EcosystemPrivacyScope {
   explicitShare,
 }
 
+enum EcosystemTransferMode {
+  copy,
+  link,
+}
+
+enum EcosystemCapability {
+  copy,
+  link,
+  places,
+  people,
+  mediaMetadata,
+  sourceDeepLink,
+  fallbackText,
+}
+
 final class EcosystemPlace {
   const EcosystemPlace({
     required this.name,
@@ -65,9 +80,13 @@ final class EcosystemMediaReference {
   final String? mimeType;
   final String? fileName;
 
-  Map<String, Object?> toJson() => {
+  Map<String, Object?> toJson({
+    bool includeLocalReference = false,
+  }) =>
+      {
         'kind': kind,
-        'localReference': localReference,
+        if (includeLocalReference && localReference != null)
+          'localReference': localReference,
         'mimeType': mimeType,
         'fileName': fileName,
       };
@@ -78,5 +97,72 @@ final class EcosystemMediaReference {
         localReference: json['localReference'] as String?,
         mimeType: json['mimeType'] as String?,
         fileName: json['fileName'] as String?,
+      );
+}
+
+final class EcosystemProvenance {
+  const EcosystemProvenance({
+    required this.canonicalApp,
+    required this.canonicalEntityType,
+    required this.canonicalEntityId,
+    required this.canonicalRevision,
+    this.parentBridgeId,
+  });
+
+  final EcosystemAppId canonicalApp;
+  final EcosystemEntityType canonicalEntityType;
+  final String canonicalEntityId;
+  final int canonicalRevision;
+  final String? parentBridgeId;
+
+  Map<String, Object?> toJson() => {
+        'canonicalApp': canonicalApp.wireValue,
+        'canonicalEntityType': canonicalEntityType.name,
+        'canonicalEntityId': canonicalEntityId,
+        'canonicalRevision': canonicalRevision,
+        if (parentBridgeId != null) 'parentBridgeId': parentBridgeId,
+      };
+
+  factory EcosystemProvenance.fromJson(Map<String, Object?> json) =>
+      EcosystemProvenance(
+        canonicalApp: EcosystemAppId.fromWire(
+          json['canonicalApp']! as String,
+        ),
+        canonicalEntityType: EcosystemEntityType.values.byName(
+          json['canonicalEntityType']! as String,
+        ),
+        canonicalEntityId: json['canonicalEntityId']! as String,
+        canonicalRevision: json['canonicalRevision']! as int,
+        parentBridgeId: json['parentBridgeId'] as String?,
+      );
+}
+
+final class EcosystemFallback {
+  const EcosystemFallback({
+    this.title,
+    this.text,
+  });
+
+  final String? title;
+  final String? text;
+
+  bool get isEmpty =>
+      (title == null || title!.trim().isEmpty) &&
+      (text == null || text!.trim().isEmpty);
+
+  String get plainText => [
+        if (title != null && title!.trim().isNotEmpty) title!.trim(),
+        if (text != null && text!.trim().isNotEmpty) text!.trim(),
+      ].join('\n\n');
+
+  Map<String, Object?> toJson() => {
+        'title': title,
+        'text': text,
+      };
+
+  factory EcosystemFallback.fromJson(Map<String, Object?> json) =>
+      EcosystemFallback(
+        title: json['title'] as String?,
+        text: json['text'] as String?,
       );
 }
