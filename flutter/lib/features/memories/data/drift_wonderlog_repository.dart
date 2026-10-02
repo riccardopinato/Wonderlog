@@ -135,7 +135,7 @@ final class DriftWonderlogRepository implements WonderlogRepository {
           latitude: Value(memory.latitude),
           longitude: Value(memory.longitude),
           date: _dateOnly(memory.date),
-          mood: memory.mood.name.toUpperCase(),
+          mood: Value(memory.mood.name.toUpperCase()),
           tagsJson: Value(jsonEncode(memory.tags)),
           favorite: Value(memory.favorite),
           createdAt: memory.createdAt.toUtc().millisecondsSinceEpoch,
