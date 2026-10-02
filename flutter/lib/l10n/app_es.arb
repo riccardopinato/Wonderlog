@@ -138,5 +138,8 @@
   "memoryNoPhotos": "No hay fotos vinculadas a este recuerdo.",
   "memoryKeepsakes": "Recuerdos de viaje",
   "memoryNoKeepsakes": "No hay documentos de viaje adjuntos.",
-  "memoryKeepsakeDocument": "Documento de viaje"
+  "memoryKeepsakeDocument": "Documento de viaje",
+  "rediscoverSeeAll": "Ver todo",
+  "rediscoverAll": "Todo",
+  "rediscoverEmpty": "Hoy no hay nada que redescubrir con este filtro."
 }

@@ -186,5 +186,8 @@
   "memoryNoPhotos": "No photos linked to this Memory.",
   "memoryKeepsakes": "Keepsakes",
   "memoryNoKeepsakes": "No travel documents attached.",
-  "memoryKeepsakeDocument": "Travel document"
+  "memoryKeepsakeDocument": "Travel document",
+  "rediscoverSeeAll": "See all",
+  "rediscoverAll": "All",
+  "rediscoverEmpty": "There is nothing to rediscover for this filter today."
 }

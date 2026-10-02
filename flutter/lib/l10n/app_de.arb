@@ -138,5 +138,8 @@
   "memoryNoPhotos": "Keine Fotos mit dieser Erinnerung verknüpft.",
   "memoryKeepsakes": "Reise-Andenken",
   "memoryNoKeepsakes": "Keine Reisedokumente angehängt.",
-  "memoryKeepsakeDocument": "Reisedokument"
+  "memoryKeepsakeDocument": "Reisedokument",
+  "rediscoverSeeAll": "Alle anzeigen",
+  "rediscoverAll": "Alle",
+  "rediscoverEmpty": "Für diesen Filter gibt es heute nichts wiederzuentdecken."
 }
