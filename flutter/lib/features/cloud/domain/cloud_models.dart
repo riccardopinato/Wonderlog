@@ -160,3 +160,20 @@ final class CloudAlbumPhoto {
   final DateTime? deletedAt;
   final int schemaVersion;
 }
+
+
+final class CloudMemoryPhotoLink {
+  const CloudMemoryPhotoLink({
+    required this.ownerId,
+    required this.memoryCloudId,
+    required this.photoCloudId,
+    required this.displayOrder,
+    required this.isHeroPhoto,
+  });
+
+  final String ownerId;
+  final String memoryCloudId;
+  final String photoCloudId;
+  final int displayOrder;
+  final bool isHeroPhoto;
+}
