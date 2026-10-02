@@ -116,5 +116,14 @@
   "premiumPurchaseCancelled": "Purchase cancelled.",
   "premiumRestoreSuccess": "Purchases restored.",
   "premiumGenericError": "The store operation could not be completed.",
-  "premiumProfileDescription": "Manage Premium and available plans."
+  "premiumProfileDescription": "Manage Premium and available plans.",
+  "captureTitle": "Quick Capture",
+  "captureJourney": "Journey",
+  "captureExistingMemory": "Add to an existing Memory",
+  "captureMemory": "Memory",
+  "captureCreateMemory": "Create a new Memory",
+  "captureText": "Thoughts, notes or links",
+  "captureSaved": "Saved to Wonderlog.",
+  "captureError": "Unable to save this capture.",
+  "done": "Done"
 }

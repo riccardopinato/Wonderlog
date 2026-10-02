@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../capture/application/capture_controller.dart';
+import '../../capture/data/wonderlog_capture_repository.dart';
+import '../../capture/domain/capture_media_port.dart';
+import '../../capture/presentation/capture_page.dart';
 import '../../journeys/domain/journey.dart';
 import '../../journeys/presentation/journey_detail_page.dart';
 import '../../journeys/presentation/journey_widgets.dart';
@@ -25,6 +29,25 @@ final class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text(strings.appTitle),
         actions: [
+          IconButton(
+            tooltip: strings.captureTitle,
+            onPressed: () {
+              final captureRepository = WonderlogCaptureRepository(
+                repository: repository,
+                mediaPort: const UnsupportedCaptureMediaPort(),
+                isPremium: () => true,
+              );
+              Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => CapturePage(
+                    controller: CaptureController(captureRepository),
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add_box_outlined),
+          ),
           IconButton(
             tooltip: strings.searchTitle,
             onPressed: () => Navigator.push(
