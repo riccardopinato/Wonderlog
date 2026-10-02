@@ -123,7 +123,7 @@ Shared Ecosystem Core v1 candidate.
   deterministic bridgeId, explicit transfer mode, provenance, fallback and
   required capabilities.
 - COPY and LINK are separate intents while the canonical source revision keeps
-  one stable bridge identity/idempotency identity.
+  one stable bridge identity, while handoff idempotency remains mode-aware.
 - Cross-app serialization strips private local media references and preserves
   only safe metadata.
 - EcosystemRegistry performs target capability negotiation before a handoff.
