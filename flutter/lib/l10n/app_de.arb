@@ -131,5 +131,12 @@
         "type": "int"
       }
     }
-  }
+  },
+  "memoryUnavailable": "Erinnerung nicht verfügbar",
+  "memoryDetail": "Erinnerung",
+  "memoryPhotos": "Fotos",
+  "memoryNoPhotos": "Keine Fotos mit dieser Erinnerung verknüpft.",
+  "memoryKeepsakes": "Reise-Andenken",
+  "memoryNoKeepsakes": "Keine Reisedokumente angehängt.",
+  "memoryKeepsakeDocument": "Reisedokument"
 }

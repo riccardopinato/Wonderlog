@@ -131,5 +131,12 @@
         "type": "int"
       }
     }
-  }
+  },
+  "memoryUnavailable": "Memória indisponível",
+  "memoryDetail": "Memória",
+  "memoryPhotos": "Fotos",
+  "memoryNoPhotos": "Não há fotos ligadas a esta memória.",
+  "memoryKeepsakes": "Recordações de viagem",
+  "memoryNoKeepsakes": "Não há documentos de viagem anexados.",
+  "memoryKeepsakeDocument": "Documento de viagem"
 }

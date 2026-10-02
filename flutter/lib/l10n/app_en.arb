@@ -179,5 +179,12 @@
         "type": "int"
       }
     }
-  }
+  },
+  "memoryUnavailable": "Memory unavailable",
+  "memoryDetail": "Memory",
+  "memoryPhotos": "Photos",
+  "memoryNoPhotos": "No photos linked to this Memory.",
+  "memoryKeepsakes": "Keepsakes",
+  "memoryNoKeepsakes": "No travel documents attached.",
+  "memoryKeepsakeDocument": "Travel document"
 }
