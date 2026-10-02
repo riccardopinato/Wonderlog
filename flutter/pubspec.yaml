@@ -22,6 +22,7 @@ dependencies:
   purchases_flutter: ^10.14.0
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
+  http: ^1.5.0
 
 dev_dependencies:
   flutter_test:
