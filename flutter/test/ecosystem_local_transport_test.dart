@@ -280,15 +280,25 @@ void main() {
   });
 
   test('malformed packet fields fail as FormatException', () {
-    final malformed = jsonEncode({
+    final malformedTarget = jsonEncode({
       'protocolVersion': ecosystemLocalHandoffProtocolVersion,
       'targetApp': 'unknown_app',
       'createdAtUtc': 'not-a-date',
       'envelope': sampleEnvelope().toJson(),
     });
+    final malformedProtocol = jsonEncode({
+      'protocolVersion': 1,
+      'targetApp': EcosystemAppId.annasDiary.wireValue,
+      'createdAtUtc': DateTime.utc(2026, 10, 2).toIso8601String(),
+      'envelope': sampleEnvelope().toJson(),
+    });
 
     expect(
-      () => EcosystemHandoffPacket.decode(malformed),
+      () => EcosystemHandoffPacket.decode(malformedTarget),
+      throwsFormatException,
+    );
+    expect(
+      () => EcosystemHandoffPacket.decode(malformedProtocol),
       throwsFormatException,
     );
   });
