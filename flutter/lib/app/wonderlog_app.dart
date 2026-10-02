@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_controller.dart';
+import '../core/ecosystem/ecosystem_transfer_store.dart';
+import '../core/runtime/wonderlog_services_scope.dart';
 import '../features/location/domain/location_repository.dart';
 import '../features/memories/data/photo_import_service.dart';
 import '../features/memories/domain/wonderlog_repository.dart';
@@ -16,18 +18,30 @@ final class WonderlogApp extends StatelessWidget {
     required this.repository,
     required this.locationRepository,
     required this.photoImportService,
+    required this.ecosystemTransferStore,
   });
 
   final AppController controller;
   final WonderlogRepository repository;
   final LocationRepository locationRepository;
   final PhotoImportService photoImportService;
+  final EcosystemTransferStore ecosystemTransferStore;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, _) => MaterialApp(
+    final services = WonderlogServices(
+      controller: controller,
+      repository: repository,
+      locationRepository: locationRepository,
+      photoImportService: photoImportService,
+      ecosystemTransferStore: ecosystemTransferStore,
+    );
+
+    return WonderlogServicesScope(
+      services: services,
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (context, _) => MaterialApp(
         debugShowCheckedModeBanner: false,
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
         theme: WonderlogTheme.light,
@@ -45,6 +59,7 @@ final class WonderlogApp extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
