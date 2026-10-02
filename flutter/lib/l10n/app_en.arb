@@ -80,5 +80,10 @@
   "albumEmpty": "No photos in this album yet.",
   "photo": "Photo",
   "localFirstTitle": "Saved locally first",
-  "localFirstDescription": "Your Journey, Memories and Album remain available offline."
+  "localFirstDescription": "Your Journey, Memories and Album remain available offline.",
+  "journeyMap": "Map",
+  "mapAll": "All",
+  "mapPhotos": "Photos",
+  "mapMemories": "Memories",
+  "mapEmpty": "Add a place or a geotagged photo to see this Journey on the map."
 }

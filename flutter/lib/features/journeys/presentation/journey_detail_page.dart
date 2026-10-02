@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../map_memories/presentation/journey_map_page.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
 import '../../memories/presentation/memory_editor_page.dart';
@@ -43,7 +44,7 @@ final class JourneyDetailPage extends StatelessWidget {
         }
 
         return DefaultTabController(
-          length: 3,
+          length: 4,
           child: Scaffold(
             appBar: AppBar(
               title: Text(journey.title),
@@ -52,6 +53,7 @@ final class JourneyDetailPage extends StatelessWidget {
                   Tab(text: AppLocalizations.of(context).journeyOverview),
                   Tab(text: AppLocalizations.of(context).journeyMemories),
                   Tab(text: AppLocalizations.of(context).journeyAlbum),
+                  Tab(text: AppLocalizations.of(context).journeyMap),
                 ],
               ),
               actions: [
@@ -72,6 +74,10 @@ final class JourneyDetailPage extends StatelessWidget {
                 _AlbumTab(
                   repository: repository,
                   journeyId: journeyId,
+                ),
+                JourneyMapPage(
+                  repository: repository,
+                  journey: journey,
                 ),
               ],
             ),
