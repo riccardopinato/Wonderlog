@@ -61,3 +61,4 @@ No secret belongs in the repository.
 Every pull request touching the Flutter migration must pass localization/code
 generation, analyze, unit tests, Web release build, Android release APK and AAB
 build before it can be considered for merge.
+
