@@ -1,0 +1,78 @@
+# Wonderlog — Flutter migration
+
+## Baseline
+
+The Kotlin/Compose project stored in the repository ZIP remains the donor
+baseline. The Flutter implementation is developed in parallel under
+`flutter/` until parity is proven.
+
+## Why parallel migration
+
+A direct rewrite would create unnecessary regression and data-loss risk.
+The migration therefore follows COPY-FIRST and Architecture Before Scale:
+
+1. freeze the Kotlin feature semantics;
+2. port infrastructure using the Project Golden Components;
+3. port the stable domain/data contracts;
+4. port features by bounded vertical slices;
+5. add legacy export/import before production package cutover;
+6. certify Android, iOS and Web independently.
+
+## Golden components reused
+
+- Universal Identity: Anna's Diary donor, Supabase + Google OAuth;
+- Localization: FrameLab/Anna's Diary ARB pattern;
+- Profile: repository + local preference pattern;
+- Material 3 theme: shared design-token pattern;
+- CI/release: generated platform shells, analyze/test/build and artifacts.
+
+## Data compatibility
+
+Flutter Drift uses the same conceptual entities and table names as the current
+Room model:
+
+- trips;
+- memories;
+- album_photos;
+- memory_photos;
+- memory_attachments;
+- location_places;
+- geocoding_cache;
+- offline_map_regions.
+
+The development database file is deliberately separate. Matching table names
+does not mean the Android sandbox can read the legacy Room database. A later
+migration step must export from the legacy app and import transactionally into
+Flutter, with checksum/idempotency validation.
+
+## Ecosystem direction
+
+The shared interoperability primitive is `EcosystemEnvelope v1`.
+
+Every app keeps its own database and domain model. Cross-app exchange happens
+through a versioned envelope with explicit source identity, entity identity,
+timestamps, tags, people, places, media references and an idempotency key.
+
+No app is allowed to read another app's private database directly.
+
+Transport is intentionally separate from the envelope. Planned adapters are:
+
+- local Android/iOS share/deep-link transport;
+- optional authenticated Supabase inbox/outbox;
+- import confirmation in the destination app.
+
+## Migration gates
+
+The Flutter build cannot become the main Wonderlog release until:
+
+- Journey/Memory/Album parity is complete;
+- Capture/Keepsakes parity is complete;
+- Smart Journey parity is complete;
+- Map Memories parity is complete;
+- Rediscover/Replay parity is complete;
+- Premium/RevenueCat parity is complete;
+- cloud backup/sync parity is complete;
+- legacy data import is verified on a real device;
+- Android release and Web deploy pass;
+- iOS build passes on macOS;
+- no destructive migration or silent data loss is possible.
