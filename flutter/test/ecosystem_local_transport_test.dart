@@ -128,10 +128,13 @@ void main() {
     expect(copy.fallbackText, contains('Cascate di Riva'));
 
     final pending = await store.watchPendingOutbox().first;
+    expect(pending, hasLength(2));
     expect(
-      pending,
-      hasLength(1),
-      reason: 'same canonical source revision remains idempotent',
+      pending.map((item) => item.envelope.transferMode).toSet(),
+      {
+        EcosystemTransferMode.copy,
+        EcosystemTransferMode.link,
+      },
     );
   });
 
