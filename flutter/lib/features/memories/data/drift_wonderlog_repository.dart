@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/database/legacy_database_compatibility.dart';
 import '../../../core/database/wonderlog_database.dart' as db;
 import '../../journeys/domain/journey.dart';
 import '../domain/memory_models.dart';
@@ -421,12 +422,15 @@ final class DriftWonderlogRepository implements WonderlogRepository {
   List<String> _tags(String raw) {
     try {
       final value = jsonDecode(raw);
-      return value is List
-          ? value.whereType<String>().toList(growable: false)
-          : const [];
+      if (value is List) {
+        return value.whereType<String>().toList(growable: false);
+      }
     } catch (_) {
-      return const [];
+      // Kotlin Room v6 used Converters.fromStringList(), which persisted tags
+      // as a "||"-delimited string instead of JSON.
     }
+
+    return LegacyDatabaseCompatibility.decodeLegacyTags(raw);
   }
 
   AlbumPhotoEntry _photo(db.AlbumPhoto row) => AlbumPhotoEntry(

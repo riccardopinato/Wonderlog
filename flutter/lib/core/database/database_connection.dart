@@ -1,2 +1,3 @@
 export 'database_connection_native.dart'
-    if (dart.library.ui) 'database_connection_flutter.dart';
+    if (dart.library.io) 'database_connection_io.dart'
+    if (dart.library.js_interop) 'database_connection_web.dart';

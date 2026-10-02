@@ -53,7 +53,8 @@ class Memories extends Table {
   RealColumn get longitude => real().nullable()();
   TextColumn get date => text()();
   TextColumn get mood => text().withDefault(const Constant('HAPPY'))();
-  TextColumn get tagsJson => text().withDefault(const Constant('[]'))();
+  TextColumn get tagsJson =>
+      text().named('tags').withDefault(const Constant('[]'))();
   BoolColumn get favorite => boolean().withDefault(const Constant(false))();
   IntColumn get createdAt => integer()();
   IntColumn get updatedAt => integer()();
@@ -225,12 +226,15 @@ class WonderlogDatabase extends _$WonderlogDatabase {
       : super(executor ?? driftDatabase(name: 'wonderlog_flutter'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (migrator) => migrator.createAll(),
         onUpgrade: (migrator, from, to) async {
+          // Room production baseline is schema v6. A v6 database already
+          // contains cloud_sync_queue and memory_attachments, so upgrading
+          // v6 -> v7 is intentionally metadata-only.
           if (from < 2) {
             await migrator.createTable(cloudSyncQueue);
           }
