@@ -39,7 +39,7 @@ final class SupabaseIdentityService implements IdentityService {
     try {
       await Supabase.initialize(
         url: _config.supabaseUrl.trim(),
-        anonKey: _config.supabasePublishableKey.trim(),
+        publishableKey: _config.supabasePublishableKey.trim(),
       );
 
       _authSubscription = _client.auth.onAuthStateChange.listen((_) {
