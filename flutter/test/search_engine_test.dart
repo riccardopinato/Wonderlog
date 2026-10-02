@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wonderlog/features/journeys/domain/journey.dart';
-import 'package:wonderlog/features/memories/domain/memory_models.dart';
 import 'package:wonderlog/features/search/domain/search_engine.dart';
 
 void main() {
