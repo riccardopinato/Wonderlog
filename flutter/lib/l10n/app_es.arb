@@ -20,7 +20,13 @@
   "cancel": "Cancelar",
   "localDataError": "No se pudieron cargar tus datos locales de viaje.",
   "journeyCount": "{count, plural, =0{Sin viajes} =1{1 viaje} other{{count} viajes}}",
-  "@journeyCount": {"placeholders": {"count": {"type": "int"}}},
+  "@journeyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "profileTitle": "Perfil",
   "appearance": "Apariencia",
   "theme": "Tema",
@@ -50,5 +56,9 @@
   "accountConnected": "Cuenta conectada",
   "accountError": "No se pudo completar la operación de la cuenta.",
   "ecosystemTitle": "Apps conectadas",
-  "ecosystemFoundationDescription": "Wonderlog usa un contrato bridge versionado para conectarse de forma segura con el resto de tu ecosistema de apps."
+  "ecosystemFoundationDescription": "Wonderlog usa un contrato bridge versionado para conectarse de forma segura con el resto de tu ecosistema de apps.",
+  "lifeBridgeShareToAnna": "Compartir con Anna's Diary",
+  "lifeBridgeCopyToAnna": "Copiar a Anna's Diary",
+  "lifeBridgeLinkToAnna": "Vincular en Anna's Diary",
+  "lifeBridgeCopiedForAnna": "Payload de Life Bridge copiado. En Anna's Diary, abre Ecosistema de vida y elige Pegar e importar."
 }
