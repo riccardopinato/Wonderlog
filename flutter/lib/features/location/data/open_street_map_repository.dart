@@ -123,9 +123,8 @@ final class OpenStreetMapRepository implements LocationRepository {
                   region: Value(region),
                   latitude: latitude,
                   longitude: longitude,
-                  cachedAt: Value(
-                    DateTime.now().toUtc().millisecondsSinceEpoch,
-                  ),
+                  cachedAt:
+                      DateTime.now().toUtc().millisecondsSinceEpoch,
                 ),
               );
         }
@@ -216,9 +215,8 @@ final class OpenStreetMapRepository implements LocationRepository {
               region: Value(region),
               latitude: latitude,
               longitude: longitude,
-              cachedAt: Value(
-                DateTime.now().toUtc().millisecondsSinceEpoch,
-              ),
+              cachedAt:
+                  DateTime.now().toUtc().millisecondsSinceEpoch,
             ),
           );
 
