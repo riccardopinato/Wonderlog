@@ -54,3 +54,10 @@ Cloud auth is optional. Configure it with dart-defines only when needed:
 - WONDERLOG_WEB_AUTH_REDIRECT
 
 No secret belongs in the repository.
+
+
+## CI gate
+
+Every pull request touching the Flutter migration must pass localization/code
+generation, analyze, unit tests, Web release build, Android release APK and AAB
+build before it can be considered for merge.
