@@ -15,8 +15,8 @@ This Flutter foundation already provides:
 - functional local Journey creation and listing;
 - optional Supabase identity with Google OAuth and email/password fallback;
 - profile language/theme preferences;
-- versioned EcosystemEnvelope contracts for future Anna's Diary / Notes /
-  TrailPath interoperability;
+- versioned EcosystemEnvelope contracts plus Shared Ecosystem Core v1
+  candidate transport for Anna's Diary / Notes / TrailPath interoperability;
 - Android, iOS and Web platform generation in CI.
 
 ## Safety rule
@@ -64,3 +64,12 @@ generation, analyze, unit tests, Web release build, Android release APK and AAB
 build before it can be considered for merge. The current migration branch has
 passed this complete CI gate.
 
+
+
+## Ecosystem E1 status
+
+Shared Ecosystem Core v1 is implemented as a candidate contract: deterministic
+bridge identity, COPY/LINK intent, provenance, capability negotiation,
+persistent inbox/outbox and explicit deep-link/encoded fallback transport.
+It remains non-production until the Anna's Diary adapter and real round-trip
+certification gates pass.
