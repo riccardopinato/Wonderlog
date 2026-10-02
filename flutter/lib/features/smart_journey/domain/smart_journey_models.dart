@@ -237,3 +237,24 @@ final class SmartJourneyCreationAllowance {
       !isPremium && (journeyLimitReached || hasBlockedPhotos);
   bool get allPhotosAllowed => blockedPhotoCount == 0;
 }
+
+
+final class SmartJourneyCreationResult {
+  const SmartJourneyCreationResult({
+    required this.journeyId,
+    required this.photoCount,
+    required this.memoryDraftCount,
+  });
+
+  final String journeyId;
+  final int photoCount;
+  final int memoryDraftCount;
+}
+
+final class SmartJourneyLimitException implements Exception {
+  const SmartJourneyLimitException(this.message);
+  final String message;
+
+  @override
+  String toString() => message;
+}
