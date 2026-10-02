@@ -60,6 +60,50 @@ final class DriftWonderlogRepository implements WonderlogRepository {
   }
 
   @override
+  Stream<List<MemoryWithPhotos>> watchMemoriesWithPhotos(
+    String journeyId,
+  ) {
+    final query = database.select(database.memories)
+      ..where((row) => row.tripId.equals(journeyId))
+      ..orderBy([
+        (row) => OrderingTerm.asc(row.date),
+        (row) => OrderingTerm.asc(row.displayOrder),
+        (row) => OrderingTerm.asc(row.createdAt),
+      ]);
+
+    return query.watch().asyncMap((rows) async {
+      final result = <MemoryWithPhotos>[];
+      for (final row in rows) {
+        final links = await (database.select(database.memoryPhotos)
+              ..where((link) => link.memoryId.equals(row.id))
+              ..orderBy([(link) => OrderingTerm.asc(link.displayOrder)]))
+            .get();
+        final photos = <AlbumPhotoEntry>[];
+        for (final link in links) {
+          final photo = await (database.select(database.albumPhotos)
+                ..where((item) => item.id.equals(link.albumPhotoId)))
+              .getSingleOrNull();
+          if (photo != null) photos.add(_photo(photo));
+        }
+        final attachments = await (database.select(database.memoryAttachments)
+              ..where((item) => item.memoryId.equals(row.id))
+              ..orderBy([(item) => OrderingTerm.asc(item.createdAt)]))
+            .get();
+        result.add(
+          MemoryWithPhotos(
+            memory: _memory(row),
+            photos: photos,
+            attachments: attachments
+                .map(_attachment)
+                .toList(growable: false),
+          ),
+        );
+      }
+      return result;
+    });
+  }
+
+  @override
   Stream<List<AlbumPhotoEntry>> watchAlbum(String journeyId) {
     final query = database.select(database.albumPhotos)
       ..where((row) => row.journeyId.equals(journeyId))

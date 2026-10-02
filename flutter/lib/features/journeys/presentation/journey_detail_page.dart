@@ -10,6 +10,7 @@ import '../../memories/presentation/memory_editor_page.dart';
 import '../../rediscover/domain/journey_replay_builder.dart';
 import '../../rediscover/domain/rediscover_models.dart';
 import '../../rediscover/presentation/journey_replay_page.dart';
+import '../../timeline/presentation/timeline_page.dart';
 import '../domain/journey.dart';
 
 final class JourneyDetailPage extends StatelessWidget {
@@ -44,7 +45,7 @@ final class JourneyDetailPage extends StatelessWidget {
         }
 
         return DefaultTabController(
-          length: 4,
+          length: 5,
           child: Scaffold(
             appBar: AppBar(
               title: Text(journey.title),
@@ -54,6 +55,7 @@ final class JourneyDetailPage extends StatelessWidget {
                   Tab(text: AppLocalizations.of(context).journeyMemories),
                   Tab(text: AppLocalizations.of(context).journeyAlbum),
                   Tab(text: AppLocalizations.of(context).journeyMap),
+                  Tab(text: AppLocalizations.of(context).journeyTimeline),
                 ],
               ),
               actions: [
@@ -76,6 +78,10 @@ final class JourneyDetailPage extends StatelessWidget {
                   journeyId: journeyId,
                 ),
                 JourneyMapPage(
+                  repository: repository,
+                  journey: journey,
+                ),
+                TimelinePage(
                   repository: repository,
                   journey: journey,
                 ),

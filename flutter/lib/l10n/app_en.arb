@@ -91,5 +91,13 @@
   "searchTitle": "Search",
   "searchHint": "Search journeys, memories, places or tags",
   "searchStartTyping": "Start typing to search your Wonderlog.",
-  "searchNoResults": "No matching journeys or memories."
+  "searchNoResults": "No matching journeys or memories.",
+  "journeyTimeline": "Timeline",
+  "timelineOldest": "Oldest",
+  "timelineNewest": "Newest",
+  "timelineFavorites": "Favorites",
+  "timelineMood": "Mood",
+  "timelineLocation": "Place",
+  "timelineWithPhotos": "With photos",
+  "timelineEmpty": "No memories match these timeline filters."
 }
