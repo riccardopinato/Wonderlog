@@ -64,20 +64,26 @@ jobs:
                       print(f"{i}: {line}")
           PY
 
-      - name: Print likely source files
+      - name: Print bridge target source
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           root=Path("/tmp/wonderlog-donor")
-          terms=("Journey","Trip","Memory","Database","Navigation","NavGraph","Detail","Screen","ViewModel")
-          candidates=[]
-          for p in root.rglob("*.kt"):
-              if any(t.lower() in p.name.lower() for t in terms):
-                  candidates.append(p)
-          for p in sorted(candidates)[:80]:
-              text=p.read_text(errors="ignore").splitlines()
-              print(f"\n===== FILE {p.relative_to(root)} ({len(text)} lines) =====")
-              for i,line in enumerate(text[:260],1):
-                  print(f"{i:04d}: {line}")
+          requests={
+              "app/src/main/java/com/example/domain/model/Models.kt":[(1,190)],
+              "app/src/main/java/com/example/ui/screens/DestinationDetailScreen.kt":[(1,240),(740,860)],
+              "app/src/main/java/com/example/ui/screens/MemoryDetailScreen.kt":[(140,235)],
+              "app/src/main/java/com/example/presentation/WanderlogViewModel.kt":[(228,330)],
+              "app/src/main/AndroidManifest.xml":[(1,120)],
+              "app/build.gradle.kts":[(1,220)],
+          }
+          for rel,ranges in requests.items():
+              p=root/rel
+              lines=p.read_text(errors="ignore").splitlines()
+              print(f"\n===== TARGET {rel} ({len(lines)} lines) =====")
+              for start,end in ranges:
+                  print(f"--- lines {start}-{end} ---")
+                  for i in range(start-1,min(end,len(lines))):
+                      print(f"{i+1:04d}: {lines[i]}")
           PY
