@@ -10,9 +10,8 @@ import 'profile/profile_repository.dart';
 final class AppController extends ChangeNotifier {
   AppController({
     required ProfileRepository profileRepository,
-    required IdentityService identityService,
-  })  : _profileRepository = profileRepository,
-        identityService = identityService;
+    required this.identityService,
+  }) : _profileRepository = profileRepository;
 
   final ProfileRepository _profileRepository;
   final IdentityService identityService;
