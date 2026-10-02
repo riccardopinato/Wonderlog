@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
+import '../../../core/ecosystem/life_bridge_v1.dart';
 import '../../../l10n/app_localizations.dart';
+import '../application/journey_life_bridge_adapter.dart';
 import '../domain/journey.dart';
 import '../domain/journey_repository.dart';
 
@@ -62,6 +65,42 @@ final class JourneyCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            const SizedBox(width: WonderlogSpacing.xSmall),
+            PopupMenuButton<LifeBridgeTransferMode>(
+              tooltip: strings.lifeBridgeShareToAnna,
+              icon: const Icon(Icons.hub_outlined),
+              onSelected: (mode) async {
+                final payload = JourneyLifeBridgeAdapter.payloadFor(
+                  journey,
+                  transferMode: mode,
+                );
+                await Clipboard.setData(
+                  ClipboardData(text: payload.encode()),
+                );
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(strings.lifeBridgeCopiedForAnna)),
+                );
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: LifeBridgeTransferMode.copy,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.copy_all_outlined),
+                    title: Text(strings.lifeBridgeCopyToAnna),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: LifeBridgeTransferMode.link,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.link_outlined),
+                    title: Text(strings.lifeBridgeLinkToAnna),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
