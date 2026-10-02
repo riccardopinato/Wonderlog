@@ -10,6 +10,7 @@ import '../application/rediscover_data_adapter.dart';
 import '../domain/rediscover_engine.dart';
 import '../domain/rediscover_models.dart';
 import '../domain/rediscover_selection_engine.dart';
+import 'rediscover_page.dart';
 
 final class RediscoverHomeSection extends StatelessWidget {
   const RediscoverHomeSection({
@@ -54,9 +55,26 @@ final class RediscoverHomeSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: WonderlogSpacing.large),
-                Text(
-                  strings.rediscoverTitle,
-                  style: Theme.of(context).textTheme.titleLarge,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        strings.rediscoverTitle,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => RediscoverPage(
+                            repository: repository,
+                          ),
+                        ),
+                      ),
+                      child: Text(strings.rediscoverSeeAll),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: WonderlogSpacing.xSmall),
                 Text(strings.rediscoverSubtitle),
