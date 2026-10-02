@@ -40,7 +40,7 @@ final class EcosystemInboxItem {
 abstract interface class EcosystemTransferStore {
   Stream<List<EcosystemOutboxItem>> watchPendingOutbox();
 
-  Future<void> enqueueOutbox({
+  Future<String> enqueueOutbox({
     required EcosystemAppId targetApp,
     required EcosystemEnvelope envelope,
   });
