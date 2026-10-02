@@ -4,6 +4,7 @@ import '../../features/location/domain/location_repository.dart';
 import '../../features/memories/data/photo_import_service.dart';
 import '../../features/memories/domain/wonderlog_repository.dart';
 import '../app_controller.dart';
+import '../ecosystem/ecosystem_inbound_transfer_service.dart';
 import '../ecosystem/ecosystem_transfer_service.dart';
 import '../ecosystem/ecosystem_transfer_store.dart';
 
@@ -15,6 +16,7 @@ final class WonderlogServices {
     required this.photoImportService,
     required this.ecosystemTransferStore,
     required this.ecosystemTransferService,
+    required this.ecosystemInboundTransferService,
   });
 
   final AppController controller;
@@ -23,6 +25,7 @@ final class WonderlogServices {
   final PhotoImportService photoImportService;
   final EcosystemTransferStore ecosystemTransferStore;
   final EcosystemTransferService ecosystemTransferService;
+  final EcosystemInboundTransferService ecosystemInboundTransferService;
 }
 
 final class WonderlogServicesScope extends InheritedWidget {

@@ -5,6 +5,7 @@ import 'core/app_controller.dart';
 import 'core/config/app_config.dart';
 import 'core/database/wonderlog_database.dart';
 import 'core/ecosystem/drift_ecosystem_transfer_store.dart';
+import 'core/ecosystem/ecosystem_inbound_transfer_service.dart';
 import 'core/ecosystem/ecosystem_transfer_service.dart';
 import 'core/ecosystem/flutter_local_ecosystem_transport_port.dart';
 import 'core/identity/supabase_identity_service.dart';
@@ -25,6 +26,9 @@ Future<void> main() async {
     store: ecosystemTransferStore,
     localTransport: const FlutterLocalEcosystemTransportPort(),
   );
+  final ecosystemInboundTransferService = EcosystemInboundTransferService(
+    store: ecosystemTransferStore,
+  );
   final photoImportService = await createPlatformPhotoImportService();
   final controller = AppController(
     profileRepository: SharedPreferencesProfileRepository(),
@@ -41,6 +45,7 @@ Future<void> main() async {
       photoImportService: photoImportService,
       ecosystemTransferStore: ecosystemTransferStore,
       ecosystemTransferService: ecosystemTransferService,
+      ecosystemInboundTransferService: ecosystemInboundTransferService,
     ),
   );
 }

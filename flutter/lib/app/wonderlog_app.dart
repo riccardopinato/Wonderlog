@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_controller.dart';
+import '../core/ecosystem/ecosystem_deep_link_listener.dart';
+import '../core/ecosystem/ecosystem_inbound_transfer_service.dart';
 import '../core/ecosystem/ecosystem_transfer_service.dart';
 import '../core/ecosystem/ecosystem_transfer_store.dart';
 import '../core/runtime/wonderlog_services_scope.dart';
@@ -21,6 +23,7 @@ final class WonderlogApp extends StatelessWidget {
     required this.photoImportService,
     required this.ecosystemTransferStore,
     required this.ecosystemTransferService,
+    required this.ecosystemInboundTransferService,
   });
 
   final AppController controller;
@@ -29,6 +32,7 @@ final class WonderlogApp extends StatelessWidget {
   final PhotoImportService photoImportService;
   final EcosystemTransferStore ecosystemTransferStore;
   final EcosystemTransferService ecosystemTransferService;
+  final EcosystemInboundTransferService ecosystemInboundTransferService;
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +43,16 @@ final class WonderlogApp extends StatelessWidget {
       photoImportService: photoImportService,
       ecosystemTransferStore: ecosystemTransferStore,
       ecosystemTransferService: ecosystemTransferService,
+      ecosystemInboundTransferService: ecosystemInboundTransferService,
     );
 
     return WonderlogServicesScope(
       services: services,
-      child: AnimatedBuilder(
-        animation: controller,
-        builder: (context, _) => MaterialApp(
+      child: EcosystemDeepLinkListener(
+        inboundService: ecosystemInboundTransferService,
+        child: AnimatedBuilder(
+          animation: controller,
+          builder: (context, _) => MaterialApp(
         debugShowCheckedModeBanner: false,
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
         theme: WonderlogTheme.light,
@@ -61,6 +68,7 @@ final class WonderlogApp extends StatelessWidget {
             locationRepository: locationRepository,
             photoImportService: photoImportService,
           ),
+        ),
         ),
       ),
     ),
