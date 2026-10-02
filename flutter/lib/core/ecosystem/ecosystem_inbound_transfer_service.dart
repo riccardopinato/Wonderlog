@@ -1,7 +1,6 @@
 import 'ecosystem_contract_validator.dart';
 import 'ecosystem_local_transport.dart';
 import 'ecosystem_models.dart';
-import 'ecosystem_registry.dart';
 import 'ecosystem_transfer_planner.dart';
 import 'ecosystem_transfer_store.dart';
 
@@ -32,6 +31,20 @@ final class EcosystemInboundTransferService {
 
   final EcosystemTransferStore store;
   final EcosystemAppId localApp;
+
+  Future<EcosystemInboundResult> acceptUri(Uri uri) async {
+    EcosystemTransferPackage package;
+    try {
+      package = EcosystemLocalTransportCodec.decodeTargetUri(uri);
+    } catch (error) {
+      return EcosystemInboundResult(
+        status: EcosystemInboundStatus.invalid,
+        reason: error.toString(),
+      );
+    }
+
+    return acceptPackage(package);
+  }
 
   Future<EcosystemInboundResult> acceptEncoded(
     String encodedPayload,
@@ -89,12 +102,10 @@ final class EcosystemInboundTransferService {
       );
     }
 
-    final localDefinition = EcosystemRegistry.definition(localApp);
-    final requiredCapability =
-        EcosystemTransferPlanner.requiredCapability(
-      package.envelope.sourceEntityType,
-    );
-    if (!localDefinition.capabilities.contains(requiredCapability)) {
+    if (!EcosystemTransferPlanner.canSend(
+      package.envelope,
+      localApp,
+    )) {
       return EcosystemInboundResult(
         status: EcosystemInboundStatus.unsupported,
         package: package,
