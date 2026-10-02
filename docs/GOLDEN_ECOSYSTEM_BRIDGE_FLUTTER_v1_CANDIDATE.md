@@ -27,7 +27,7 @@ parallel interoperability system.
 - COPY and LINK are distinct transfer intents;
 - bridgeId is deterministic from source app, entity type, entity id and
   revision;
-- idempotencyKey remains stable for the same canonical source revision;
+- canonical idempotencyKey remains stable for the same source revision;\n- handoff idempotency also includes COPY/LINK mode, so the two intents remain distinct;
 - provenance always identifies the canonical owner and revision;
 - private envelopes fail closed;
 - target capability negotiation fails closed;
