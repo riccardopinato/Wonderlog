@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/media/content_addressed_media_asset_store.dart';
 import '../../../core/media/media_asset_backend.dart';
 import '../../../core/media/media_asset_reference.dart';
+import '../../../core/media/platform_media_asset_backend.dart';
 import '../../../core/media/source_byte_reader.dart';
 import '../domain/memory_models.dart';
 
@@ -43,7 +44,7 @@ final class PhotoImportService {
       return mediaStore.read(assetId);
     }
     try {
-      return byteReader.read(reference);
+      return await byteReader.read(reference);
     } catch (_) {
       return null;
     }
