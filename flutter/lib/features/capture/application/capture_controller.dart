@@ -52,6 +52,46 @@ final class CaptureController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void appendIncomingItems(List<CaptureIncomingItem> items) {
+    if (items.isEmpty) return;
+    final current = _state;
+    if (current is! CaptureReady) return;
+    final merged = <CaptureIncomingItem>[...current.draft.items, ...items]
+        .take(100)
+        .toList(growable: false);
+    _state = CaptureReady(
+      CaptureDraft(
+        items: merged,
+        journeyId: current.draft.journeyId,
+        memoryId: current.draft.memoryId,
+        createNewMemory: current.draft.createNewMemory,
+        memoryTitle: current.draft.memoryTitle,
+        memoryText: current.draft.memoryText,
+        location: current.draft.location,
+      ),
+    );
+    notifyListeners();
+  }
+
+  void removeIncomingItem(String id) {
+    final current = _state;
+    if (current is! CaptureReady) return;
+    _state = CaptureReady(
+      CaptureDraft(
+        items: current.draft.items
+            .where((item) => item.id != id)
+            .toList(growable: false),
+        journeyId: current.draft.journeyId,
+        memoryId: current.draft.memoryId,
+        createNewMemory: current.draft.createNewMemory,
+        memoryTitle: current.draft.memoryTitle,
+        memoryText: current.draft.memoryText,
+        location: current.draft.location,
+      ),
+    );
+    notifyListeners();
+  }
+
   Future<void> selectJourney(String? journeyId) async {
     _updateDraft(
       (draft) => CaptureDraft(

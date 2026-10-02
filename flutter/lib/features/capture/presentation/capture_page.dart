@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
+import '../../../core/picker/device_content_picker.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/capture_controller.dart';
 import '../domain/capture_models.dart';
@@ -12,10 +13,12 @@ final class CapturePage extends StatefulWidget {
     super.key,
     required this.controller,
     this.initialText,
+    this.picker = const DeviceContentPicker(),
   });
 
   final CaptureController controller;
   final String? initialText;
+  final DeviceContentPicker picker;
 
   @override
   State<CapturePage> createState() => _CapturePageState();
@@ -165,6 +168,62 @@ final class _CapturePageState extends State<CapturePage> {
                 ),
                 const SizedBox(height: WonderlogSpacing.small),
               ],
+              Wrap(
+                spacing: WonderlogSpacing.small,
+                runSpacing: WonderlogSpacing.small,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            final items = await widget.picker.pickImages();
+                            widget.controller.appendIncomingItems(items);
+                          },
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: Text(strings.captureAddPhotos),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            final items = await widget.picker.pickKeepsakes();
+                            widget.controller.appendIncomingItems(items);
+                          },
+                    icon: const Icon(Icons.attach_file),
+                    label: Text(strings.captureAddFiles),
+                  ),
+                ],
+              ),
+              if (draft.items.length > 1) ...[
+                const SizedBox(height: WonderlogSpacing.small),
+                ...draft.items.map(
+                  (item) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      item.type == CaptureContentType.image
+                          ? Icons.photo_outlined
+                          : item.type == CaptureContentType.file
+                              ? Icons.description_outlined
+                              : Icons.notes_outlined,
+                    ),
+                    title: Text(
+                      (item.title ?? item.text ?? item.uri ?? '').trim().isEmpty
+                          ? strings.captureItem
+                          : (item.title ?? item.text ?? item.uri)!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: IconButton(
+                      onPressed: saving
+                          ? null
+                          : () => widget.controller
+                              .removeIncomingItem(item.id),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: WonderlogSpacing.small),
               TextFormField(
                 initialValue: draft.memoryText,
                 minLines: 5,
