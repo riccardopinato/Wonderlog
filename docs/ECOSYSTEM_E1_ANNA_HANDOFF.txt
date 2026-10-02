@@ -1,0 +1,77 @@
+ECOSYSTEM E1 — WONDERLOG -> ANNA'S DIARY HANDOFF
+================================================
+
+Status
+------
+Wonderlog producer/shared-contract side implemented on:
+  ecosystem-e1-shared-core-v1
+
+Anna's Diary must NOT copy Wonderlog's domain model or database.
+
+Canonical Shared Core files
+---------------------------
+Copy/adapt these contract files as the Anna consumer baseline:
+
+flutter/lib/core/ecosystem/ecosystem_contract.dart
+flutter/lib/core/ecosystem/ecosystem_models.dart
+flutter/lib/core/ecosystem/ecosystem_envelope.dart
+flutter/lib/core/ecosystem/ecosystem_codec.dart
+flutter/lib/core/ecosystem/ecosystem_contract_validator.dart
+flutter/lib/core/ecosystem/ecosystem_registry.dart
+flutter/lib/core/ecosystem/ecosystem_transfer_planner.dart
+flutter/lib/core/ecosystem/ecosystem_local_transport.dart
+flutter/lib/core/ecosystem/ecosystem_inbound_transfer_service.dart
+
+Use this barrel as the public contract surface:
+  flutter/lib/core/ecosystem/ecosystem_bridge.dart
+
+Compatibility fixtures:
+  docs/GOLDEN_ECOSYSTEM_BRIDGE_V1_TEST_VECTORS.txt
+
+Golden candidate:
+  docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt
+
+Anna consumer requirements
+--------------------------
+1. Register:
+     annasdiary://ecosystem/import?payload=<base64url-package>
+2. Decode EcosystemTransferPackage v1.
+3. Require targetApp == annas_diary.
+4. Validate EcosystemEnvelope v1 before any materialization.
+5. Deduplicate by:
+     <bridgeId>:<revision>:<copy|link>
+6. Preserve provenance.
+7. Keep COPY and LINK semantically distinct.
+8. Never read Wonderlog's private DB.
+9. Never accept source-local media URI as transferable media.
+10. Show/execute Anna-side destination workflow before creating Anna data.
+
+Expected Wonderlog producer objects
+-----------------------------------
+Journey:
+  sourceEntityType = journey
+  Anna Life Bridge projection objectType = journey
+
+Memory:
+  sourceEntityType = memory
+  Anna Life Bridge projection objectType = travel_memory
+
+Media v1:
+  safe metadata only;
+  binary handoff = omitted until a separately certified handoff exists.
+
+Reverse direction
+-----------------
+Wonderlog already has an inbound contract service and test fixture for:
+  Anna -> Wonderlog COPY of a note/moment.
+
+Wonderlog accepts a valid package into its ecosystem inbox only.
+It does NOT automatically create a Journey or Memory.
+
+Cloud
+-----
+Do not add cloud semantics to the envelope.
+
+A later optional cloud transport may carry the same contract, but provider
+auth, queues, retry, cursors, tombstones and conflict resolution remain
+transport-specific.

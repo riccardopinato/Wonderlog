@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
-import '../../../core/ecosystem/life_bridge_v1.dart';
+import '../../../core/ecosystem/ecosystem_models.dart';
+import '../../../core/ecosystem/ecosystem_transfer_service.dart';
+import '../../../core/ecosystem/wonderlog_ecosystem_adapter.dart';
+import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
-import '../application/journey_life_bridge_adapter.dart';
 import '../domain/journey.dart';
 import '../domain/journey_repository.dart';
 
@@ -73,25 +74,34 @@ final class JourneyCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: WonderlogSpacing.xSmall),
-            PopupMenuButton<LifeBridgeTransferMode>(
+            PopupMenuButton<EcosystemTransferMode>(
               tooltip: strings.lifeBridgeShareToAnna,
               icon: const Icon(Icons.hub_outlined),
               onSelected: (mode) async {
-                final payload = JourneyLifeBridgeAdapter.payloadFor(
-                  journey,
-                  transferMode: mode,
-                );
-                await Clipboard.setData(
-                  ClipboardData(text: payload.encode()),
+                final services = WonderlogServicesScope.of(context);
+                final result = await services.ecosystemTransferService.send(
+                  targetApp: EcosystemAppId.annasDiary,
+                  envelope: WonderlogEcosystemAdapter.journey(
+                    journey,
+                    mode: mode,
+                  ),
                 );
                 if (!context.mounted) return;
+                final message = switch (result.status) {
+                  EcosystemDeliveryStatus.openedTarget =>
+                    strings.ecosystemOpenedAnna,
+                  EcosystemDeliveryStatus.fallbackCopied =>
+                    strings.lifeBridgeCopiedForAnna,
+                  EcosystemDeliveryStatus.unsupported =>
+                    strings.ecosystemUnsupportedAnna,
+                };
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(strings.lifeBridgeCopiedForAnna)),
+                  SnackBar(content: Text(message)),
                 );
               },
               itemBuilder: (context) => [
                 PopupMenuItem(
-                  value: LifeBridgeTransferMode.copy,
+                  value: EcosystemTransferMode.copy,
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.copy_all_outlined),
@@ -99,7 +109,7 @@ final class JourneyCard extends StatelessWidget {
                   ),
                 ),
                 PopupMenuItem(
-                  value: LifeBridgeTransferMode.link,
+                  value: EcosystemTransferMode.link,
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.link_outlined),

@@ -6,27 +6,28 @@ import 'package:wonderlog/core/ecosystem/ecosystem_envelope.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_models.dart';
 
 void main() {
-  test('outbox deduplicates by target and idempotency key', () async {
+  test('outbox deduplicates same target, revision and transfer mode', () async {
     final database = WonderlogDatabase(NativeDatabase.memory());
     final store = DriftEcosystemTransferStore(database);
     final envelope = EcosystemEnvelope(
-      id: 'e1',
       sourceApp: EcosystemAppId.wonderlog,
       sourceEntityType: EcosystemEntityType.memory,
       sourceEntityId: 'm1',
       createdAtUtc: DateTime.utc(2026),
       title: 'Memory',
+      revision: 3,
     );
 
-    await store.enqueueOutbox(
+    final first = await store.enqueueOutbox(
       targetApp: EcosystemAppId.annasDiary,
       envelope: envelope,
     );
-    await store.enqueueOutbox(
+    final second = await store.enqueueOutbox(
       targetApp: EcosystemAppId.annasDiary,
       envelope: envelope,
     );
 
+    expect(first, second);
     final pending = await store.watchPendingOutbox().first;
     expect(pending, hasLength(1));
     expect(pending.single.envelope.sourceEntityId, 'm1');
@@ -34,11 +35,38 @@ void main() {
     await database.close();
   });
 
+  test('COPY and LINK are distinct durable deliveries', () async {
+    final database = WonderlogDatabase(NativeDatabase.memory());
+    final store = DriftEcosystemTransferStore(database);
+
+    EcosystemEnvelope build(EcosystemTransferMode mode) => EcosystemEnvelope(
+          sourceApp: EcosystemAppId.wonderlog,
+          sourceEntityType: EcosystemEntityType.journey,
+          sourceEntityId: 'j1',
+          createdAtUtc: DateTime.utc(2026),
+          title: 'Trip',
+          sourceDeepLink: 'wonderlog://journey/j1',
+          revision: 4,
+          transferMode: mode,
+        );
+
+    await store.enqueueOutbox(
+      targetApp: EcosystemAppId.annasDiary,
+      envelope: build(EcosystemTransferMode.copy),
+    );
+    await store.enqueueOutbox(
+      targetApp: EcosystemAppId.annasDiary,
+      envelope: build(EcosystemTransferMode.link),
+    );
+
+    expect(await store.watchPendingOutbox().first, hasLength(2));
+    await database.close();
+  });
+
   test('inbox ignores duplicate deliveries', () async {
     final database = WonderlogDatabase(NativeDatabase.memory());
     final store = DriftEcosystemTransferStore(database);
     final envelope = EcosystemEnvelope(
-      id: 'e1',
       sourceApp: EcosystemAppId.annasDiary,
       sourceEntityType: EcosystemEntityType.note,
       sourceEntityId: 'n1',

@@ -4,13 +4,21 @@ import '../../../core/ecosystem/life_bridge_v1.dart';
 import '../domain/journey.dart';
 
 abstract final class JourneyLifeBridgeAdapter {
-  static EcosystemEnvelope envelopeFor(Journey journey) {
+  static EcosystemEnvelope envelopeFor(
+    Journey journey, {
+    EcosystemTransferMode transferMode = EcosystemTransferMode.copy,
+  }) {
     final destination = journey.destination.trim();
     final hasCoordinates = journey.latitude != 0 && journey.longitude != 0;
     final country = journey.country.trim();
+    final deepLink = Uri(
+      scheme: 'wonderlog',
+      host: 'journey',
+      pathSegments: [journey.id],
+    ).toString();
+    final revision = journey.updatedAt.toUtc().millisecondsSinceEpoch;
 
     return EcosystemEnvelope(
-      id: 'wonderlog:journey:${journey.id}',
       sourceApp: EcosystemAppId.wonderlog,
       sourceEntityType: EcosystemEntityType.journey,
       sourceEntityId: journey.id,
@@ -31,24 +39,36 @@ abstract final class JourneyLifeBridgeAdapter {
                 longitude: hasCoordinates ? journey.longitude : null,
               ),
             ],
-      sourceDeepLink: Uri(
-        scheme: 'wonderlog',
-        host: 'journey',
-        pathSegments: [journey.id],
-      ).toString(),
+      sourceDeepLink: deepLink,
       privacyScope: EcosystemPrivacyScope.explicitShare,
-      revision: journey.updatedAt.toUtc().millisecondsSinceEpoch,
+      transferMode: transferMode,
+      revision: revision,
+      provenance: EcosystemProvenance(
+        ownerApp: EcosystemAppId.wonderlog,
+        ownerEntityType: EcosystemEntityType.journey,
+        ownerEntityId: journey.id,
+        ownerRevision: revision,
+        canonicalDeepLink: deepLink,
+      ),
+      fallback: EcosystemFallback(
+        plainText: [
+          if (journey.title.trim().isNotEmpty) journey.title.trim(),
+          if (destination.isNotEmpty) destination,
+          if (journey.description.trim().isNotEmpty)
+            journey.description.trim(),
+        ].join('\n\n'),
+        sourceDeepLink: deepLink,
+      ),
     );
   }
 
   static LifeBridgeV1Payload payloadFor(
     Journey journey, {
-    LifeBridgeTransferMode transferMode = LifeBridgeTransferMode.copy,
+    EcosystemTransferMode transferMode = EcosystemTransferMode.copy,
     DateTime? exportedAt,
   }) =>
       LifeBridgeV1Adapter.fromEnvelope(
-        envelopeFor(journey),
-        transferMode: transferMode,
+        envelopeFor(journey, transferMode: transferMode),
         exportedAt: exportedAt,
         extensions: <String, Object?>{
           'endAt': journey.endDate.toUtc().toIso8601String(),

@@ -5,6 +5,9 @@ import 'core/app_controller.dart';
 import 'core/config/app_config.dart';
 import 'core/database/wonderlog_database.dart';
 import 'core/ecosystem/drift_ecosystem_transfer_store.dart';
+import 'core/ecosystem/ecosystem_inbound_transfer_service.dart';
+import 'core/ecosystem/ecosystem_transfer_service.dart';
+import 'core/ecosystem/flutter_local_ecosystem_transport_port.dart';
 import 'core/identity/supabase_identity_service.dart';
 import 'core/profile/shared_preferences_profile_repository.dart';
 import 'features/location/data/open_street_map_repository.dart';
@@ -19,6 +22,13 @@ Future<void> main() async {
   final repository = DriftWonderlogRepository(database);
   final locationRepository = OpenStreetMapRepository(database);
   final ecosystemTransferStore = DriftEcosystemTransferStore(database);
+  final ecosystemTransferService = EcosystemTransferService(
+    store: ecosystemTransferStore,
+    localTransport: const FlutterLocalEcosystemTransportPort(),
+  );
+  final ecosystemInboundTransferService = EcosystemInboundTransferService(
+    store: ecosystemTransferStore,
+  );
   final photoImportService = await createPlatformPhotoImportService();
   final controller = AppController(
     profileRepository: SharedPreferencesProfileRepository(),
@@ -34,6 +44,8 @@ Future<void> main() async {
       locationRepository: locationRepository,
       photoImportService: photoImportService,
       ecosystemTransferStore: ecosystemTransferStore,
+      ecosystemTransferService: ecosystemTransferService,
+      ecosystemInboundTransferService: ecosystemInboundTransferService,
     ),
   );
 }

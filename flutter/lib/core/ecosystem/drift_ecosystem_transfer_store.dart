@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../database/wonderlog_database.dart' as db;
 import 'ecosystem_codec.dart';
+import 'ecosystem_contract_validator.dart';
 import 'ecosystem_envelope.dart';
 import 'ecosystem_models.dart';
 import 'ecosystem_transfer_store.dart';
@@ -24,15 +25,11 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
   }
 
   @override
-  Future<void> enqueueOutbox({
+  Future<String> enqueueOutbox({
     required EcosystemAppId targetApp,
     required EcosystemEnvelope envelope,
   }) async {
-    if (envelope.privacyScope != EcosystemPrivacyScope.explicitShare) {
-      throw StateError(
-        'Cross-app transfer requires explicitShare privacy scope.',
-      );
-    }
+    EcosystemContractValidator.ensureValid(envelope);
 
     final existing = await (database.select(database.ecosystemOutbox)
           ..where(
@@ -41,17 +38,19 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
                 row.idempotencyKey.equals(envelope.idempotencyKey),
           ))
         .getSingleOrNull();
-    if (existing != null) return;
+    if (existing != null) return existing.id;
 
+    final id = _uuid.v4();
     await database.into(database.ecosystemOutbox).insert(
           db.EcosystemOutboxCompanion.insert(
-            id: _uuid.v4(),
+            id: id,
             targetApp: targetApp.wireValue,
             envelopeJson: EcosystemCodec.encode(envelope),
             idempotencyKey: envelope.idempotencyKey,
             createdAt: DateTime.now().toUtc().millisecondsSinceEpoch,
           ),
         );
+    return id;
   }
 
   @override
@@ -91,6 +90,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
 
   @override
   Future<void> receiveInbox(EcosystemEnvelope envelope) async {
+    EcosystemContractValidator.ensureValid(envelope);
     final existing = await (database.select(database.ecosystemInbox)
           ..where(
             (row) =>

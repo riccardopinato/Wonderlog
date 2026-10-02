@@ -1,0 +1,178 @@
+GOLDEN ECOSYSTEM BRIDGE CONTRACT v1 — DRAFT CANDIDATE
+======================================================
+
+Status
+------
+CANDIDATE / NOT YET COPY-READY GOLDEN.
+
+Wonderlog is the first certified producer implementation.
+The contract becomes eligible for COPY-READY GOLDEN promotion only after
+Anna's Diary implements the consumer side against the same contract and the
+cross-app contract tests pass in both applications.
+
+Purpose
+-------
+Provide a stable, provider-independent data contract for explicit transfers
+between Wonderlog, Anna's Diary, Notes, TrailPath and future ecosystem apps.
+
+The bridge is NOT:
+- a shared database;
+- a background sync of all user data;
+- a replacement for each app's domain model;
+- a Supabase-specific protocol.
+
+Canonical ownership
+-------------------
+Each entity remains canonical in its owning app.
+
+COPY:
+- destination materializes an independent local entity;
+- the source remains owner of the original entity;
+- provenance of the source is preserved;
+- future source revisions are NOT applied automatically.
+
+LINK:
+- destination stores a reference/projection to the canonical source;
+- canonical content remains owned by the source app;
+- a canonical deep link is mandatory;
+- LINK does not imply automatic cloud sync.
+
+Identity and idempotency
+------------------------
+bridgeId is stable for one canonical owner/entity:
+
+  ecosystem:v1:<ownerApp>:<ownerEntityType>:<ownerEntityId>
+
+revision identifies the source revision represented by the envelope.
+
+idempotencyKey is:
+
+  <bridgeId>:<revision>:<copy|link>
+
+Therefore:
+- COPY and LINK are distinct deliveries;
+- sending the same mode/revision twice is idempotent;
+- a new revision creates a new idempotent delivery while keeping bridgeId
+  stable.
+
+Provenance
+----------
+Every envelope carries:
+- ownerApp;
+- ownerEntityType;
+- ownerEntityId;
+- ownerRevision;
+- canonicalDeepLink when available;
+- optional parentBridgeId for derived/re-shared entities.
+
+A receiving app must not silently replace provenance with its own identity.
+
+Fallback
+--------
+Every transferable envelope provides at least one fallback:
+- plainText;
+- sourceDeepLink;
+- webUrl.
+
+The current local transport uses a portable clipboard fallback when the target
+app cannot be opened.
+
+Media
+-----
+Private local URIs MUST NEVER cross the bridge.
+
+Forbidden wire values include:
+- file://
+- content://
+- media://
+- /data/...
+- /private/...
+
+The envelope carries safe media metadata plus an explicit handoff descriptor.
+
+Supported handoff kinds:
+- omitted: metadata is transferred, binary handoff is intentionally absent;
+- shareToken: a transport-specific expiring token;
+- cloudObject: a provider-specific safe locator.
+
+The current Wonderlog v1 producer uses "omitted" for media binaries until a
+separate explicit binary handoff transport is certified.
+
+Local transport v1
+------------------
+Portable package:
+- transportVersion = 1;
+- targetApp;
+- createdAtUtc;
+- EcosystemEnvelope v1.
+
+Deep-link target convention:
+
+  <targetScheme>://ecosystem/import?payload=<base64url-package>
+
+Anna's Diary target scheme reserved by this contract:
+
+  annasdiary://ecosystem/import
+
+Portable clipboard fallback prefix:
+
+  ECOSYSTEM_BRIDGE_V1:
+
+The destination must validate schema, capability, privacy scope and
+idempotency before materialization.
+
+Cloud transport
+---------------
+Cloud is an OPTIONAL second transport.
+
+The data contract does not depend on Supabase, Firebase or another backend.
+A cloud adapter may transport the same envelope, but provider-specific queues,
+retry, tombstones, cursors, auth and conflict resolution remain outside this
+contract.
+
+Privacy
+-------
+Cross-app transport requires:
+
+  privacyScope = explicitShare
+
+Private envelopes fail closed.
+
+Destination behavior
+--------------------
+The destination:
+1. validates the contract;
+2. checks target capability;
+3. checks idempotency;
+4. shows/uses the explicit COPY or LINK semantic;
+5. materializes only after the destination-side workflow allows it;
+6. preserves provenance;
+7. never reads the source app's private database directly.
+
+Canonical app IDs v1
+--------------------
+- wonderlog
+- annas_diary
+- notes
+- trailpath
+
+Certification gates
+-------------------
+Minimum tests before GOLDEN promotion:
+- schema v1 round-trip;
+- unsupported schema fails closed;
+- stable bridgeId across revisions;
+- distinct idempotency for COPY vs LINK;
+- duplicate delivery deduplication;
+- provenance preservation;
+- LINK requires canonical deep link;
+- private scope fails closed;
+- no private media URI on the wire;
+- explicit media handoff metadata;
+- local deep-link package round-trip;
+- clipboard fallback round-trip;
+- target capability rejection;
+- target unavailable keeps retryable outbox;
+- successful target open marks delivery complete;
+- Wonderlog -> Anna contract compatibility;
+- Anna -> Wonderlog contract compatibility once Anna implements its adapter.
