@@ -24,8 +24,9 @@ This Flutter foundation already provides:
 Do not replace the production Android application with this build until the
 legacy data migration/import path and feature-parity gate are complete.
 
-The Flutter database intentionally uses a different database file during
-migration development.
+On Android, the cutover code reuses the legacy production Room database when
+present and migrates it non-destructively through Drift. Fresh installs and
+other platforms use the Flutter-managed database path.
 
 ## Local setup
 
@@ -60,5 +61,6 @@ No secret belongs in the repository.
 
 Every pull request touching the Flutter migration must pass localization/code
 generation, analyze, unit tests, Web release build, Android release APK and AAB
-build before it can be considered for merge.
+build before it can be considered for merge. The current migration branch has
+passed this complete CI gate.
 
