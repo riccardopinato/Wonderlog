@@ -99,5 +99,22 @@
   "timelineMood": "Mood",
   "timelineLocation": "Place",
   "timelineWithPhotos": "With photos",
-  "timelineEmpty": "No memories match these timeline filters."
+  "timelineEmpty": "No memories match these timeline filters.",
+  "premiumTitle": "Wonderlog Premium",
+  "premiumHeadline": "Unlock the full travel journal",
+  "premiumDescription": "Unlimited journeys and memories, secure cloud backup, offline maps and PDF travel books.",
+  "premiumUnlimited": "Unlimited journeys and memories",
+  "premiumCloud": "Secure cloud backup and restore",
+  "premiumPdf": "PDF travel books",
+  "premiumOfflineMaps": "Offline maps",
+  "premiumActive": "Premium active",
+  "premiumActiveDescription": "All Premium capabilities are unlocked for this account.",
+  "premiumStoreUnavailable": "Store unavailable",
+  "premiumStoreUnavailableDescription": "This build has no configured store credentials. Local Wonderlog remains available.",
+  "premiumRestore": "Restore purchases",
+  "premiumPurchaseSuccess": "Premium unlocked.",
+  "premiumPurchaseCancelled": "Purchase cancelled.",
+  "premiumRestoreSuccess": "Purchases restored.",
+  "premiumGenericError": "The store operation could not be completed.",
+  "premiumProfileDescription": "Manage Premium and available plans."
 }

@@ -6,6 +6,7 @@ import '../../../core/config/app_config.dart';
 import '../../../core/identity/identity_models.dart';
 import '../../../core/profile/app_profile.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../premium/presentation/premium_page.dart';
 
 final class ProfilePage extends StatelessWidget {
   const ProfilePage({
@@ -25,6 +26,31 @@ final class ProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(WonderlogSpacing.medium),
         children: [
           _AccountCard(controller: controller),
+          const SizedBox(height: WonderlogSpacing.medium),
+          Card(
+            child: ListTile(
+              leading: Icon(
+                controller.isPremium
+                    ? Icons.star_rounded
+                    : Icons.star_outline_rounded,
+              ),
+              title: Text(strings.premiumTitle),
+              subtitle: Text(
+                controller.isPremium
+                    ? strings.premiumActive
+                    : strings.premiumProfileDescription,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => PremiumPage(
+                    service: controller.premiumService,
+                  ),
+                ),
+              ),
+            ),
+          ),
           const SizedBox(height: WonderlogSpacing.medium),
           Card(
             child: Padding(
