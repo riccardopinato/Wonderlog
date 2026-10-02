@@ -11,7 +11,7 @@ final class FlutterLocalEcosystemTransportPort
   Future<bool> tryOpen(Uri targetUri) async {
     try {
       if (!await canLaunchUrl(targetUri)) return false;
-      return launchUrl(targetUri);
+      return await launchUrl(targetUri);
     } catch (_) {
       return false;
     }
