@@ -2,11 +2,13 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wonderlog/core/database/wonderlog_database.dart';
 import 'package:wonderlog/core/ecosystem/drift_ecosystem_transfer_store.dart';
+import 'package:wonderlog/core/ecosystem/ecosystem_codec.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_envelope.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_models.dart';
 
 void main() {
-  test('outbox deduplicates same target, revision and transfer mode', () async {
+  test('outbox deduplicates concurrent same-mode delivery atomically',
+      () async {
     final database = WonderlogDatabase(NativeDatabase.memory());
     final store = DriftEcosystemTransferStore(database);
     final envelope = EcosystemEnvelope(
@@ -18,20 +20,74 @@ void main() {
       revision: 3,
     );
 
-    final first = await store.enqueueOutbox(
-      targetApp: EcosystemAppId.annasDiary,
-      envelope: envelope,
-    );
-    final second = await store.enqueueOutbox(
-      targetApp: EcosystemAppId.annasDiary,
-      envelope: envelope,
-    );
+    final ids = await Future.wait([
+      store.enqueueOutbox(
+        targetApp: EcosystemAppId.annasDiary,
+        envelope: envelope,
+      ),
+      store.enqueueOutbox(
+        targetApp: EcosystemAppId.annasDiary,
+        envelope: envelope,
+      ),
+    ]);
 
-    expect(first, second);
+    expect(ids.toSet(), hasLength(1));
     final pending = await store.watchPendingOutbox().first;
     expect(pending, hasLength(1));
+    expect(pending.single.id, ids.toSet().single);
     expect(pending.single.envelope.sourceEntityId, 'm1');
 
+    await database.close();
+  });
+
+  test('legacy v8 COPY key deduplicates without suppressing LINK', () async {
+    final database = WonderlogDatabase(NativeDatabase.memory());
+    final store = DriftEcosystemTransferStore(database);
+    final copy = EcosystemEnvelope(
+      sourceApp: EcosystemAppId.wonderlog,
+      sourceEntityType: EcosystemEntityType.memory,
+      sourceEntityId: 'legacy-m1',
+      createdAtUtc: DateTime.utc(2026),
+      title: 'Legacy memory',
+      revision: 5,
+    );
+    final legacyKey =
+        'wonderlog:memory:legacy-m1:5';
+
+    await database.into(database.ecosystemOutbox).insert(
+          EcosystemOutboxCompanion.insert(
+            id: 'legacy-row',
+            targetApp: EcosystemAppId.annasDiary.wireValue,
+            envelopeJson: EcosystemCodec.encode(copy),
+            idempotencyKey: legacyKey,
+            createdAt: 1,
+          ),
+        );
+
+    final copyId = await store.enqueueOutbox(
+      targetApp: EcosystemAppId.annasDiary,
+      envelope: copy,
+    );
+    expect(copyId, 'legacy-row');
+    expect(await store.watchPendingOutbox().first, hasLength(1));
+
+    final link = EcosystemEnvelope(
+      sourceApp: EcosystemAppId.wonderlog,
+      sourceEntityType: EcosystemEntityType.memory,
+      sourceEntityId: 'legacy-m1',
+      createdAtUtc: DateTime.utc(2026),
+      title: 'Legacy memory',
+      sourceDeepLink: 'wonderlog://memory/legacy-m1',
+      transferMode: EcosystemTransferMode.link,
+      revision: 5,
+    );
+    final linkId = await store.enqueueOutbox(
+      targetApp: EcosystemAppId.annasDiary,
+      envelope: link,
+    );
+
+    expect(linkId, isNot(copyId));
+    expect(await store.watchPendingOutbox().first, hasLength(2));
     await database.close();
   });
 
@@ -63,7 +119,7 @@ void main() {
     await database.close();
   });
 
-  test('inbox ignores duplicate deliveries', () async {
+  test('inbox ignores concurrent duplicate deliveries', () async {
     final database = WonderlogDatabase(NativeDatabase.memory());
     final store = DriftEcosystemTransferStore(database);
     final envelope = EcosystemEnvelope(
@@ -74,8 +130,10 @@ void main() {
       text: 'Shared thought',
     );
 
-    await store.receiveInbox(envelope);
-    await store.receiveInbox(envelope);
+    await Future.wait([
+      store.receiveInbox(envelope),
+      store.receiveInbox(envelope),
+    ]);
 
     final pending = await store.watchPendingInbox().first;
     expect(pending, hasLength(1));

@@ -35,7 +35,10 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
           ..where(
             (row) =>
                 row.targetApp.equals(targetApp.wireValue) &
-                row.idempotencyKey.equals(envelope.idempotencyKey),
+                _idempotencyExpression(
+                  row.idempotencyKey,
+                  envelope,
+                ),
           ))
         .getSingleOrNull();
     if (existing != null) return existing.id;
@@ -49,8 +52,36 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
             idempotencyKey: envelope.idempotencyKey,
             createdAt: DateTime.now().toUtc().millisecondsSinceEpoch,
           ),
+          mode: InsertMode.insertOrIgnore,
         );
-    return id;
+
+    // Two concurrent callers may both miss the pre-insert lookup. The unique
+    // key plus insertOrIgnore guarantees only one row wins; always read back
+    // the canonical stored row so both callers receive the same durable id.
+    final stored = await (database.select(database.ecosystemOutbox)
+          ..where(
+            (row) =>
+                row.targetApp.equals(targetApp.wireValue) &
+                row.idempotencyKey.equals(envelope.idempotencyKey),
+          ))
+        .getSingleOrNull();
+    if (stored != null) return stored.id;
+
+    // A pre-E1 v8 COPY row can still use the legacy key format. It cannot be
+    // rewritten through a schema migration because both layouts are schema v8.
+    final legacy = await (database.select(database.ecosystemOutbox)
+          ..where(
+            (row) =>
+                row.targetApp.equals(targetApp.wireValue) &
+                _idempotencyExpression(
+                  row.idempotencyKey,
+                  envelope,
+                ),
+          ))
+        .getSingleOrNull();
+    if (legacy != null) return legacy.id;
+
+    throw StateError('Unable to persist ecosystem outbox item.');
   }
 
   @override
@@ -95,7 +126,10 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
           ..where(
             (row) =>
                 row.sourceApp.equals(envelope.sourceApp.wireValue) &
-                row.idempotencyKey.equals(envelope.idempotencyKey),
+                _idempotencyExpression(
+                  row.idempotencyKey,
+                  envelope,
+                ),
           ))
         .getSingleOrNull();
     if (existing != null) return;
@@ -108,6 +142,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
             idempotencyKey: envelope.idempotencyKey,
             receivedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
           ),
+          mode: InsertMode.insertOrIgnore,
         );
   }
 
@@ -134,6 +169,27 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
       ),
     );
   }
+
+  Expression<bool> _idempotencyExpression(
+    GeneratedColumn<String> column,
+    EcosystemEnvelope envelope,
+  ) {
+    final current = column.equals(envelope.idempotencyKey);
+    if (envelope.transferMode != EcosystemTransferMode.copy) {
+      return current;
+    }
+
+    // Before Shared Ecosystem Core v1, schema-v8 rows had no transferMode.
+    // Their semantics therefore map to COPY only. Recognize that historical
+    // key without letting it suppress a LINK for the same source revision.
+    return current | column.equals(_legacyV8IdempotencyKey(envelope));
+  }
+
+  String _legacyV8IdempotencyKey(EcosystemEnvelope envelope) =>
+      '${envelope.sourceApp.wireValue}:'
+      '${envelope.sourceEntityType.name}:'
+      '${envelope.sourceEntityId}:'
+      '${envelope.revision}';
 
   EcosystemOutboxItem _outbox(db.EcosystemOutboxData row) =>
       EcosystemOutboxItem(

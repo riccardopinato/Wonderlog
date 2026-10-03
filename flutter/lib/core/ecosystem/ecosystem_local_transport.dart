@@ -36,33 +36,59 @@ final class EcosystemTransferPackage {
   factory EcosystemTransferPackage.fromJson(
     Map<String, Object?> json,
   ) {
-    final transportVersion =
-        (json['transportVersion'] as num?)?.toInt() ?? 1;
-    if (transportVersion != ecosystemLocalTransportVersion) {
+    try {
+      final rawTransportVersion = json['transportVersion'];
+      if (rawTransportVersion != null && rawTransportVersion is! num) {
+        throw const FormatException(
+          'Ecosystem transportVersion must be numeric.',
+        );
+      }
+      final transportVersion =
+          (rawTransportVersion as num?)?.toInt() ?? 1;
+      if (transportVersion != ecosystemLocalTransportVersion) {
+        throw FormatException(
+          'Unsupported ecosystem local transport version: '
+          '$transportVersion',
+        );
+      }
+
+      final targetAppRaw = json['targetApp'];
+      if (targetAppRaw is! String || targetAppRaw.trim().isEmpty) {
+        throw const FormatException(
+          'Missing or invalid ecosystem targetApp.',
+        );
+      }
+
+      final createdAtRaw = json['createdAtUtc'];
+      if (createdAtRaw is! String || createdAtRaw.trim().isEmpty) {
+        throw const FormatException(
+          'Missing or invalid ecosystem createdAtUtc.',
+        );
+      }
+
+      final envelopeRaw = json['envelope'];
+      if (envelopeRaw is! Map) {
+        throw const FormatException('Missing ecosystem envelope.');
+      }
+
+      final envelope = EcosystemEnvelope.fromJson(
+        Map<String, Object?>.from(envelopeRaw),
+      );
+      EcosystemContractValidator.ensureValid(envelope);
+
+      return EcosystemTransferPackage(
+        transportVersion: transportVersion,
+        targetApp: EcosystemAppId.fromWire(targetAppRaw),
+        envelope: envelope,
+        createdAtUtc: DateTime.parse(createdAtRaw).toUtc(),
+      );
+    } on FormatException {
+      rethrow;
+    } catch (error) {
       throw FormatException(
-        'Unsupported ecosystem local transport version: '
-        '$transportVersion',
+        'Invalid ecosystem transfer package: $error',
       );
     }
-
-    final envelopeRaw = json['envelope'];
-    if (envelopeRaw is! Map) {
-      throw const FormatException('Missing ecosystem envelope.');
-    }
-
-    final envelope = EcosystemEnvelope.fromJson(
-      Map<String, Object?>.from(envelopeRaw),
-    );
-    EcosystemContractValidator.ensureValid(envelope);
-
-    return EcosystemTransferPackage(
-      transportVersion: transportVersion,
-      targetApp:
-          EcosystemAppId.fromWire(json['targetApp']! as String),
-      envelope: envelope,
-      createdAtUtc:
-          DateTime.parse(json['createdAtUtc']! as String).toUtc(),
-    );
   }
 }
 

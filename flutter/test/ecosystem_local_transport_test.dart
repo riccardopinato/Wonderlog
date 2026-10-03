@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_envelope.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_local_transport.dart';
@@ -26,6 +28,44 @@ void main() {
     expect(decoded.targetApp, EcosystemAppId.annasDiary);
     expect(decoded.envelope.bridgeId, 'ecosystem:v1:wonderlog:memory:m1');
     expect(decoded.envelope.revision, 9);
+  });
+
+  test('malformed package fields fail consistently as FormatException', () {
+    final valid = package().toJson();
+
+    final unknownTarget = <String, Object?>{
+      ...valid,
+      'targetApp': 'unknown_app',
+    };
+    final invalidCreatedAt = <String, Object?>{
+      ...valid,
+      'createdAtUtc': 'not-a-date',
+    };
+    final invalidTransportType = <String, Object?>{
+      ...valid,
+      'transportVersion': '1',
+    };
+
+    expect(
+      () => EcosystemTransferPackage.fromJson(unknownTarget),
+      throwsFormatException,
+    );
+    expect(
+      () => EcosystemTransferPackage.fromJson(invalidCreatedAt),
+      throwsFormatException,
+    );
+    expect(
+      () => EcosystemTransferPackage.fromJson(invalidTransportType),
+      throwsFormatException,
+    );
+
+    final invalidEncoded = base64Url
+        .encode(utf8.encode(jsonEncode(unknownTarget)))
+        .replaceAll('=', '');
+    expect(
+      () => EcosystemLocalTransportCodec.decode(invalidEncoded),
+      throwsFormatException,
+    );
   });
 
   test('Anna target URI uses explicit ecosystem import route', () {
