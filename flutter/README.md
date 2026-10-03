@@ -19,6 +19,7 @@ This Flutter foundation already provides:
 - Shared Ecosystem Core v1 with stable bridge identity, provenance,
   COPY/LINK semantics, local explicit transport, portable fallback and
   durable inbox/outbox for Anna's Diary / Notes / TrailPath interoperability;
+- Life Bridge v1 compatibility projection for the first Anna handoff;
 - Android, iOS and Web platform generation in CI.
 
 ## Safety rule
@@ -58,14 +59,16 @@ Cloud auth is optional. Configure it with dart-defines only when needed:
 
 No secret belongs in the repository.
 
-
 ## CI gate
 
 Every pull request touching the Flutter migration must pass localization/code
 generation, analyze, unit tests, Web release build, Android release APK and AAB
-build before it can be considered for merge. The current migration branch has
-passed this complete CI gate.
+build before it can be considered for merge.
 
+The E1 producer hardening passed the complete CI gate on PR #5 head
+`25578cade1f9dd32712d495b13caaf2ead9e8ea7` (workflow run
+`37023549635`) and was squash-merged to `main` as
+`77e6b11342e6b81ea9e5ecc0d9b731b4dc90a4c5`.
 
 ## Ecosystem E1
 
@@ -77,10 +80,16 @@ The first ecosystem integration layer is provider-independent.
 - private media URIs never cross apps; media uses explicit handoff metadata.
 - local transport uses target deep links with a machine-readable clipboard
   fallback.
+- durable inbox/outbox dedupe is concurrency-safe.
+- legacy pre-E1 schema-v8 keys map to COPY only and cannot suppress LINK.
+- malformed/untrusted local transport packages fail closed consistently.
 - cloud transport remains optional and separate from the data contract.
 - no app reads another app's private database.
 
+Wonderlog producer-side E1 is now the stable donor/handoff baseline for
+Anna's Diary.
+
 The candidate Golden contract is documented in
 `docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`.
-It is intentionally not promoted to COPY-READY until Anna's Diary implements
-and certifies the consumer side.
+It remains CANDIDATE until Anna's Diary implements the consumer side and both
+apps pass the shared cross-app contract tests.

@@ -5,7 +5,25 @@ Status
 ------
 CANDIDATE / NOT YET COPY-READY GOLDEN.
 
-Wonderlog is the first certified producer implementation.
+WONDERLOG PRODUCER BASELINE: READY / HARDENED.
+
+Wonderlog is the first validated producer implementation.
+The producer baseline was hardened in PR #5, passed deterministic Flutter CI
+on tested head:
+
+  25578cade1f9dd32712d495b13caaf2ead9e8ea7
+
+CI evidence:
+
+  workflow run 37023549635 = GREEN
+
+and was squash-merged to main as:
+
+  77e6b11342e6b81ea9e5ecc0d9b731b4dc90a4c5
+
+CodeRabbit availability is not part of this certification boundary under
+Master Prompt v21.
+
 The contract becomes eligible for COPY-READY GOLDEN promotion only after
 Anna's Diary implements the consumer side against the same contract and the
 cross-app contract tests pass in both applications.
@@ -54,6 +72,11 @@ Therefore:
 - sending the same mode/revision twice is idempotent;
 - a new revision creates a new idempotent delivery while keeping bridgeId
   stable.
+
+Legacy compatibility:
+- historical pre-E1 schema-v8 keys are recognized as COPY deliveries only;
+- a matching legacy COPY key MUST NOT suppress a LINK delivery;
+- concurrent duplicate insertion must remain atomic/idempotent.
 
 Provenance
 ----------
@@ -121,6 +144,10 @@ Portable clipboard fallback prefix:
 The destination must validate schema, capability, privacy scope and
 idempotency before materialization.
 
+Malformed/untrusted package fields must fail closed and be normalized to a
+stable parsing error surface rather than leaking arbitrary cast/enum/date
+exceptions.
+
 Cloud transport
 ---------------
 Cloud is an OPTIONAL second transport.
@@ -164,6 +191,8 @@ Minimum tests before GOLDEN promotion:
 - stable bridgeId across revisions;
 - distinct idempotency for COPY vs LINK;
 - duplicate delivery deduplication;
+- concurrent duplicate delivery deduplication;
+- legacy COPY compatibility without suppressing LINK;
 - provenance preservation;
 - LINK requires canonical deep link;
 - private scope fails closed;
@@ -171,8 +200,29 @@ Minimum tests before GOLDEN promotion:
 - explicit media handoff metadata;
 - local deep-link package round-trip;
 - clipboard fallback round-trip;
+- malformed package fields fail closed consistently;
 - target capability rejection;
 - target unavailable keeps retryable outbox;
 - successful target open marks delivery complete;
 - Wonderlog -> Anna contract compatibility;
 - Anna -> Wonderlog contract compatibility once Anna implements its adapter.
+
+Current certification boundary
+------------------------------
+PASS:
+- Wonderlog producer implementation;
+- Wonderlog deterministic contract tests;
+- Wonderlog durable inbox/outbox hardening;
+- Wonderlog local transport hardening;
+- Wonderlog Flutter CI gate.
+
+PENDING:
+- Anna's Diary consumer implementation;
+- shared test vectors executed in Anna;
+- real Wonderlog -> Anna round-trip;
+- real Anna -> Wonderlog round-trip;
+- destination-side COPY/LINK materialization evidence.
+
+Verdict:
+  WONDERLOG PRODUCER BASELINE = READY
+  CROSS-APP GOLDEN = CANDIDATE / NOT YET COPY-READY
