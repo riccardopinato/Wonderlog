@@ -67,6 +67,10 @@ The common `EcosystemEnvelope v1` carries:
 `bridgeId + revision + transfer mode`, so COPY and LINK are distinct
 deliveries and a new source revision remains independently deliverable.
 
+Pre-E1 schema-v8 keys are treated as legacy COPY identities only. They remain
+compatible without suppressing LINK deliveries for the same source revision.
+Concurrent duplicate delivery is protected by durable unique-key insertion.
+
 Private local media URIs are not part of the wire contract. Binary media is
 represented by an explicit handoff descriptor. Wonderlog E1 currently uses
 the safe `omitted` handoff until a binary transport is separately certified.
@@ -75,6 +79,9 @@ Transport remains separate from the envelope:
 - local v1 deep link: `<targetScheme>://ecosystem/import?payload=...`;
 - portable clipboard fallback: `ECOSYSTEM_BRIDGE_V1:...`;
 - optional cloud transport later, behind provider-specific adapters.
+
+Malformed local transport packages are normalized to a stable
+`FormatException` error surface and fail closed before durable materialization.
 
 ### Anna's Diary first integration
 
@@ -89,8 +96,15 @@ Wonderlog is the first producer implementation.
   `annasdiary://ecosystem/import`.
 - If Anna's Diary is unavailable, Wonderlog copies a machine-readable portable
   package and keeps the outbox delivery retryable.
-- Life Bridge v1 remains only a compatibility projection from the common
-  envelope; it is no longer the primary shared contract.
+- Life Bridge v1 remains a compatibility projection from the common envelope;
+  it is implemented and functioning on the Wonderlog producer side but is no
+  longer the primary shared contract.
+
+The Wonderlog E1 producer baseline was hardened in PR #5, passed the complete
+Flutter CI gate on tested head
+`25578cade1f9dd32712d495b13caaf2ead9e8ea7` (run `37023549635`) and was
+squash-merged to `main` as
+`77e6b11342e6b81ea9e5ecc0d9b731b4dc90a4c5`.
 
 The candidate Golden is frozen in
 `docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`. It becomes eligible for
@@ -117,8 +131,13 @@ The Flutter build cannot become the main Wonderlog release until:
 
 The Flutter foundation has been merged into `main` after passing
 localization/code generation, static analysis, unit tests, Web release build,
-Android release APK, Android AAB and artifact packaging. Ecosystem E1 is
-validated through its own pull-request gate before merge.
+Android release APK, Android AAB and artifact packaging.
 
-The remaining production cutover evidence is primarily real-device validation
-of the existing Room database migration and a macOS/iOS build gate.
+The E1 Wonderlog producer/shared-contract side is now READY as the frozen
+handoff baseline for Anna's Diary. Cross-app Golden certification remains
+pending Anna's consumer implementation and the real bidirectional contract
+round-trip.
+
+The remaining full-production cutover evidence is separate from E1 handoff
+readiness and is primarily real-device validation of the existing Room database
+migration, remaining feature parity, and a macOS/iOS build gate.
