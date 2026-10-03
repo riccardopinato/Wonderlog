@@ -3,10 +3,35 @@ ECOSYSTEM E1 — WONDERLOG -> ANNA'S DIARY HANDOFF
 
 Status
 ------
-Wonderlog producer/shared-contract side implemented on:
-  ecosystem-e1-shared-core-v1
+WONDERLOG PRODUCER BASELINE: READY FOR ANNA CONSUMER INTEGRATION.
+
+Canonical merged baseline:
+  main commit:
+    77e6b11342e6b81ea9e5ecc0d9b731b4dc90a4c5
+
+Hardening evidence:
+  PR #5
+  tested head:
+    25578cade1f9dd32712d495b13caaf2ead9e8ea7
+  CI run:
+    37023549635
+  result:
+    GREEN
+
+CodeRabbit was unavailable/rate-limited during the hardening cycle.
+Per Master Prompt v21 this is supplementary and NON-BLOCKING; the handoff
+verdict is based on deterministic CI, tests, builds and code inspection.
 
 Anna's Diary must NOT copy Wonderlog's domain model or database.
+
+Important terminology
+---------------------
+The canonical shared primitive is Shared Ecosystem Core v1.
+
+Life Bridge v1 remains a Wonderlog compatibility projection used to map the
+common envelope into the first Anna-oriented payload shape. It is implemented
+and functioning on the Wonderlog producer side, but it is NOT the primary
+cross-app wire contract.
 
 Canonical Shared Core files
 ---------------------------
@@ -31,6 +56,27 @@ Compatibility fixtures:
 Golden candidate:
   docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt
 
+Wonderlog producer guarantees
+-----------------------------
+The frozen Wonderlog baseline guarantees:
+
+1. Shared Ecosystem Core v1 envelope validation before durable persistence.
+2. Stable bridgeId for the same canonical source entity.
+3. Idempotency identity:
+     <bridgeId>:<revision>:<copy|link>
+4. COPY and LINK remain distinct durable deliveries.
+5. Same-mode duplicate deliveries are idempotent.
+6. Concurrent outbox enqueue is atomic and returns the canonical stored row.
+7. Concurrent inbox duplicate reception does not create duplicate rows.
+8. Pre-E1 schema-v8 legacy keys map to COPY only.
+9. A legacy COPY row never suppresses LINK for the same source/revision.
+10. Malformed transportVersion / targetApp / createdAtUtc / envelope shapes
+    fail as FormatException.
+11. Contract-invalid packages fail closed.
+12. Private source-local media URIs are never transferred.
+13. Target deep-link transport and portable clipboard fallback are supported.
+14. Target-unavailable deliveries remain durable/retryable in the outbox.
+
 Anna consumer requirements
 --------------------------
 1. Register:
@@ -45,6 +91,9 @@ Anna consumer requirements
 8. Never read Wonderlog's private DB.
 9. Never accept source-local media URI as transferable media.
 10. Show/execute Anna-side destination workflow before creating Anna data.
+11. Run the same Golden contract vectors used by Wonderlog.
+12. Verify malformed/untrusted input fails closed.
+13. Verify duplicate/concurrent delivery does not duplicate Anna entities.
 
 Expected Wonderlog producer objects
 -----------------------------------
@@ -67,6 +116,21 @@ Wonderlog already has an inbound contract service and test fixture for:
 
 Wonderlog accepts a valid package into its ecosystem inbox only.
 It does NOT automatically create a Journey or Memory.
+
+Certification boundary
+----------------------
+Wonderlog producer readiness is COMPLETE for the handoff.
+
+Cross-app bridge certification is NOT complete yet.
+The remaining evidence belongs to the Anna integration step:
+
+- Anna consumer implementation;
+- Wonderlog -> Anna contract round-trip;
+- Anna -> Wonderlog contract round-trip;
+- shared Golden vectors passing in both apps;
+- destination-side COPY/LINK materialization checks.
+
+Only after these pass should the Golden contract be promoted beyond CANDIDATE.
 
 Cloud
 -----
