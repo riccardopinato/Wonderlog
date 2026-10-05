@@ -214,5 +214,8 @@
   "ecosystemPremiumLimit": "Vous avez atteint la limite du forfait actuel.",
   "ecosystemNoJourneys": "Aucun voyage disponible.",
   "ecosystemHistoryResult": "Résultat",
-  "ecosystemAppsPlanned": "Intégration pas encore active"
+  "ecosystemAppsPlanned": "Intégration pas encore active",
+  "open": "Ouvrir",
+  "create": "Créer",
+  "confirm": "Confirmer"
 }
