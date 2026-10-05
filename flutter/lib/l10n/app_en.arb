@@ -224,5 +224,10 @@
   "pdfExport": "Export PDF",
   "pdfExported": "Travel Book exported.",
   "ecosystemOpenedAnna": "Transfer opened in Anna's Diary.",
-  "ecosystemUnsupportedAnna": "This item is not supported by Anna's Diary."
+  "ecosystemUnsupportedAnna": "This item is not supported by Anna's Diary.",
+  "ecosystemInboxTitle": "Received from apps",
+  "ecosystemInboxReceivedFrom": "Received from",
+  "ecosystemInboxStoredDescription": "Saved in the ecosystem inbox. No Journey or Memory was created automatically.",
+  "ecosystemInboxMarkSeen": "Mark as seen"
+
 }
