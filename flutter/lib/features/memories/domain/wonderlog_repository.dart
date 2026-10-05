@@ -26,6 +26,7 @@ abstract interface class WonderlogRepository implements JourneyRepository {
   });
 
   Future<void> saveJourney(Journey journey);
+  Future<void> deleteJourney(String journeyId);
   Future<void> saveMemory(MemoryEntry memory);
   Future<void> deleteMemory(String memoryId);
   Future<void> savePhoto(AlbumPhotoEntry photo);
