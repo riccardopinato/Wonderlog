@@ -204,12 +204,11 @@ final class EcosystemInboxMaterializationService {
     final envelope = item.envelope;
     final explicit = envelope.title?.trim();
     if (explicit != null && explicit.isNotEmpty) return explicit;
-    final fallback = envelope.fallback.plainText
-        .split(RegExp(r'[\r\n]+'))
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
-        .firstOrNull;
-    if (fallback != null) return fallback;
+    for (final line
+        in envelope.fallback.plainText.split(RegExp(r'[\r\n]+'))) {
+      final normalized = line.trim();
+      if (normalized.isNotEmpty) return normalized;
+    }
     return envelope.sourceEntityType.name;
   }
 
