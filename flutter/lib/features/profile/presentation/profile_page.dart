@@ -4,8 +4,10 @@ import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../core/app_controller.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/identity/identity_models.dart';
+import '../../../core/ecosystem/ecosystem_models.dart';
 import '../../../core/profile/app_profile.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../ecosystem/presentation/ecosystem_app_detail_page.dart';
 import '../../premium/presentation/premium_page.dart';
 
 final class ProfilePage extends StatelessWidget {
@@ -150,14 +152,37 @@ final class ProfilePage extends StatelessWidget {
                   const SizedBox(height: WonderlogSpacing.xSmall),
                   Text(strings.ecosystemFoundationDescription),
                   const SizedBox(height: WonderlogSpacing.small),
-                  const Wrap(
-                    spacing: WonderlogSpacing.xSmall,
-                    runSpacing: WonderlogSpacing.xSmall,
-                    children: [
-                      Chip(label: Text("Anna's Diary")),
-                      Chip(label: Text('Notes')),
-                      Chip(label: Text('TrailPath')),
-                    ],
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const CircleAvatar(
+                      child: Icon(Icons.hub_outlined),
+                    ),
+                    title: const Text("Anna's Diary"),
+                    subtitle: Text(strings.ecosystemConnectedApp),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const EcosystemAppDetailPage(
+                          appId: EcosystemAppId.annasDiary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    enabled: false,
+                    leading: const Icon(Icons.notes_outlined),
+                    title: const Text('Notes'),
+                    subtitle: Text(strings.ecosystemAppsPlanned),
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    enabled: false,
+                    leading: const Icon(Icons.route_outlined),
+                    title: const Text('TrailPath'),
+                    subtitle: Text(strings.ecosystemAppsPlanned),
                   ),
                 ],
               ),
