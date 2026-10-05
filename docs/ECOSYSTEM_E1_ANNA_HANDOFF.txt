@@ -3,7 +3,9 @@ ECOSYSTEM E1 — WONDERLOG -> ANNA'S DIARY HANDOFF
 
 Status
 ------
-WONDERLOG PRODUCER BASELINE: READY FOR ANNA CONSUMER INTEGRATION.
+WONDERLOG <-> ANNA E1 ROUND-TRIP: PHYSICALLY EXERCISED / PASS.
+SHARED ECOSYSTEM CORE v1: COPY-READY GOLDEN.
+CERTIFIED GOLDEN: PENDING COMPLETE DEVICE METADATA EVIDENCE.
 
 Canonical merged baseline:
   main commit:
@@ -119,18 +121,41 @@ It does NOT automatically create a Journey or Memory.
 
 Certification boundary
 ----------------------
-Wonderlog producer readiness is COMPLETE for the handoff.
+The Anna consumer exists and the cross-app functional round-trip was exercised
+on a real Android device on 2026-10-05.
 
-Cross-app bridge certification is NOT complete yet.
-The remaining evidence belongs to the Anna integration step:
+Observed PASS:
+- Wonderlog -> Anna COPY;
+- duplicate COPY suppression;
+- Wonderlog -> Anna LINK;
+- duplicate LINK suppression;
+- Anna -> Wonderlog deep-link launch;
+- Anna -> Wonderlog durable inbox persistence;
+- visible inbound receipt in Wonderlog without automatic domain materialization.
 
-- Anna consumer implementation;
-- Wonderlog -> Anna contract round-trip;
-- Anna -> Wonderlog contract round-trip;
-- shared Golden vectors passing in both apps;
-- destination-side COPY/LINK materialization checks.
+Exact tested Wonderlog visible-inbox artifact:
+  source commit:
+    ed885534fb24c808eb292e1647408867894feb5b
+  workflow run:
+    37320090434
+  artifact SHA-256:
+    2a4cfbf872949305195a318eeb6d73ae3d6cf685285207844fb77204106403e5
 
-Only after these pass should the Golden contract be promoted beyond CANDIDATE.
+Exact tested Anna release-candidate artifact:
+  source commit:
+    75b607ea28979a22e7dd15d797320ad888940f1d
+  workflow run:
+    37161149244
+  artifact SHA-256:
+    d627e7d89080bd141e3604754470a3c728413980c50f1f845afe7e207f3de45c
+
+Physical evidence metadata still missing from the chat record:
+- exact Android device model;
+- exact Android OS version.
+
+Therefore:
+  COPY-READY GOLDEN = YES
+  CERTIFIED GOLDEN = NOT YET CLAIMED
 
 Cloud
 -----
