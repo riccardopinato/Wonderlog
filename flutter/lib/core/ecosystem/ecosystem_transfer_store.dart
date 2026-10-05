@@ -21,6 +21,32 @@ final class EcosystemOutboxItem {
   final String? lastError;
 }
 
+enum EcosystemInboxDisposition {
+  pending,
+  addedToJourney,
+  createdJourney,
+  savedFreeMemory,
+  ignored,
+  seenLegacy;
+
+  static EcosystemInboxDisposition fromWire(
+    String? value, {
+    required bool consumed,
+  }) {
+    if (value == null || value.isEmpty) {
+      return consumed
+          ? EcosystemInboxDisposition.seenLegacy
+          : EcosystemInboxDisposition.pending;
+    }
+    return EcosystemInboxDisposition.values.firstWhere(
+      (item) => item.name == value,
+      orElse: () => consumed
+          ? EcosystemInboxDisposition.seenLegacy
+          : EcosystemInboxDisposition.pending,
+    );
+  }
+}
+
 final class EcosystemInboxItem {
   const EcosystemInboxItem({
     required this.id,
@@ -28,6 +54,9 @@ final class EcosystemInboxItem {
     required this.envelope,
     required this.receivedAt,
     this.consumedAt,
+    this.disposition = EcosystemInboxDisposition.pending,
+    this.materializedJourneyId,
+    this.materializedMemoryId,
   });
 
   final String id;
@@ -35,10 +64,18 @@ final class EcosystemInboxItem {
   final EcosystemEnvelope envelope;
   final DateTime receivedAt;
   final DateTime? consumedAt;
+  final EcosystemInboxDisposition disposition;
+  final String? materializedJourneyId;
+  final String? materializedMemoryId;
+
+  bool get isPending =>
+      consumedAt == null && disposition == EcosystemInboxDisposition.pending;
 }
 
 abstract interface class EcosystemTransferStore {
   Stream<List<EcosystemOutboxItem>> watchPendingOutbox();
+
+  Stream<List<EcosystemOutboxItem>> watchOutboxHistory();
 
   Future<String> enqueueOutbox({
     required EcosystemAppId targetApp,
@@ -58,6 +95,16 @@ abstract interface class EcosystemTransferStore {
   Future<void> receiveInbox(EcosystemEnvelope envelope);
 
   Stream<List<EcosystemInboxItem>> watchPendingInbox();
+
+  Stream<List<EcosystemInboxItem>> watchInboxHistory();
+
+  Future<void> resolveInbox(
+    String id, {
+    required EcosystemInboxDisposition disposition,
+    required DateTime resolvedAt,
+    String? materializedJourneyId,
+    String? materializedMemoryId,
+  });
 
   Future<void> markInboxConsumed(
     String id, {
