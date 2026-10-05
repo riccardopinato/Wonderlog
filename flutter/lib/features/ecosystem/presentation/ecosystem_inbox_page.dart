@@ -7,7 +7,6 @@ import '../../../core/ecosystem/ecosystem_registry.dart';
 import '../../../core/ecosystem/ecosystem_transfer_store.dart';
 import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../journeys/domain/journey.dart';
 import '../../journeys/presentation/journey_detail_page.dart';
 import '../../memories/presentation/memory_detail_page.dart';
 import '../application/ecosystem_inbox_materialization_service.dart';
@@ -327,9 +326,10 @@ final class _InboxItemCard extends StatelessWidget {
     final titleController = TextEditingController(text: _title(item));
     final firstPlace =
         item.envelope.places.isEmpty ? null : item.envelope.places.first;
+    final firstPlaceName = firstPlace?.name.trim();
     final destinationController = TextEditingController(
-      text: firstPlace?.name.trim().isNotEmpty == true
-          ? firstPlace!.name.trim()
+      text: firstPlaceName != null && firstPlaceName.isNotEmpty
+          ? firstPlaceName
           : _title(item),
     );
 
