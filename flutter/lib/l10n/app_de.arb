@@ -176,5 +176,10 @@
   "pdfExport": "PDF exportieren",
   "pdfExported": "Reisebuch exportiert.",
   "ecosystemOpenedAnna": "Übertragung in Anna's Diary geöffnet.",
-  "ecosystemUnsupportedAnna": "Dieses Element wird von Anna's Diary nicht unterstützt."
+  "ecosystemUnsupportedAnna": "Dieses Element wird von Anna's Diary nicht unterstützt.",
+  "ecosystemInboxTitle": "Von Apps empfangen",
+  "ecosystemInboxReceivedFrom": "Empfangen von",
+  "ecosystemInboxStoredDescription": "Im Ökosystem-Posteingang gespeichert. Es wurde nicht automatisch eine Reise oder Erinnerung erstellt.",
+  "ecosystemInboxMarkSeen": "Als gesehen markieren"
+
 }
