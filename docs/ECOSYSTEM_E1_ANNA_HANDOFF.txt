@@ -3,9 +3,8 @@ ECOSYSTEM E1 — WONDERLOG -> ANNA'S DIARY HANDOFF
 
 Status
 ------
-WONDERLOG <-> ANNA E1 ROUND-TRIP: PHYSICALLY EXERCISED / PASS.
-SHARED ECOSYSTEM CORE v1: COPY-READY GOLDEN.
-CERTIFIED GOLDEN: PENDING COMPLETE DEVICE METADATA EVIDENCE.
+WONDERLOG <-> ANNA E1 ROUND-TRIP: PHYSICAL DEVICE VERIFIED / PASS.
+SHARED ECOSYSTEM CORE v1: CERTIFIED GOLDEN.
 
 Canonical merged baseline:
   main commit:
@@ -55,8 +54,9 @@ Use this barrel as the public contract surface:
 Compatibility fixtures:
   docs/GOLDEN_ECOSYSTEM_BRIDGE_V1_TEST_VECTORS.txt
 
-Golden candidate:
+Golden contract:
   docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt
+  (historical filename retained; status inside is CERTIFIED GOLDEN)
 
 Wonderlog producer guarantees
 -----------------------------
@@ -149,13 +149,23 @@ Exact tested Anna release-candidate artifact:
   artifact SHA-256:
     d627e7d89080bd141e3604754470a3c728413980c50f1f845afe7e207f3de45c
 
-Physical evidence metadata still missing from the chat record:
-- exact Android device model;
-- exact Android OS version.
+Physical device evidence:
+  device:
+    Xiaomi Redmi Note 10 Pro
+  OS:
+    Android 13
+  date:
+    2026-10-05
+  scenario:
+    Wonderlog -> Anna COPY and LINK, duplicate suppression,
+    Anna -> Wonderlog deep-link handoff, durable inbox persistence,
+    visible inbound receipt without automatic Journey/Memory creation
+  observed result:
+    PASS
 
 Therefore:
   COPY-READY GOLDEN = YES
-  CERTIFIED GOLDEN = NOT YET CLAIMED
+  CERTIFIED GOLDEN = YES
 
 Cloud
 -----

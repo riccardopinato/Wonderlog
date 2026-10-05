@@ -61,9 +61,9 @@ custom-scheme preflight was fixed by attempting the external launch directly
 and falling back only on an actual launch failure.
 
 Golden status:
-- Shared Ecosystem Core v1: COPY-READY Golden;
-- not yet CERTIFIED Golden under Master Prompt v21 because the physical-test
-  evidence record still lacks the exact device model and Android version.
+- Shared Ecosystem Core v1: CERTIFIED GOLDEN under Master Prompt v21;
+- physical-device evidence completed on Xiaomi Redmi Note 10 Pro / Android 13;
+- tested bidirectional Wonderlog ↔ Anna round-trip: PASS.
 
 ## LATER — Official ecosystem inbox UX
 

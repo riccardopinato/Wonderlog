@@ -1,13 +1,13 @@
-GOLDEN ECOSYSTEM BRIDGE CONTRACT v1 — COPY-READY
+GOLDEN ECOSYSTEM BRIDGE CONTRACT v1 — CERTIFIED GOLDEN
 ======================================================
 
 Status
 ------
-COPY-READY GOLDEN.
+CERTIFIED GOLDEN.
 
 WONDERLOG PRODUCER BASELINE: READY / HARDENED.
 ANNA CONSUMER: IMPLEMENTED AND PHYSICALLY EXERCISED.
-CERTIFIED GOLDEN: PENDING COMPLETE PHYSICAL-DEVICE METADATA.
+PHYSICAL DEVICE VALIDATION: PASS.
 
 Wonderlog is the first validated producer implementation.
 The producer baseline was hardened in PR #5, passed deterministic Flutter CI
@@ -31,9 +31,13 @@ The real-device Wonderlog <-> Anna round-trip passed on 2026-10-05, including
 COPY, LINK, same-mode duplicate suppression and Anna -> Wonderlog durable inbox
 receipt. The contract is therefore promoted to COPY-READY GOLDEN.
 
-CERTIFIED GOLDEN is intentionally not claimed yet because the physical evidence
-record still lacks the exact device model and Android OS version required by
-Master Prompt v21.
+Physical-device metadata is complete under Master Prompt v21:
+- device: Xiaomi Redmi Note 10 Pro;
+- OS: Android 13;
+- validation date: 2026-10-05.
+
+The Shared Ecosystem Core v1 is therefore promoted from COPY-READY GOLDEN to
+CERTIFIED GOLDEN for the tested Android Wonderlog <-> Anna bridge scope.
 
 Purpose
 -------
@@ -231,12 +235,18 @@ PASS:
 - real Anna -> Wonderlog durable inbox receipt;
 - visible Wonderlog inbound receipt without automatic Journey/Memory creation.
 
-PHYSICAL EVIDENCE METADATA PENDING:
-- exact Android device model;
-- exact Android OS version.
+PHYSICAL EVIDENCE:
+- device: Xiaomi Redmi Note 10 Pro;
+- OS: Android 13;
+- date: 2026-10-05;
+- Wonderlog -> Anna COPY: PASS;
+- Wonderlog -> Anna LINK: PASS;
+- duplicate COPY/LINK suppression: PASS;
+- Anna -> Wonderlog deep-link handoff: PASS;
+- Anna -> Wonderlog durable inbox receipt: PASS;
+- visible inbound receipt without automatic Journey/Memory creation: PASS.
 
 Verdict:
   WONDERLOG PRODUCER BASELINE = READY
   ANNA CONSUMER = READY
-  CROSS-APP GOLDEN = COPY-READY
-  CERTIFIED GOLDEN = NOT YET CLAIMED
+  CROSS-APP GOLDEN = CERTIFIED GOLDEN
