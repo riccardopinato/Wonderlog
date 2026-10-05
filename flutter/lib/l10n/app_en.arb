@@ -227,7 +227,7 @@
   "ecosystemUnsupportedAnna": "This item is not supported by Anna's Diary.",
   "ecosystemInboxTitle": "Received from apps",
   "ecosystemInboxReceivedFrom": "Received from",
-  "ecosystemInboxStoredDescription": "Saved in the ecosystem inbox. No Journey or Memory was created automatically.",
+  "ecosystemInboxStoredDescription": "Received and stored locally. No Journey or Memory was created automatically.",
   "ecosystemInboxMarkSeen": "Mark as seen"
 
 }
