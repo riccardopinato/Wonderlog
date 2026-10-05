@@ -1,6 +1,6 @@
 # Wonderlog Roadmap
 
-Execution truth as of 2026-10-05.
+Execution truth as of 2026-10-06.
 
 ## DONE — Flutter foundation
 
@@ -65,19 +65,40 @@ Golden status:
 - physical-device evidence completed on Xiaomi Redmi Note 10 Pro / Android 13;
 - tested bidirectional Wonderlog ↔ Anna round-trip: PASS.
 
-## LATER — Official ecosystem inbox UX
+## DONE — MAXI STEP E2 Ecosystem UX Completion
 
-For the official product flow, an inbound Anna item in Wonderlog will expose
-four explicit destination choices:
+Merged to main in PR #9 as `c6cff63b3db085af5a17ac87a10f96c0d8935c35`.
 
-1. add to an existing Journey;
-2. create a new Journey;
-3. save as a free/unassigned Memory;
-4. ignore/archive.
+Implemented:
+- real Ecosystem Inbox with pending/history tabs;
+- durable resolution outcome;
+- add to existing Journey;
+- create new Journey;
+- save as true unassigned Memory;
+- ignore/archive;
+- COPY/LINK distinction;
+- LINK source reopen;
+- connected-app detail for Anna's Diary;
+- Home receipt routes into Inbox;
+- Drift schema v9 for unassigned Memories and inbox outcomes.
 
-Until that product flow is implemented, inbound items remain durable E1 inbox
-records, are surfaced by the Home receipt card, and are never materialized
-automatically into Journey/Memory data.
+PR gate:
+- analyze PASS;
+- tests PASS;
+- Web release PASS;
+- Android APK PASS;
+- Android AAB PASS.
+
+## NEXT — MAXI STEP 23A E2 Hardening
+
+Deep audit 2026-10-06 identified these first repairs:
+- atomic exactly-once inbox materialization;
+- canonical Premium gate across every creation path;
+- correct per-Journey vs unassigned Memory limit policy;
+- deterministic v8 -> v9 migration fixture;
+- full UI tests for all four E2 actions.
+
+See `docs/AUDIT_2026-10-06.md`.
 
 ## LATER — Wonderlog production cutover
 
