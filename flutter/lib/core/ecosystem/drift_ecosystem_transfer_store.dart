@@ -25,6 +25,15 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
   }
 
   @override
+  Stream<List<EcosystemOutboxItem>> watchOutboxHistory() {
+    final query = database.select(database.ecosystemOutbox)
+      ..orderBy([(row) => OrderingTerm.desc(row.createdAt)]);
+    return query.watch().map(
+          (rows) => rows.map(_outbox).toList(growable: false),
+        );
+  }
+
+  @override
   Future<String> enqueueOutbox({
     required EcosystemAppId targetApp,
     required EcosystemEnvelope envelope,
@@ -157,6 +166,38 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
   }
 
   @override
+  Stream<List<EcosystemInboxItem>> watchInboxHistory() {
+    final query = database.select(database.ecosystemInbox)
+      ..orderBy([(row) => OrderingTerm.desc(row.receivedAt)]);
+    return query.watch().map(
+          (rows) => rows.map(_inbox).toList(growable: false),
+        );
+  }
+
+  @override
+  Future<void> resolveInbox(
+    String id, {
+    required EcosystemInboxDisposition disposition,
+    required DateTime resolvedAt,
+    String? materializedJourneyId,
+    String? materializedMemoryId,
+  }) async {
+    if (disposition == EcosystemInboxDisposition.pending) {
+      throw ArgumentError.value(disposition, 'disposition');
+    }
+    await (database.update(database.ecosystemInbox)
+          ..where((row) => row.id.equals(id)))
+        .write(
+      db.EcosystemInboxCompanion(
+        consumedAt: Value(resolvedAt.toUtc().millisecondsSinceEpoch),
+        disposition: Value(disposition.name),
+        materializedJourneyId: Value(materializedJourneyId),
+        materializedMemoryId: Value(materializedMemoryId),
+      ),
+    );
+  }
+
+  @override
   Future<void> markInboxConsumed(
     String id, {
     required DateTime consumedAt,
@@ -166,6 +207,7 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
         .write(
       db.EcosystemInboxCompanion(
         consumedAt: Value(consumedAt.toUtc().millisecondsSinceEpoch),
+        disposition: const Value('seenLegacy'),
       ),
     );
   }
@@ -225,5 +267,11 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
                 row.consumedAt!,
                 isUtc: true,
               ),
+        disposition: EcosystemInboxDisposition.fromWire(
+          row.disposition,
+          consumed: row.consumedAt != null,
+        ),
+        materializedJourneyId: row.materializedJourneyId,
+        materializedMemoryId: row.materializedMemoryId,
       );
 }
