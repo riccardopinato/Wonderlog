@@ -37,13 +37,17 @@ final class WonderlogServicesScope extends InheritedWidget {
 
   final WonderlogServices services;
 
+  static WonderlogServices? maybeOf(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<WonderlogServicesScope>()
+          ?.services;
+
   static WonderlogServices of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<WonderlogServicesScope>();
-    if (scope == null) {
+    final services = maybeOf(context);
+    if (services == null) {
       throw StateError('WonderlogServicesScope not found.');
     }
-    return scope.services;
+    return services;
   }
 
   @override

@@ -176,5 +176,10 @@
   "pdfExport": "Exporter en PDF",
   "pdfExported": "Carnet de voyage exporté.",
   "ecosystemOpenedAnna": "Transfert ouvert dans Anna's Diary.",
-  "ecosystemUnsupportedAnna": "Cet élément n'est pas pris en charge par Anna's Diary."
+  "ecosystemUnsupportedAnna": "Cet élément n'est pas pris en charge par Anna's Diary.",
+  "ecosystemInboxTitle": "Reçu depuis les apps",
+  "ecosystemInboxReceivedFrom": "Reçu de",
+  "ecosystemInboxStoredDescription": "Reçu et conservé localement. Aucun voyage ni souvenir n'a été créé automatiquement.",
+  "ecosystemInboxMarkSeen": "Marquer comme vu"
+
 }

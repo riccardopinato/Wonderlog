@@ -176,5 +176,10 @@
   "pdfExport": "Exportar PDF",
   "pdfExported": "Livro de viagem exportado.",
   "ecosystemOpenedAnna": "Transferência aberta no Anna's Diary.",
-  "ecosystemUnsupportedAnna": "Este item não é suportado pelo Anna's Diary."
+  "ecosystemUnsupportedAnna": "Este item não é suportado pelo Anna's Diary.",
+  "ecosystemInboxTitle": "Recebido de apps",
+  "ecosystemInboxReceivedFrom": "Recebido de",
+  "ecosystemInboxStoredDescription": "Recebido e guardado localmente. Nenhuma viagem ou memória foi criada automaticamente.",
+  "ecosystemInboxMarkSeen": "Marcar como visto"
+
 }

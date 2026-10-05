@@ -1,11 +1,13 @@
-GOLDEN ECOSYSTEM BRIDGE CONTRACT v1 — DRAFT CANDIDATE
+GOLDEN ECOSYSTEM BRIDGE CONTRACT v1 — COPY-READY
 ======================================================
 
 Status
 ------
-CANDIDATE / NOT YET COPY-READY GOLDEN.
+COPY-READY GOLDEN.
 
 WONDERLOG PRODUCER BASELINE: READY / HARDENED.
+ANNA CONSUMER: IMPLEMENTED AND PHYSICALLY EXERCISED.
+CERTIFIED GOLDEN: PENDING COMPLETE PHYSICAL-DEVICE METADATA.
 
 Wonderlog is the first validated producer implementation.
 The producer baseline was hardened in PR #5, passed deterministic Flutter CI
@@ -24,9 +26,14 @@ and was squash-merged to main as:
 CodeRabbit availability is not part of this certification boundary under
 Master Prompt v21.
 
-The contract becomes eligible for COPY-READY GOLDEN promotion only after
-Anna's Diary implements the consumer side against the same contract and the
-cross-app contract tests pass in both applications.
+Anna's Diary now implements the consumer side against the same contract.
+The real-device Wonderlog <-> Anna round-trip passed on 2026-10-05, including
+COPY, LINK, same-mode duplicate suppression and Anna -> Wonderlog durable inbox
+receipt. The contract is therefore promoted to COPY-READY GOLDEN.
+
+CERTIFIED GOLDEN is intentionally not claimed yet because the physical evidence
+record still lacks the exact device model and Android OS version required by
+Master Prompt v21.
 
 Purpose
 -------
@@ -211,18 +218,25 @@ Current certification boundary
 ------------------------------
 PASS:
 - Wonderlog producer implementation;
-- Wonderlog deterministic contract tests;
+- Anna's Diary consumer implementation;
+- shared deterministic vectors in both apps;
 - Wonderlog durable inbox/outbox hardening;
 - Wonderlog local transport hardening;
-- Wonderlog Flutter CI gate.
+- Wonderlog Flutter CI gate;
+- real Wonderlog -> Anna COPY;
+- real Wonderlog -> Anna LINK;
+- duplicate COPY suppression;
+- duplicate LINK suppression;
+- real Anna -> Wonderlog deep-link handoff;
+- real Anna -> Wonderlog durable inbox receipt;
+- visible Wonderlog inbound receipt without automatic Journey/Memory creation.
 
-PENDING:
-- Anna's Diary consumer implementation;
-- shared test vectors executed in Anna;
-- real Wonderlog -> Anna round-trip;
-- real Anna -> Wonderlog round-trip;
-- destination-side COPY/LINK materialization evidence.
+PHYSICAL EVIDENCE METADATA PENDING:
+- exact Android device model;
+- exact Android OS version.
 
 Verdict:
   WONDERLOG PRODUCER BASELINE = READY
-  CROSS-APP GOLDEN = CANDIDATE / NOT YET COPY-READY
+  ANNA CONSUMER = READY
+  CROSS-APP GOLDEN = COPY-READY
+  CERTIFIED GOLDEN = NOT YET CLAIMED

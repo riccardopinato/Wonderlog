@@ -1,6 +1,6 @@
 # Wonderlog Roadmap
 
-Execution truth as of 2026-10-03.
+Execution truth as of 2026-10-05.
 
 ## DONE — Flutter foundation
 
@@ -43,25 +43,41 @@ CodeRabbit was rate-limited/unavailable during this cycle and is NON-BLOCKING
 under Master Prompt v21. The technical verdict is based on deterministic CI,
 tests, builds and code inspection.
 
-## NEXT — Anna's Diary consumer
+## DONE — E1 Wonderlog ↔ Anna physical round-trip
 
-Anna's Diary must now consume the frozen Shared Ecosystem Core v1 contract
-without copying Wonderlog's private domain model or database.
+Shared Ecosystem Core v1 has now been exercised across two real Android apps.
 
-Required next work:
+Physical observations completed on 2026-10-05:
+- Wonderlog -> Anna COPY opens the Anna review/import flow and materializes once;
+- repeated COPY is rejected as a duplicate;
+- Wonderlog -> Anna LINK opens the Anna review/import flow and materializes once;
+- repeated LINK is rejected as a duplicate;
+- Anna -> Wonderlog opens Wonderlog through `wonderlog://ecosystem/import`;
+- Wonderlog persists the Anna note in the durable ecosystem inbox;
+- the received item is visible on Home without auto-creating a Journey or Memory.
 
-1. register `annasdiary://ecosystem/import`;
-2. decode and validate `EcosystemTransferPackage v1`;
-3. enforce `targetApp == annas_diary`;
-4. deduplicate by `<bridgeId>:<revision>:<copy|link>`;
-5. preserve provenance;
-6. materialize COPY and LINK with distinct destination semantics;
-7. run the shared Golden contract vectors;
-8. verify Wonderlog -> Anna and Anna -> Wonderlog round-trips.
+The Android package-visibility defect caused by using `canLaunchUrl()` as a
+custom-scheme preflight was fixed by attempting the external launch directly
+and falling back only on an actual launch failure.
 
-Only after those gates pass may
-`GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt` be promoted from CANDIDATE
-toward COPY-READY / certified reuse.
+Golden status:
+- Shared Ecosystem Core v1: COPY-READY Golden;
+- not yet CERTIFIED Golden under Master Prompt v21 because the physical-test
+  evidence record still lacks the exact device model and Android version.
+
+## LATER — Official ecosystem inbox UX
+
+For the official product flow, an inbound Anna item in Wonderlog will expose
+four explicit destination choices:
+
+1. add to an existing Journey;
+2. create a new Journey;
+3. save as a free/unassigned Memory;
+4. ignore/archive.
+
+Until that product flow is implemented, inbound items remain durable E1 inbox
+records, are surfaced by the Home receipt card, and are never materialized
+automatically into Journey/Memory data.
 
 ## LATER — Wonderlog production cutover
 
