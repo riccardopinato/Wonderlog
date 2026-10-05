@@ -5,6 +5,7 @@ import 'package:wonderlog/core/ecosystem/drift_ecosystem_transfer_store.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_codec.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_envelope.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_models.dart';
+import 'package:wonderlog/core/ecosystem/ecosystem_transfer_store.dart';
 
 void main() {
   test('outbox deduplicates concurrent same-mode delivery atomically',
@@ -137,6 +138,39 @@ void main() {
 
     final pending = await store.watchPendingInbox().first;
     expect(pending, hasLength(1));
+
+    await database.close();
+  });
+
+  test('resolved inbox item remains available in durable history', () async {
+    final database = WonderlogDatabase(NativeDatabase.memory());
+    final store = DriftEcosystemTransferStore(database);
+    final envelope = EcosystemEnvelope(
+      sourceApp: EcosystemAppId.annasDiary,
+      sourceEntityType: EcosystemEntityType.note,
+      sourceEntityId: 'history-1',
+      createdAtUtc: DateTime.utc(2026, 10, 5),
+      title: 'History item',
+    );
+
+    await store.receiveInbox(envelope);
+    final item = (await store.watchPendingInbox().first).single;
+    await store.resolveInbox(
+      item.id,
+      disposition: EcosystemInboxDisposition.savedFreeMemory,
+      resolvedAt: DateTime.utc(2026, 10, 5, 16),
+      materializedMemoryId: 'memory-1',
+    );
+
+    expect(await store.watchPendingInbox().first, isEmpty);
+    final history = await store.watchInboxHistory().first;
+    expect(history, hasLength(1));
+    expect(
+      history.single.disposition,
+      EcosystemInboxDisposition.savedFreeMemory,
+    );
+    expect(history.single.materializedMemoryId, 'memory-1');
+    expect(history.single.isPending, isFalse);
 
     await database.close();
   });
