@@ -214,5 +214,8 @@
   "ecosystemPremiumLimit": "Hai raggiunto il limite del piano attuale.",
   "ecosystemNoJourneys": "Non ci sono viaggi disponibili.",
   "ecosystemHistoryResult": "Risultato",
-  "ecosystemAppsPlanned": "Integrazione non ancora attiva"
+  "ecosystemAppsPlanned": "Integrazione non ancora attiva",
+  "open": "Apri",
+  "create": "Crea",
+  "confirm": "Conferma"
 }
