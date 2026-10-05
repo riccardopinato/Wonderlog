@@ -49,12 +49,7 @@ void main() {
     expect(find.text('Round trip fisico'), findsOneWidget);
     expect(find.text('COPY'), findsOneWidget);
     expect(find.text('note'), findsOneWidget);
-    expect(find.text('Segna come visto'), findsOneWidget);
-
-    await tester.tap(find.text('Segna come visto'));
-    await tester.pump();
-
-    expect(store.consumedId, 'inbox-1');
+    expect(find.text('Apri Inbox'), findsOneWidget);
   });
 }
 
@@ -62,22 +57,36 @@ final class _FakeEcosystemTransferStore implements EcosystemTransferStore {
   _FakeEcosystemTransferStore({required this.pending});
 
   final List<EcosystemInboxItem> pending;
-  String? consumedId;
 
   @override
   Stream<List<EcosystemInboxItem>> watchPendingInbox() =>
       Stream<List<EcosystemInboxItem>>.value(pending);
 
   @override
+  Stream<List<EcosystemInboxItem>> watchInboxHistory() =>
+      Stream<List<EcosystemInboxItem>>.value(pending);
+
+  @override
+  Future<void> resolveInbox(
+    String id, {
+    required EcosystemInboxDisposition disposition,
+    required DateTime resolvedAt,
+    String? materializedJourneyId,
+    String? materializedMemoryId,
+  }) async {}
+
+  @override
   Future<void> markInboxConsumed(
     String id, {
     required DateTime consumedAt,
-  }) async {
-    consumedId = id;
-  }
+  }) async {}
 
   @override
   Stream<List<EcosystemOutboxItem>> watchPendingOutbox() =>
+      const Stream<List<EcosystemOutboxItem>>.empty();
+
+  @override
+  Stream<List<EcosystemOutboxItem>> watchOutboxHistory() =>
       const Stream<List<EcosystemOutboxItem>>.empty();
 
   @override
