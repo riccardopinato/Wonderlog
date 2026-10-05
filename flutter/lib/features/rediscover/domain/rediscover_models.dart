@@ -33,7 +33,7 @@ final class RediscoverMemory {
   });
 
   final String id;
-  final String journeyId;
+  final String? journeyId;
   final String title;
   final String? journalText;
   final DateTime? timestamp;
