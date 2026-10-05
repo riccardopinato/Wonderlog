@@ -179,7 +179,7 @@
   "ecosystemUnsupportedAnna": "Dieses Element wird von Anna's Diary nicht unterstützt.",
   "ecosystemInboxTitle": "Von Apps empfangen",
   "ecosystemInboxReceivedFrom": "Empfangen von",
-  "ecosystemInboxStoredDescription": "Im Ökosystem-Posteingang gespeichert. Es wurde nicht automatisch eine Reise oder Erinnerung erstellt.",
+  "ecosystemInboxStoredDescription": "Empfangen und lokal gespeichert. Es wurde nicht automatisch eine Reise oder Erinnerung erstellt.",
   "ecosystemInboxMarkSeen": "Als gesehen markieren"
 
 }
