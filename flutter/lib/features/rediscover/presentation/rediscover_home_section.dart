@@ -6,6 +6,7 @@ import '../../journeys/domain/journey.dart';
 import '../../journeys/presentation/journey_detail_page.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../memories/presentation/memory_detail_page.dart';
 import '../application/rediscover_data_adapter.dart';
 import '../domain/rediscover_engine.dart';
 import '../domain/rediscover_models.dart';
@@ -102,6 +103,20 @@ final class RediscoverHomeSection extends StatelessWidget {
   }
 
   void _open(BuildContext context, RediscoverCard card) {
+    final memoryId = card.memoryId;
+    if (memoryId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => MemoryDetailPage(
+            repository: repository,
+            memoryId: memoryId,
+          ),
+        ),
+      );
+      return;
+    }
+
     final journeyId = card.journeyId;
     if (journeyId == null) return;
     Navigator.push(

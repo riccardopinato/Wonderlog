@@ -11,8 +11,8 @@ void main() {
     );
   });
 
-  test('production Room v6 advances to Flutter schema v7', () {
+  test('production Room v6 advances to Flutter schema v9', () {
     expect(LegacyDatabaseCompatibility.roomSchemaVersion, 6);
-    expect(LegacyDatabaseCompatibility.flutterSchemaVersion, 7);
+    expect(LegacyDatabaseCompatibility.flutterSchemaVersion, 9);
   });
 }

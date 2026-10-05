@@ -49,7 +49,9 @@ final class DriftCloudLocalDataSource implements CloudLocalDataSource {
         .getSingleOrNull();
     if (memory == null) return null;
 
-    final trip = await _trip(memory.tripId);
+    final journeyId = memory.tripId ?? memory.journeyId;
+    if (journeyId == null || journeyId.isEmpty) return null;
+    final trip = await _trip(journeyId);
     final journeyCloudId = trip?.futureCloudId;
     if (journeyCloudId == null || journeyCloudId.isEmpty) return null;
 
@@ -213,7 +215,11 @@ final class DriftCloudLocalDataSource implements CloudLocalDataSource {
   @override
   Future<List<String>> getPendingMemoryIds() async {
     final rows = await (database.select(database.memories)
-          ..where((row) => row.syncStatus.isIn(_pendingStatuses)))
+          ..where(
+            (row) =>
+                row.syncStatus.isIn(_pendingStatuses) &
+                row.tripId.isNotNull(),
+          ))
         .get();
     return rows.map((row) => row.id).toList(growable: false);
   }

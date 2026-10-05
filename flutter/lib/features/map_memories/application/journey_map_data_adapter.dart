@@ -18,7 +18,7 @@ abstract final class JourneyMapDataAdapter {
         MapMemoryItem(
           id: memory.id,
           type: MapMemoryItemType.memory,
-          journeyId: memory.journeyId,
+          journeyId: memory.journeyId ?? journey.id,
           title: memory.title,
           subtitle: memory.locationName,
           coordinate: MapCoordinate(

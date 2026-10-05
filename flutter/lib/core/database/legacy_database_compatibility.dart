@@ -1,7 +1,7 @@
 abstract final class LegacyDatabaseCompatibility {
   static const roomDatabaseName = 'wanderlog-memories-db';
   static const roomSchemaVersion = 6;
-  static const flutterSchemaVersion = 7;
+  static const flutterSchemaVersion = 9;
 
   static List<String> decodeLegacyTags(String raw) {
     final value = raw.trim();

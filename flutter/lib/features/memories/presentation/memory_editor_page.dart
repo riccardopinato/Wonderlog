@@ -16,7 +16,7 @@ final class MemoryEditorPage extends StatefulWidget {
   });
 
   final WonderlogRepository repository;
-  final String journeyId;
+  final String? journeyId;
   final MemoryEntry? existing;
 
   @override

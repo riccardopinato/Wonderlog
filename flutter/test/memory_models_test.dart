@@ -19,4 +19,22 @@ void main() {
     );
     expect(memory.coordinate?.latitude, 46.9);
   });
+
+  test('memory can remain unassigned to a Journey', () {
+    final memory = MemoryEntry(
+      id: 'free-memory',
+      journeyId: null,
+      title: 'Ricordo libero',
+      journalText: 'Ricevuto da Anna',
+      locationName: '',
+      date: DateTime(2026, 10, 5),
+      mood: Mood.calm,
+      tags: const ['ecosystem'],
+      createdAt: DateTime.utc(2026, 10, 5),
+      updatedAt: DateTime.utc(2026, 10, 5),
+    );
+
+    expect(memory.journeyId, isNull);
+  });
+
 }

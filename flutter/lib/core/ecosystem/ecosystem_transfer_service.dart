@@ -33,6 +33,18 @@ final class EcosystemTransferService {
   final EcosystemTransferStore store;
   final EcosystemLocalTransportPort localTransport;
 
+  Future<bool> openSource(EcosystemEnvelope envelope) async {
+    final raw = envelope.provenance.canonicalDeepLink ??
+        envelope.sourceDeepLink ??
+        envelope.fallback.sourceDeepLink;
+    if (raw == null || raw.trim().isEmpty) return false;
+    try {
+      return await localTransport.tryOpen(Uri.parse(raw.trim()));
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<EcosystemDeliveryResult> send({
     required EcosystemAppId targetApp,
     required EcosystemEnvelope envelope,
