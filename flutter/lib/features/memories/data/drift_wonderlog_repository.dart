@@ -240,12 +240,19 @@ final class DriftWonderlogRepository implements WonderlogRepository {
       );
 
   @override
+  Future<void> deleteJourney(String journeyId) async {
+    await (database.delete(database.trips)
+          ..where((row) => row.id.equals(journeyId)))
+        .go();
+  }
+
+  @override
   Future<void> saveMemory(MemoryEntry memory) =>
       database.into(database.memories).insertOnConflictUpdate(
         db.MemoriesCompanion.insert(
           id: memory.id,
-          tripId: memory.journeyId,
-          journeyId: memory.journeyId,
+          tripId: Value(memory.journeyId),
+          journeyId: Value(memory.journeyId),
           title: memory.title,
           journalText: Value(memory.journalText),
           locationName: Value(memory.locationName),
@@ -395,7 +402,7 @@ final class DriftWonderlogRepository implements WonderlogRepository {
     }
     return MemoryEntry(
       id: row.id,
-      journeyId: row.tripId,
+      journeyId: row.tripId ?? row.journeyId,
       title: row.title,
       journalText: row.journalText.isEmpty ? row.note : row.journalText,
       locationName: row.locationName,
