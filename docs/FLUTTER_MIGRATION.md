@@ -43,8 +43,10 @@ Room model:
 The Android cutover path now preserves the legacy Room database in place.
 Flutter detects the production Android database filename and opens it through
 Drift using schema-compatible table/column mappings, including the Room v6
-tag converter format. Flutter advances the schema non-destructively to v8,
-adding only the new ecosystem inbox/outbox tables. Fresh installs and
+tag converter format. E1 introduced schema v8 with ecosystem inbox/outbox.
+E2 advances the current Flutter schema to v9, making the Memory-to-Journey
+relationship optional for true unassigned Memories and adding durable inbox
+resolution metadata. The v9 migration still requires legacy-data certification. Fresh installs and
 non-Android platforms use the Flutter database path.
 
 ## Ecosystem direction
@@ -106,10 +108,9 @@ Flutter CI gate on tested head
 squash-merged to `main` as
 `77e6b11342e6b81ea9e5ecc0d9b731b4dc90a4c5`.
 
-The candidate Golden is frozen in
-`docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`. It becomes eligible for
-COPY-READY promotion only after Anna's Diary implements its definitive
-consumer adapter and both apps pass the same cross-app contract tests.
+The Shared Ecosystem Core v1 contract is CERTIFIED GOLDEN for the physically
+tested Android Wonderlog ↔ Anna's Diary scope. The historical contract filename
+still contains `DRAFT`, but the status inside the contract is authoritative.
 
 ## Migration gates
 
@@ -122,7 +123,7 @@ The Flutter build cannot become the main Wonderlog release until:
 - Rediscover/Replay parity is complete;
 - Premium/RevenueCat parity is complete;
 - cloud backup/sync parity is complete;
-- legacy Android Room v6 -> Flutter Drift v8 cutover is verified on a real device;
+- legacy Android Room v6 -> Flutter Drift v9 cutover is verified on a real device;
 - Android release and Web release builds pass;
 - iOS build passes on macOS;
 - no destructive migration or silent data loss is possible.
@@ -133,10 +134,10 @@ The Flutter foundation has been merged into `main` after passing
 localization/code generation, static analysis, unit tests, Web release build,
 Android release APK, Android AAB and artifact packaging.
 
-The E1 Wonderlog producer/shared-contract side is now READY as the frozen
-handoff baseline for Anna's Diary. Cross-app Golden certification remains
-pending Anna's consumer implementation and the real bidirectional contract
-round-trip.
+E1 is CERTIFIED GOLDEN for the tested Android Wonderlog ↔ Anna's Diary path.
+E2 is merged and adds the official inbound Ecosystem Inbox UX. Full-product
+production certification remains separate and is tracked in
+`docs/AUDIT_2026-10-06.md`.
 
 The remaining full-production cutover evidence is separate from E1 handoff
 readiness and is primarily real-device validation of the existing Room database
