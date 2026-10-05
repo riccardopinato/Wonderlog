@@ -158,7 +158,7 @@ final class ProfilePage extends StatelessWidget {
                       child: Icon(Icons.hub_outlined),
                     ),
                     title: const Text("Anna's Diary"),
-                    subtitle: Text(strings.ecosystemConnectedApp),
+                    subtitle: Text(strings.ecosystemConfiguredApp),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => Navigator.push(
                       context,
