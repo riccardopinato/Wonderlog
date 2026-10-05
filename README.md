@@ -27,10 +27,15 @@ Hardening PR #5 passed the complete Flutter CI gate on head commit
 `25578cade1f9dd32712d495b13caaf2ead9e8ea7` and was squash-merged to `main`
 as `77e6b11342e6b81ea9e5ecc0d9b731b4dc90a4c5`.
 
-This means **Wonderlog is ready to act as the producer/donor baseline for
-Anna's Diary**. It does **not** mean the bridge is cross-app CERTIFIED yet:
-final certification still requires the Anna consumer implementation and the
-real Wonderlog <-> Anna contract round-trip.
+Shared Ecosystem Core v1 is now **CERTIFIED GOLDEN** for the physically tested
+Android Wonderlog ↔ Anna's Diary scope (Xiaomi Redmi Note 10 Pro / Android 13).
+
+MAXI STEP E2 is also merged: Wonderlog now has a durable Ecosystem Inbox,
+history, explicit COPY/LINK presentation and the four user-controlled inbound
+destinations (existing Journey, new Journey, unassigned Memory, ignore/archive).
+
+The complete Wonderlog product is not production-certified yet. See the deep
+post-E2 audit for the remaining blockers.
 
 See:
 
@@ -38,3 +43,4 @@ See:
 - `docs/ECOSYSTEM_E1_ANNA_HANDOFF.txt`
 - `docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`
 - `ROADMAP.md`
+- `docs/AUDIT_2026-10-06.md`
