@@ -217,5 +217,10 @@
   "ecosystemAppsPlanned": "Intégration pas encore active",
   "open": "Ouvrir",
   "create": "Créer",
-  "confirm": "Confirmer"
+  "confirm": "Confirmer",
+  "ecosystemCapabilityText": "Texte",
+  "ecosystemCapabilityPhoto": "Photos",
+  "ecosystemCapabilityPlace": "Lieux",
+  "ecosystemCapabilityJourney": "Voyages",
+  "ecosystemCapabilityRoute": "Itinéraires"
 }
