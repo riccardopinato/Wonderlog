@@ -214,5 +214,8 @@
   "ecosystemPremiumLimit": "Du hast das Limit des aktuellen Tarifs erreicht.",
   "ecosystemNoJourneys": "Keine Reisen verfügbar.",
   "ecosystemHistoryResult": "Ergebnis",
-  "ecosystemAppsPlanned": "Integration noch nicht aktiv"
+  "ecosystemAppsPlanned": "Integration noch nicht aktiv",
+  "open": "Öffnen",
+  "create": "Erstellen",
+  "confirm": "Bestätigen"
 }
