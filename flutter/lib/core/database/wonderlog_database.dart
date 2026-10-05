@@ -293,6 +293,11 @@ class WonderlogDatabase extends _$WonderlogDatabase {
           if (from < 9) {
             // E2 introduces true unassigned Memories by making their Journey
             // relationship optional. Existing rows keep their current IDs.
+            // Drift 2.31 exposes nullability table rewrites through the
+            // experimental TableMigration API. This is the supported way in
+            // the pinned dependency to preserve existing rows while changing
+            // the Journey foreign key from required to optional.
+            // ignore: experimental_member_use
             await migrator.alterTable(TableMigration(memories));
 
             // Databases created before schema v8 need no addColumn calls here:
