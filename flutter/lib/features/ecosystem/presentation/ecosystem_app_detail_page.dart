@@ -128,7 +128,7 @@ final class EcosystemAppDetailPage extends StatelessWidget {
                                       size: 16,
                                     ),
                                     label: Text(
-                                      _capabilityLabel(capability),
+                                      _capabilityLabel(strings, capability),
                                     ),
                                   ),
                                 )
@@ -167,13 +167,16 @@ final class EcosystemAppDetailPage extends StatelessWidget {
         EcosystemCapability.receiveRoute => Icons.route_outlined,
       };
 
-  static String _capabilityLabel(EcosystemCapability capability) =>
+  static String _capabilityLabel(
+    AppLocalizations strings,
+    EcosystemCapability capability,
+  ) =>
       switch (capability) {
-        EcosystemCapability.receiveText => 'Text',
-        EcosystemCapability.receivePhoto => 'Photo',
-        EcosystemCapability.receivePlace => 'Place',
-        EcosystemCapability.receiveJourney => 'Journey',
-        EcosystemCapability.receiveRoute => 'Route',
+        EcosystemCapability.receiveText => strings.ecosystemCapabilityText,
+        EcosystemCapability.receivePhoto => strings.ecosystemCapabilityPhoto,
+        EcosystemCapability.receivePlace => strings.ecosystemCapabilityPlace,
+        EcosystemCapability.receiveJourney => strings.ecosystemCapabilityJourney,
+        EcosystemCapability.receiveRoute => strings.ecosystemCapabilityRoute,
       };
 }
 
