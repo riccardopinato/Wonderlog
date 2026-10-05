@@ -427,8 +427,8 @@ final class CloudRestoreRepository {
   }) =>
       db.MemoriesCompanion.insert(
         id: localId,
-        tripId: journeyLocalId,
-        journeyId: journeyLocalId,
+        tripId: Value(journeyLocalId),
+        journeyId: Value(journeyLocalId),
         title: cloud.title,
         note: Value(cloud.journalText),
         journalText: Value(cloud.journalText),
