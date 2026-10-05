@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
+import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../capture/application/capture_controller.dart';
 import '../../capture/data/wonderlog_capture_repository.dart';
@@ -17,6 +18,7 @@ import '../../search/presentation/global_search_page.dart';
 import '../../smart_journey/application/smart_journey_integration_repository.dart';
 import '../../smart_journey/data/photo_import_service_smart_journey_adapter.dart';
 import '../../smart_journey/presentation/smart_journey_import_page.dart';
+import 'ecosystem_inbox_home_card.dart';
 
 final class HomePage extends StatelessWidget {
   const HomePage({
@@ -35,6 +37,8 @@ final class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final ecosystemStore =
+        WonderlogServicesScope.maybeOf(context)?.ecosystemTransferStore;
 
     return Scaffold(
       appBar: AppBar(
@@ -116,6 +120,8 @@ final class HomePage extends StatelessWidget {
                   repository,
                 ),
               ),
+              if (ecosystemStore != null)
+                EcosystemInboxHomeCard(store: ecosystemStore),
               RediscoverHomeSection(
                 repository: repository,
                 journeys: journeys,
