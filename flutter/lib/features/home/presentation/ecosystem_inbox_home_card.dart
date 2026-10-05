@@ -4,6 +4,7 @@ import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../core/ecosystem/ecosystem_registry.dart';
 import '../../../core/ecosystem/ecosystem_transfer_store.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../ecosystem/presentation/ecosystem_inbox_page.dart';
 
 final class EcosystemInboxHomeCard extends StatelessWidget {
   const EcosystemInboxHomeCard({
@@ -118,12 +119,14 @@ final class EcosystemInboxHomeCard extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton.icon(
-                    onPressed: () => store.markInboxConsumed(
-                      item.id,
-                      consumedAt: DateTime.now().toUtc(),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const EcosystemInboxPage(),
+                      ),
                     ),
-                    icon: const Icon(Icons.done),
-                    label: Text(strings.ecosystemInboxMarkSeen),
+                    icon: const Icon(Icons.inbox_outlined),
+                    label: Text(strings.ecosystemInboxOpen),
                   ),
                 ),
               ],
