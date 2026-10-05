@@ -42,8 +42,8 @@ class Memories extends Table {
 
   TextColumn get id => text()();
   TextColumn get tripId =>
-      text().references(Trips, #id, onDelete: KeyAction.cascade)();
-  TextColumn get journeyId => text()();
+      text().nullable().references(Trips, #id, onDelete: KeyAction.cascade)();
+  TextColumn get journeyId => text().nullable()();
   TextColumn get title => text()();
   TextColumn get note => text().withDefault(const Constant(''))();
   TextColumn get journalText => text().withDefault(const Constant(''))();
@@ -220,6 +220,10 @@ class EcosystemInbox extends Table {
   TextColumn get idempotencyKey => text()();
   IntColumn get receivedAt => integer()();
   IntColumn get consumedAt => integer().nullable()();
+  TextColumn get disposition =>
+      text().withDefault(const Constant('pending'))();
+  TextColumn get materializedJourneyId => text().nullable()();
+  TextColumn get materializedMemoryId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -270,7 +274,7 @@ class WonderlogDatabase extends _$WonderlogDatabase {
       : super(executor ?? driftDatabase(name: 'wonderlog_flutter'));
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -285,6 +289,28 @@ class WonderlogDatabase extends _$WonderlogDatabase {
           if (from < 8) {
             await migrator.createTable(ecosystemOutbox);
             await migrator.createTable(ecosystemInbox);
+          }
+          if (from < 9) {
+            // E2 introduces true unassigned Memories by making their Journey
+            // relationship optional. Existing rows keep their current IDs.
+            await migrator.alterTable(TableMigration(memories));
+
+            // Databases created before schema v8 need no addColumn calls here:
+            // createTable(ecosystemInbox) above already uses the latest schema.
+            if (from >= 8) {
+              await migrator.addColumn(
+                ecosystemInbox,
+                ecosystemInbox.disposition,
+              );
+              await migrator.addColumn(
+                ecosystemInbox,
+                ecosystemInbox.materializedJourneyId,
+              );
+              await migrator.addColumn(
+                ecosystemInbox,
+                ecosystemInbox.materializedMemoryId,
+              );
+            }
           }
         },
         beforeOpen: (_) async {
