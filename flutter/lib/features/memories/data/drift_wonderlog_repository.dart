@@ -35,6 +35,50 @@ final class DriftWonderlogRepository implements WonderlogRepository {
   }
 
   @override
+  Future<Journey?> getJourney(String id) async {
+    final row = await (database.select(database.trips)
+          ..where((item) => item.id.equals(id)))
+        .getSingleOrNull();
+    return row == null ? null : _journey(row);
+  }
+
+  @override
+  Future<int> countJourneys() async {
+    final count = database.trips.id.count();
+    final query = database.selectOnly(database.trips)
+      ..addColumns([count])
+      ..where(database.trips.archived.equals(false));
+    final row = await query.getSingle();
+    return row.read(count) ?? 0;
+  }
+
+  @override
+  Future<int> countMemoriesForJourney(String journeyId) async {
+    final count = database.memories.id.count();
+    final query = database.selectOnly(database.memories)
+      ..addColumns([count])
+      ..where(
+        database.memories.tripId.equals(journeyId) |
+            database.memories.journeyId.equals(journeyId),
+      );
+    final row = await query.getSingle();
+    return row.read(count) ?? 0;
+  }
+
+  @override
+  Future<int> countUnassignedMemories() async {
+    final count = database.memories.id.count();
+    final query = database.selectOnly(database.memories)
+      ..addColumns([count])
+      ..where(
+        database.memories.tripId.isNull() &
+            database.memories.journeyId.isNull(),
+      );
+    final row = await query.getSingle();
+    return row.read(count) ?? 0;
+  }
+
+  @override
   Stream<List<MemoryEntry>> watchMemories(String journeyId) {
     final query = database.select(database.memories)
       ..where((row) => row.tripId.equals(journeyId))
