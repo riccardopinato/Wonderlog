@@ -38,7 +38,6 @@ final class _WonderlogShellState extends State<WonderlogShell> {
     final pages = <Widget>[
       HomePage(
         repository: widget.repository,
-        isPremium: () => widget.controller.isPremium,
         locationRepository: widget.locationRepository,
         photoImportService: widget.photoImportService,
       ),
