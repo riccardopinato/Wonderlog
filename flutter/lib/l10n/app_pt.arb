@@ -222,5 +222,67 @@
   "ecosystemCapabilityPhoto": "Fotos",
   "ecosystemCapabilityPlace": "Locais",
   "ecosystemCapabilityJourney": "Viagens",
-  "ecosystemCapabilityRoute": "Percursos"
+  "ecosystemCapabilityRoute": "Percursos",
+  "navMemories": "Memórias",
+  "memoriesTitle": "Memórias",
+  "memoriesAll": "Todas",
+  "memoriesUnassigned": "Não atribuídas",
+  "memoryUnassigned": "Memória não atribuída",
+  "memoryAssignJourney": "Mover para uma viagem",
+  "memoryMakeUnassigned": "Remover da viagem",
+  "memoryMoveTitle": "Escolher destino",
+  "memoryMoved": "Memória movida.",
+  "memoryDeleteTitle": "Eliminar memória?",
+  "memoryDeleteDescription": "A memória e os seus Keepsakes serão eliminados. As fotos do álbum permanecem até serem eliminadas separadamente.",
+  "memoryDeleted": "Memória eliminada.",
+  "journeyEdit": "Editar viagem",
+  "journeyArchive": "Arquivar viagem",
+  "journeyRestore": "Restaurar viagem",
+  "journeysActive": "Ativas",
+  "journeysArchived": "Arquivadas",
+  "journeyDeleteTitle": "Eliminar viagem?",
+  "journeyDeleteDescription": "Isto elimina definitivamente a viagem e os dados locais associados.",
+  "journeyDeleteImpact": "Serão removidas {memories} memórias, {photos} fotos e {attachments} Keepsakes.",
+  "@journeyDeleteImpact": {
+    "placeholders": {
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "attachments": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyArchived": "Viagem arquivada.",
+  "journeyRestored": "Viagem restaurada.",
+  "delete": "Eliminar",
+  "archive": "Arquivar",
+  "restore": "Restaurar",
+  "rename": "Renomear",
+  "share": "Partilhar",
+  "export": "Exportar",
+  "photoAddFavorite": "Adicionar aos favoritos",
+  "photoRemoveFavorite": "Remover dos favoritos",
+  "photoSetCover": "Definir como capa da viagem",
+  "photoClearCover": "Remover capa",
+  "photoCover": "Foto de capa",
+  "photoUnlinkMemory": "Remover desta memória",
+  "photoDeleteTitle": "Eliminar foto?",
+  "photoDeleteDescription": "A foto será removida da viagem e de todas as memórias ligadas a ela.",
+  "keepsakeAdd": "Adicionar Keepsake",
+  "keepsakeOpen": "Abrir",
+  "keepsakeShare": "Partilhar",
+  "keepsakeExport": "Exportar",
+  "keepsakeRename": "Renomear",
+  "keepsakeDeleteTitle": "Eliminar Keepsake?",
+  "keepsakeDeleteDescription": "O anexo será removido da memória e do armazenamento local quando nenhum outro registo usar o mesmo ficheiro.",
+  "keepsakeUnavailable": "O ficheiro local não está disponível.",
+  "keepsakeImportFailed": "Não foi possível importar este Keepsake.",
+  "keepsakeActionFailed": "Não foi possível concluir a ação do ficheiro.",
+  "keepsakeRenamed": "Keepsake renomeado.",
+  "keepsakeExported": "Keepsake exportado.",
+  "mediaUnavailable": "Media indisponível"
 }
