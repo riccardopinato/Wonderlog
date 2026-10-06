@@ -51,10 +51,10 @@ void main() {
     await harness.receive('ui-existing');
     await harness.pump(tester);
 
-    await tester.tap(find.text('Aggiungi a un viaggio esistente'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Valle Aurina'));
-    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'Aggiungi a un viaggio esistente');
+    await tester.pump(const Duration(milliseconds: 250));
+    await _tapVisible(tester, 'Valle Aurina');
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(await harness.repository.watchMemories(journey.id).first, hasLength(1));
     final history = await harness.store.watchInboxHistory().first;
@@ -69,10 +69,10 @@ void main() {
     await harness.receive('ui-create');
     await harness.pump(tester);
 
-    await tester.tap(find.text('Crea nuovo viaggio'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Crea'));
-    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'Crea nuovo viaggio');
+    await tester.pump(const Duration(milliseconds: 250));
+    await _tapVisible(tester, 'Crea');
+    await tester.pump(const Duration(milliseconds: 500));
 
     final journeys = await harness.repository.watchJourneys().first;
     expect(journeys, hasLength(1));
@@ -88,8 +88,8 @@ void main() {
     await harness.receive('ui-free');
     await harness.pump(tester);
 
-    await tester.tap(find.text('Salva come ricordo libero'));
-    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'Salva come ricordo libero');
+    await tester.pump(const Duration(milliseconds: 500));
 
     final memories = await harness.repository.watchAllMemories().first;
     expect(memories, hasLength(1));
@@ -106,10 +106,10 @@ void main() {
     await harness.receive('ui-ignore');
     await harness.pump(tester);
 
-    await tester.tap(find.text('Ignora e archivia'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Conferma'));
-    await tester.pumpAndSettle();
+    await _tapVisible(tester, 'Ignora e archivia');
+    await tester.pump(const Duration(milliseconds: 250));
+    await _tapVisible(tester, 'Conferma');
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(await harness.repository.watchJourneys().first, isEmpty);
     expect(await harness.repository.watchAllMemories().first, isEmpty);
@@ -119,6 +119,14 @@ void main() {
       EcosystemInboxDisposition.ignored,
     );
   });
+}
+
+Future<void> _tapVisible(WidgetTester tester, String text) async {
+  final finder = find.text(text);
+  expect(finder, findsOneWidget);
+  await tester.ensureVisible(finder);
+  await tester.pump();
+  await tester.tap(finder);
 }
 
 final class _Harness {
@@ -190,6 +198,11 @@ final class _Harness {
       );
 
   Future<void> pump(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1000, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       WonderlogServicesScope(
         services: services,
