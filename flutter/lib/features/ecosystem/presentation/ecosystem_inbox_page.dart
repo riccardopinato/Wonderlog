@@ -495,7 +495,8 @@ final class _InboxItemCard extends StatelessWidget {
           strings.ecosystemInboxDispositionIgnored,
         EcosystemInboxDisposition.seenLegacy =>
           strings.ecosystemInboxDispositionSeenLegacy,
-        EcosystemInboxDisposition.pending =>
+        EcosystemInboxDisposition.pending ||
+        EcosystemInboxDisposition.processing =>
           strings.ecosystemInboxPendingTab,
       };
 
