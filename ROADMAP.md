@@ -100,6 +100,8 @@ Outcome:
 - repository tests now exercise canonical `DriftWonderlogRepository`;
 - Kotlin donor ZIP intentionally retained until production cutover parity and Room -> Drift evidence close;
 - no claim of full product parity or production certification.
+- final PR #11 head `3d3d6330fb98aa0f5497df62c49529f3b15f783e` passed analyze, unit tests, Web release build, Android release APK and Android AAB; CodeRabbit advisory was green.
+- PR #11 was squash-merged to `main` as `18a5116880107abe08d6b776e14c154780bd83cc`.
 
 Evidence:
 - `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`.
