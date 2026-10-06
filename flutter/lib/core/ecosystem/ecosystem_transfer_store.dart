@@ -23,6 +23,7 @@ final class EcosystemOutboxItem {
 
 enum EcosystemInboxDisposition {
   pending,
+  processing,
   addedToJourney,
   createdJourney,
   savedFreeMemory,
@@ -97,6 +98,11 @@ abstract interface class EcosystemTransferStore {
   Stream<List<EcosystemInboxItem>> watchPendingInbox();
 
   Stream<List<EcosystemInboxItem>> watchInboxHistory();
+
+  Future<T?> runInboxMaterialization<T>(
+    String id,
+    Future<T> Function() materialize,
+  );
 
   Future<void> resolveInbox(
     String id, {
