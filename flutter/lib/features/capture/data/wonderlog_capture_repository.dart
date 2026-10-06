@@ -2,6 +2,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../premium/domain/premium_creation_guard.dart';
 import '../../premium/domain/premium_gate.dart';
 import '../domain/capture_media_port.dart';
 import '../domain/capture_models.dart';
@@ -69,13 +70,13 @@ final class WonderlogCaptureRepository implements CaptureRepository {
     var targetMemoryId = draft.memoryId;
 
     if (draft.createNewMemory) {
-      final existingMemories =
-          await repository.watchMemories(journeyId).first;
-      final memoryCheck = premiumGate.canCreateMemory(
-        existingMemories.length,
-        premium,
-      );
-      if (memoryCheck is PremiumLimitReached) {
+      try {
+        await PremiumCreationGuard(
+          repository: repository,
+          isPremium: isPremium,
+          gate: premiumGate,
+        ).ensureMemoryAllowed(journeyId: journeyId);
+      } on PremiumCreationLimitException {
         throw StateError('Memory limit reached for free plan.');
       }
 
