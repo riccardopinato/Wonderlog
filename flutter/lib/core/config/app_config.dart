@@ -50,6 +50,10 @@ final class AppConfig {
   bool get offlineMapsConfigured => offlineMapStyleUrl.trim().isNotEmpty;
   bool get roadRoutingConfigured => routingBaseUrl.trim().isNotEmpty;
 
+  String get effectiveMapStyleUrl => offlineMapsConfigured
+      ? offlineMapStyleUrl.trim()
+      : mapStyleUrl.trim();
+
   bool get cloudConfigured =>
       supabaseUrl.trim().isNotEmpty &&
       supabasePublishableKey.trim().isNotEmpty;
