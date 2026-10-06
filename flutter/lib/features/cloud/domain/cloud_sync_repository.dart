@@ -27,14 +27,20 @@ final class CloudSyncRepository {
   final CloudMemoryPhotoLinksReader? relationshipReader;
   final Uuid _uuid = const Uuid();
 
-  Future<void> enqueueJourney(String journeyId) =>
-      _enqueue(SyncEntityType.journey, journeyId);
+  Future<void> enqueueJourney(String journeyId) async {
+    await localDataSource.markJourneyPendingUpload(journeyId);
+    await _enqueue(SyncEntityType.journey, journeyId);
+  }
 
-  Future<void> enqueueMemory(String memoryId) =>
-      _enqueue(SyncEntityType.memory, memoryId);
+  Future<void> enqueueMemory(String memoryId) async {
+    await localDataSource.markMemoryPendingUpload(memoryId);
+    await _enqueue(SyncEntityType.memory, memoryId);
+  }
 
-  Future<void> enqueuePhoto(String photoId) =>
-      _enqueue(SyncEntityType.albumPhoto, photoId);
+  Future<void> enqueuePhoto(String photoId) async {
+    await localDataSource.markPhotoPendingUpload(photoId);
+    await _enqueue(SyncEntityType.albumPhoto, photoId);
+  }
 
   Future<void> enqueueDelete(
     SyncEntityType entityType,
