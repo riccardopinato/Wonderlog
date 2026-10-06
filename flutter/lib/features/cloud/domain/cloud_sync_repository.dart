@@ -9,6 +9,7 @@ import 'cloud_provider.dart';
 import 'sync_queue_store.dart';
 
 typedef CloudAssetReader = Future<Uint8List?> Function(String reference);
+typedef CloudMemoryPhotoLinksReader = Future<List<CloudMemoryPhotoLink>> Function();
 
 final class CloudSyncRepository {
   CloudSyncRepository({
@@ -16,12 +17,14 @@ final class CloudSyncRepository {
     required this.queueStore,
     required this.localDataSource,
     required this.assetReader,
+    this.relationshipReader,
   });
 
   final CloudProvider cloudProvider;
   final SyncQueueStore queueStore;
   final CloudLocalDataSource localDataSource;
   final CloudAssetReader assetReader;
+  final CloudMemoryPhotoLinksReader? relationshipReader;
   final Uuid _uuid = const Uuid();
 
   Future<void> enqueueJourney(String journeyId) =>
@@ -104,12 +107,24 @@ final class CloudSyncRepository {
     }
 
     final content = await syncNow();
+
+    var relationshipFailures = 0;
+    if (includePhotos && relationshipReader != null) {
+      try {
+        final links = await relationshipReader!();
+        await cloudProvider.uploadMemoryPhotoLinks(links);
+      } catch (_) {
+        relationshipFailures++;
+      }
+    }
+
     return SyncSummary(
       uploaded: journeys.uploaded + content.uploaded,
       downloaded: journeys.downloaded + content.downloaded,
       deleted: journeys.deleted + content.deleted,
       conflicts: journeys.conflicts + content.conflicts,
-      failures: journeys.failures + content.failures,
+      failures:
+          journeys.failures + content.failures + relationshipFailures,
     );
   }
 
@@ -223,9 +238,19 @@ final class CloudSyncRepository {
           item.localEntityId,
         );
         if (info != null) {
+          var remotePath = info.remoteFilePath;
+          if (remotePath == null || remotePath.trim().isEmpty) {
+            final cloudPhotos = await cloudProvider.fetchPhotos(null);
+            for (final photo in cloudPhotos) {
+              if (photo.id == info.cloudId) {
+                remotePath = photo.remoteFilePath;
+                break;
+              }
+            }
+          }
           await cloudProvider.deletePhoto(
             info.cloudId,
-            info.remoteFilePath,
+            remotePath,
           );
         }
     }
