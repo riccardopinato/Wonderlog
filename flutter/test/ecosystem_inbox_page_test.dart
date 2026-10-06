@@ -1,12 +1,10 @@
+import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:wonderlog/core/app_controller.dart';
-import 'package:wonderlog/core/database/wonderlog_database.dart' show WonderlogDatabase;
-import 'package:wonderlog/core/ecosystem/drift_ecosystem_transfer_store.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_envelope.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_inbound_transfer_service.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_local_transport_port.dart';
@@ -22,18 +20,20 @@ import 'package:wonderlog/core/profile/app_profile.dart';
 import 'package:wonderlog/core/profile/profile_repository.dart';
 import 'package:wonderlog/core/runtime/wonderlog_services_scope.dart';
 import 'package:wonderlog/features/ecosystem/presentation/ecosystem_inbox_page.dart';
+import 'package:wonderlog/features/journeys/domain/journey.dart';
 import 'package:wonderlog/features/location/domain/location_models.dart';
 import 'package:wonderlog/features/location/domain/location_repository.dart';
-import 'package:wonderlog/features/memories/data/drift_wonderlog_repository.dart';
 import 'package:wonderlog/features/memories/data/photo_import_service.dart';
+import 'package:wonderlog/features/memories/domain/memory_models.dart';
+import 'package:wonderlog/features/memories/domain/wonderlog_repository.dart';
 import 'package:wonderlog/features/premium/application/premium_entitlement_service.dart';
 import 'package:wonderlog/l10n/app_localizations.dart';
 
 void main() {
   late _Harness harness;
 
-  setUp(() async {
-    harness = await _Harness.create();
+  setUp(() {
+    harness = _Harness.create();
   });
 
   tearDown(() async {
@@ -52,9 +52,9 @@ void main() {
     await harness.pump(tester);
 
     await _tapVisible(tester, 'Aggiungi a un viaggio esistente');
-    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pumpAndSettle();
     await _tapVisible(tester, 'Valle Aurina');
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
 
     expect(await harness.repository.watchMemories(journey.id).first, hasLength(1));
     final history = await harness.store.watchInboxHistory().first;
@@ -70,13 +70,16 @@ void main() {
     await harness.pump(tester);
 
     await _tapVisible(tester, 'Crea nuovo viaggio');
-    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pumpAndSettle();
     await _tapVisible(tester, 'Crea');
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
 
     final journeys = await harness.repository.watchJourneys().first;
     expect(journeys, hasLength(1));
-    expect(await harness.repository.watchMemories(journeys.single.id).first, hasLength(1));
+    expect(
+      await harness.repository.watchMemories(journeys.single.id).first,
+      hasLength(1),
+    );
     final history = await harness.store.watchInboxHistory().first;
     expect(
       history.single.disposition,
@@ -89,7 +92,7 @@ void main() {
     await harness.pump(tester);
 
     await _tapVisible(tester, 'Salva come ricordo libero');
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
 
     final memories = await harness.repository.watchAllMemories().first;
     expect(memories, hasLength(1));
@@ -107,9 +110,9 @@ void main() {
     await harness.pump(tester);
 
     await _tapVisible(tester, 'Ignora e archivia');
-    await tester.pump(const Duration(milliseconds: 250));
+    await tester.pumpAndSettle();
     await _tapVisible(tester, 'Conferma');
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
 
     expect(await harness.repository.watchJourneys().first, isEmpty);
     expect(await harness.repository.watchAllMemories().first, isEmpty);
@@ -131,23 +134,20 @@ Future<void> _tapVisible(WidgetTester tester, String text) async {
 
 final class _Harness {
   _Harness({
-    required this.database,
     required this.repository,
     required this.store,
     required this.controller,
     required this.services,
   });
 
-  final WonderlogDatabase database;
-  final DriftWonderlogRepository repository;
-  final DriftEcosystemTransferStore store;
+  final _MemoryWonderlogRepository repository;
+  final _MemoryEcosystemTransferStore store;
   final AppController controller;
   final WonderlogServices services;
 
-  static Future<_Harness> create() async {
-    final database = WonderlogDatabase(NativeDatabase.memory());
-    final repository = DriftWonderlogRepository(database);
-    final store = DriftEcosystemTransferStore(database);
+  static _Harness create() {
+    final repository = _MemoryWonderlogRepository();
+    final store = _MemoryEcosystemTransferStore();
     final controller = AppController(
       profileRepository: _TestProfileRepository(),
       identityService: _TestIdentityService(),
@@ -167,7 +167,6 @@ final class _Harness {
     );
 
     return _Harness(
-      database: database,
       repository: repository,
       store: store,
       controller: controller,
@@ -219,8 +218,291 @@ final class _Harness {
 
   Future<void> dispose() async {
     controller.dispose();
-    await database.close();
+    await store.dispose();
   }
+}
+
+final class _MemoryEcosystemTransferStore implements EcosystemTransferStore {
+  final List<EcosystemInboxItem> _inbox = [];
+  final StreamController<List<EcosystemInboxItem>> _changes =
+      StreamController<List<EcosystemInboxItem>>.broadcast();
+  var _nextId = 1;
+
+  @override
+  Stream<List<EcosystemInboxItem>> watchInboxHistory() async* {
+    yield List<EcosystemInboxItem>.unmodifiable(_inbox);
+    yield* _changes.stream;
+  }
+
+  @override
+  Stream<List<EcosystemInboxItem>> watchPendingInbox() async* {
+    yield _pending();
+    await for (final _ in _changes.stream) {
+      yield _pending();
+    }
+  }
+
+  List<EcosystemInboxItem> _pending() => _inbox
+      .where((item) => item.isPending)
+      .toList(growable: false);
+
+  void _emit() {
+    _changes.add(List<EcosystemInboxItem>.unmodifiable(_inbox));
+  }
+
+  @override
+  Future<void> receiveInbox(EcosystemEnvelope envelope) async {
+    _inbox.add(
+      EcosystemInboxItem(
+        id: 'inbox_${_nextId++}',
+        sourceApp: envelope.sourceApp,
+        envelope: envelope,
+        receivedAt: DateTime.now().toUtc(),
+      ),
+    );
+    _emit();
+  }
+
+  @override
+  Future<T> materializeInboxExactlyOnce<T>(
+    String id, {
+    required Future<EcosystemInboxMaterializationCommit<T>> Function()
+        materialize,
+  }) async {
+    final index = _inbox.indexWhere((item) => item.id == id);
+    if (index < 0 || !_inbox[index].isPending) {
+      throw EcosystemInboxAlreadyResolvedException(id);
+    }
+
+    final commit = await materialize();
+    final current = _inbox[index];
+    _inbox[index] = EcosystemInboxItem(
+      id: current.id,
+      sourceApp: current.sourceApp,
+      envelope: current.envelope,
+      receivedAt: current.receivedAt,
+      consumedAt: DateTime.now().toUtc(),
+      disposition: commit.disposition,
+      materializedJourneyId: commit.materializedJourneyId,
+      materializedMemoryId: commit.materializedMemoryId,
+    );
+    _emit();
+    return commit.value;
+  }
+
+  @override
+  Future<void> resolveInbox(
+    String id, {
+    required EcosystemInboxDisposition disposition,
+    required DateTime resolvedAt,
+    String? materializedJourneyId,
+    String? materializedMemoryId,
+  }) async {
+    final index = _inbox.indexWhere((item) => item.id == id);
+    if (index < 0 || !_inbox[index].isPending) {
+      throw EcosystemInboxAlreadyResolvedException(id);
+    }
+    final current = _inbox[index];
+    _inbox[index] = EcosystemInboxItem(
+      id: current.id,
+      sourceApp: current.sourceApp,
+      envelope: current.envelope,
+      receivedAt: current.receivedAt,
+      consumedAt: resolvedAt,
+      disposition: disposition,
+      materializedJourneyId: materializedJourneyId,
+      materializedMemoryId: materializedMemoryId,
+    );
+    _emit();
+  }
+
+  @override
+  Future<void> markInboxConsumed(
+    String id, {
+    required DateTime consumedAt,
+  }) =>
+      resolveInbox(
+        id,
+        disposition: EcosystemInboxDisposition.seenLegacy,
+        resolvedAt: consumedAt,
+      );
+
+  @override
+  Stream<List<EcosystemOutboxItem>> watchPendingOutbox() =>
+      const Stream<List<EcosystemOutboxItem>>.empty();
+
+  @override
+  Stream<List<EcosystemOutboxItem>> watchOutboxHistory() =>
+      const Stream<List<EcosystemOutboxItem>>.empty();
+
+  @override
+  Future<String> enqueueOutbox({
+    required EcosystemAppId targetApp,
+    required EcosystemEnvelope envelope,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> markOutboxDelivered(
+    String id, {
+    required DateTime deliveredAt,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> markOutboxFailure(
+    String id, {
+    required String error,
+  }) =>
+      throw UnimplementedError();
+
+  Future<void> dispose() => _changes.close();
+}
+
+final class _MemoryWonderlogRepository implements WonderlogRepository {
+  final Map<String, Journey> _journeys = {};
+  final Map<String, MemoryEntry> _memories = {};
+  var _nextJourneyId = 1;
+
+  @override
+  Stream<List<Journey>> watchJourneys() => Stream.value(
+        _journeys.values
+            .where((journey) => !journey.archived)
+            .toList(growable: false),
+      );
+
+  @override
+  Stream<Journey?> watchJourney(String id) =>
+      Stream.value(_journeys[id]);
+
+  @override
+  Stream<List<MemoryEntry>> watchMemories(String journeyId) => Stream.value(
+        _memories.values
+            .where((memory) => memory.journeyId == journeyId)
+            .toList(growable: false),
+      );
+
+  @override
+  Stream<List<MemoryEntry>> watchAllMemories() =>
+      Stream.value(_memories.values.toList(growable: false));
+
+  @override
+  Future<Journey> createJourney({
+    required String title,
+    required String destination,
+    required DateTime startDate,
+    required DateTime endDate,
+    String country = '',
+    String description = '',
+  }) async {
+    final now = DateTime.now().toUtc();
+    final journey = Journey(
+      id: 'journey_${_nextJourneyId++}',
+      title: title.trim(),
+      destination: destination.trim(),
+      country: country.trim(),
+      startDate: startDate,
+      endDate: endDate,
+      description: description.trim(),
+      latitude: 0,
+      longitude: 0,
+      favorite: false,
+      archived: false,
+      createdAt: now,
+      updatedAt: now,
+    );
+    _journeys[journey.id] = journey;
+    return journey;
+  }
+
+  @override
+  Future<void> saveJourney(Journey journey) async {
+    _journeys[journey.id] = journey;
+  }
+
+  @override
+  Future<void> deleteJourney(String journeyId) async {
+    _journeys.remove(journeyId);
+    _memories.removeWhere((_, memory) => memory.journeyId == journeyId);
+  }
+
+  @override
+  Future<void> saveMemory(MemoryEntry memory) async {
+    _memories[memory.id] = memory;
+  }
+
+  @override
+  Future<void> deleteMemory(String memoryId) async {
+    _memories.remove(memoryId);
+  }
+
+  @override
+  Stream<List<MemoryWithPhotos>> watchMemoriesWithPhotos(String journeyId) =>
+      Stream.value(
+        _memories.values
+            .where((memory) => memory.journeyId == journeyId)
+            .map(
+              (memory) => MemoryWithPhotos(
+                memory: memory,
+                photos: const [],
+              ),
+            )
+            .toList(growable: false),
+      );
+
+  @override
+  Stream<MemoryWithPhotos?> watchMemory(String memoryId) => Stream.value(
+        _memories[memoryId] == null
+            ? null
+            : MemoryWithPhotos(
+                memory: _memories[memoryId]!,
+                photos: const [],
+              ),
+      );
+
+  @override
+  Stream<List<AlbumPhotoEntry>> watchAlbum(String journeyId) =>
+      Stream.value(const []);
+
+  @override
+  Stream<List<AlbumPhotoEntry>> watchAllPhotos() =>
+      Stream.value(const []);
+
+  @override
+  Stream<List<MemoryAttachment>> watchAttachments(String memoryId) =>
+      Stream.value(const []);
+
+  @override
+  Future<void> savePhoto(AlbumPhotoEntry photo) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> deletePhoto(String photoId) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> linkPhotoToMemory({
+    required String memoryId,
+    required String photoId,
+    required int displayOrder,
+    required bool isHero,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> replaceMemoryPhotoLinks({
+    required String memoryId,
+    required List<String> photoIds,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> saveAttachment(MemoryAttachment attachment) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> deleteAttachment(String attachmentId) async =>
+      throw UnimplementedError();
 }
 
 final class _TestProfileRepository implements ProfileRepository {
