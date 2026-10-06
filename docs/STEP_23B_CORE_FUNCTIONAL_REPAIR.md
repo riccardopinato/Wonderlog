@@ -61,6 +61,26 @@ Observed artifact sizes in that run:
 - universal APK: about 74.1 MB;
 - AAB: about 70.4 MB.
 
+## Merge / main evidence
+
+PR #14 squash merge:
+`5b3a253d7355f1af92fbd691663efa0e20fdbbbb`
+
+Post-merge main GitHub Actions run:
+`37485260181`
+
+Post-merge result:
+- Flutter analyze: PASS;
+- 91 tests: PASS;
+- Web release: PASS;
+- Android release APK: PASS;
+- Android AAB: PASS;
+- artifact preparation/upload: PASS.
+
+Post-merge artifact sizes:
+- universal APK: about 74.1 MB;
+- AAB: about 70.4 MB.
+
 ## Deliberate boundaries
 
 23B does **not** claim full production certification.
@@ -84,6 +104,6 @@ locales and did not increase that debt.
 
 ## Verdict
 
-MAXI STEP 23B core functional scope: PASS at deterministic CI level.
+MAXI STEP 23B core functional scope: MERGED / MAIN CI-GREEN.
 
 Wonderlog full product: NOT CERTIFIED for production cutover.
