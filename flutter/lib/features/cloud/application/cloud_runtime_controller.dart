@@ -15,6 +15,7 @@ import '../domain/sync_queue_store.dart';
 enum CloudRuntimeBlockReason {
   signedOut,
   premiumRequired,
+  accountMismatch,
   busy,
 }
 
@@ -36,6 +37,7 @@ final class CloudRuntimeController extends ChangeNotifier {
     required this.settingsRepository,
     required this.queueStore,
     required this.isPremium,
+    required this.currentUserId,
   });
 
   final CloudProvider cloudProvider;
@@ -44,6 +46,7 @@ final class CloudRuntimeController extends ChangeNotifier {
   final CloudBackupSettingsRepository settingsRepository;
   final SyncQueueStore queueStore;
   final bool Function() isPremium;
+  final String? Function() currentUserId;
 
   CloudBackupSettings _settings = const CloudBackupSettings();
   DateTime? _lastSuccessfulBackupAt;
@@ -197,6 +200,7 @@ final class CloudRuntimeController extends ChangeNotifier {
         'Cloud backup requires Wonderlog Premium.',
       );
     }
+    await _requireDatasetOwner();
   }
 
   Future<void> _requireRestoreAccess() async {
@@ -214,6 +218,29 @@ final class CloudRuntimeController extends ChangeNotifier {
       throw const CloudRuntimeException(
         CloudRuntimeBlockReason.premiumRequired,
         'Cloud restore requires Wonderlog Premium.',
+      );
+    }
+    await _requireDatasetOwner();
+  }
+
+  Future<void> _requireDatasetOwner() async {
+    final userId = currentUserId()?.trim();
+    if (userId == null || userId.isEmpty) {
+      throw const CloudRuntimeException(
+        CloudRuntimeBlockReason.signedOut,
+        'Sign in before using Wonderlog cloud.',
+      );
+    }
+
+    final bound = await settingsRepository.getBoundCloudUserId();
+    if (bound == null) {
+      await settingsRepository.setBoundCloudUserId(userId);
+      return;
+    }
+    if (bound != userId) {
+      throw const CloudRuntimeException(
+        CloudRuntimeBlockReason.accountMismatch,
+        'This local Wonderlog dataset is bound to a different cloud account.',
       );
     }
   }
