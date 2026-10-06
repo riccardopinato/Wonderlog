@@ -263,7 +263,9 @@ final class JourneyDetailPage extends StatelessWidget {
     Journey journey,
   ) async {
     final services = WonderlogServicesScope.of(context);
-    if (!services.controller.isPremium) {
+    final access =
+        services.premiumAccessPolicy.canUseFeature(PremiumFeature.pdfExport);
+    if (access is! PremiumAllowed) {
       await Navigator.push(
         context,
         MaterialPageRoute<void>(
@@ -666,17 +668,23 @@ final class _AlbumTabState extends State<_AlbumTab> {
       if (incoming.isEmpty || !context.mounted) return;
 
       final services = WonderlogServicesScope.of(context);
-      const gate = PremiumGate();
-      final allowance = gate.calculatePhotoImportAllowance(
-        currentPhotos.length,
-        incoming.length,
-        services.controller.isPremium,
+      final allowance = services.premiumAccessPolicy.photoImportAllowance(
+        currentCount: currentPhotos.length,
+        selectedCount: incoming.length,
       );
 
       if (allowance.allowedCount <= 0) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context).albumLimit)),
+          );
+          await Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => PremiumPage(
+                service: services.controller.premiumService,
+              ),
+            ),
           );
         }
         return;
