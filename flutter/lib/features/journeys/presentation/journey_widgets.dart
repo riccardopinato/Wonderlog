@@ -137,6 +137,7 @@ Future<void> showCreateJourneyDialog(
   final destinationController = TextEditingController();
   var startDate = DateTime.now();
   var endDate = DateTime.now();
+  var saving = false;
 
   try {
     await showDialog<void>(
@@ -209,46 +210,62 @@ Future<void> showCreateJourneyDialog(
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
+                onPressed:
+                    saving ? null : () => Navigator.pop(dialogContext),
                 child: Text(strings.cancel),
               ),
               FilledButton(
-                onPressed: () async {
-                  final title = titleController.text.trim();
-                  final destination = destinationController.text.trim();
-                  if (title.isEmpty || destination.isEmpty) return;
+                onPressed: saving
+                    ? null
+                    : () async {
+                        final title = titleController.text.trim();
+                        final destination =
+                            destinationController.text.trim();
+                        if (title.isEmpty || destination.isEmpty) return;
 
-                  try {
-                    await PremiumCreationGuard(
-                      repository: repository,
-                      isPremium: isPremium,
-                    ).ensureJourneyAllowed();
-                  } on PremiumCreationLimitException {
-                    if (dialogContext.mounted) {
-                      ScaffoldMessenger.of(dialogContext).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            AppLocalizations.of(dialogContext)
-                                .premiumJourneyLimitReached,
-                          ),
-                        ),
-                      );
-                    }
-                    return;
-                  }
+                        setDialogState(() => saving = true);
+                        try {
+                          try {
+                            await PremiumCreationGuard(
+                              repository: repository,
+                              isPremium: isPremium,
+                            ).ensureJourneyAllowed();
+                          } on PremiumCreationLimitException {
+                            if (dialogContext.mounted) {
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    AppLocalizations.of(dialogContext)
+                                        .premiumJourneyLimitReached,
+                                  ),
+                                ),
+                              );
+                            }
+                            return;
+                          }
 
-                  await repository.createJourney(
-                    title: title,
-                    destination: destination,
-                    startDate: startDate,
-                    endDate: endDate,
-                  );
+                          await repository.createJourney(
+                            title: title,
+                            destination: destination,
+                            startDate: startDate,
+                            endDate: endDate,
+                          );
 
-                  if (dialogContext.mounted) {
-                    Navigator.pop(dialogContext);
-                  }
-                },
-                child: Text(strings.save),
+                          if (dialogContext.mounted) {
+                            Navigator.pop(dialogContext);
+                          }
+                        } finally {
+                          if (dialogContext.mounted) {
+                            setDialogState(() => saving = false);
+                          }
+                        }
+                      },
+                child: saving
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(strings.save),
               ),
             ],
           );
