@@ -159,24 +159,26 @@ final class _MemoryEditorPageState extends State<MemoryEditorPage> {
       return;
     }
 
-    final existing = widget.existing;
-    if (existing == null) {
-      try {
-        await PremiumCreationGuard(
-          repository: widget.repository,
-          isPremium: widget.isPremium,
-        ).ensureMemoryAllowed(journeyId: widget.journeyId);
-      } on PremiumCreationLimitException {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(strings.premiumMemoryLimitReached)),
-        );
-        return;
-      }
-    }
-
+    if (_saving) return;
     setState(() => _saving = true);
     try {
+      final existing = widget.existing;
+      if (existing == null) {
+        try {
+          await PremiumCreationGuard(
+            repository: widget.repository,
+            isPremium: widget.isPremium,
+          ).ensureMemoryAllowed(journeyId: widget.journeyId);
+        } on PremiumCreationLimitException {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(strings.premiumMemoryLimitReached)),
+            );
+          }
+          return;
+        }
+      }
+
       final now = DateTime.now().toUtc();
       final tags = _tags.text
           .split(',')
