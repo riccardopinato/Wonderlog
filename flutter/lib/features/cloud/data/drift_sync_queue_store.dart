@@ -19,6 +19,19 @@ final class DriftSyncQueueStore implements SyncQueueStore {
 
   @override
   Future<void> enqueue(SyncQueueItem item) async {
+    if (item.operation == SyncOperation.delete) {
+      await (database.delete(database.cloudSyncQueue)
+            ..where(
+              (row) =>
+                  row.entityType.equals(_entityTypeWire(item.entityType)) &
+                  row.localEntityId.equals(item.localEntityId) &
+                  row.operation.equals(
+                    _operationWire(SyncOperation.createOrUpdate),
+                  ),
+            ))
+          .go();
+    }
+
     final existing = await (database.select(database.cloudSyncQueue)
           ..where(
             (row) =>
