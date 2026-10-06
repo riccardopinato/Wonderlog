@@ -46,8 +46,8 @@ void main() {
       await repository.saveMemory(_memory('free-$index', null));
     }
 
-    expect(
-      () => guard.ensureMemoryAllowed(journeyId: first.id),
+    await expectLater(
+      guard.ensureMemoryAllowed(journeyId: first.id),
       throwsA(isA<PremiumCreationLimitException>()),
     );
     await guard.ensureMemoryAllowed(journeyId: second.id);
@@ -55,8 +55,8 @@ void main() {
 
     await repository.saveMemory(_memory('free-4', null));
 
-    expect(
-      () => guard.ensureMemoryAllowed(journeyId: null),
+    await expectLater(
+      guard.ensureMemoryAllowed(journeyId: null),
       throwsA(isA<PremiumCreationLimitException>()),
     );
     await guard.ensureMemoryAllowed(journeyId: second.id);
