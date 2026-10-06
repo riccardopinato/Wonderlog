@@ -18,6 +18,10 @@ abstract interface class CloudLocalDataSource {
   Future<String?> getPhotoLocalReference(String localId);
   Future<String> buildRemotePhotoPath(String localId);
 
+  Future<void> markJourneyPendingUpload(String localId);
+  Future<void> markMemoryPendingUpload(String localId);
+  Future<void> markPhotoPendingUpload(String localId);
+
   Future<void> markJourneySynced(String localId, String cloudId);
   Future<void> markMemorySynced(String localId, String cloudId);
   Future<void> markPhotoSynced(
