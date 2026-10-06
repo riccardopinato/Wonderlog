@@ -34,6 +34,10 @@ abstract interface class CloudLocalDataSource {
   Future<String?> getMemoryCloudId(String localId);
   Future<PhotoCloudDeleteInfo?> getPhotoCloudDeleteInfo(String localId);
 
+  Future<void> markJourneyCloudDeleted(String localId);
+  Future<void> markMemoryCloudDeleted(String localId);
+  Future<void> markPhotoCloudDeleted(String localId);
+
   Future<List<String>> getPendingJourneyIds();
   Future<List<String>> getPendingMemoryIds();
   Future<List<String>> getPendingPhotoIds();
