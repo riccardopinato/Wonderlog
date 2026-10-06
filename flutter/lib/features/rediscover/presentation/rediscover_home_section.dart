@@ -7,6 +7,7 @@ import '../../journeys/presentation/journey_detail_page.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
 import '../../memories/presentation/memory_detail_page.dart';
+import '../../memories/presentation/stored_media_image.dart';
 import '../application/rediscover_data_adapter.dart';
 import '../domain/rediscover_engine.dart';
 import '../domain/rediscover_models.dart';
@@ -25,8 +26,8 @@ final class RediscoverHomeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<MemoryEntry>>(
-      stream: repository.watchAllMemories(),
+    return StreamBuilder<List<MemoryWithPhotos>>(
+      stream: repository.watchAllMemoriesWithPhotos(),
       builder: (context, memorySnapshot) {
         return StreamBuilder<List<AlbumPhotoEntry>>(
           stream: repository.watchAllPhotos(),
@@ -35,7 +36,10 @@ final class RediscoverHomeSection extends StatelessWidget {
               return const SizedBox.shrink();
             }
 
-            final memories = memorySnapshot.data!;
+            final memoryBundles = memorySnapshot.data!;
+            final memories = memoryBundles
+                .map((item) => item.memory)
+                .toList(growable: false);
             final photos = photoSnapshot.data!;
             final feed = const RediscoverEngine().buildFeed(
               today: DateTime.now(),
@@ -44,7 +48,7 @@ final class RediscoverHomeSection extends StatelessWidget {
                 photos,
                 memories,
               ),
-              memories: RediscoverDataAdapter.memories(memories, photos),
+              memories: RediscoverDataAdapter.memories(memoryBundles),
               photos: RediscoverDataAdapter.photos(photos),
             );
             final cards =
@@ -154,16 +158,29 @@ final class _RediscoverCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  switch (card.type) {
-                    RediscoverType.journeyAnniversary =>
-                      Icons.celebration_outlined,
-                    RediscoverType.memory => Icons.auto_stories_outlined,
-                    RediscoverType.photo => Icons.photo_outlined,
-                    RediscoverType.onThisDay => Icons.history,
-                  },
-                  color: colors.primary,
-                ),
+                if (card.imageUri == null)
+                  Icon(
+                    switch (card.type) {
+                      RediscoverType.journeyAnniversary =>
+                        Icons.celebration_outlined,
+                      RediscoverType.memory =>
+                        Icons.auto_stories_outlined,
+                      RediscoverType.photo => Icons.photo_outlined,
+                      RediscoverType.onThisDay => Icons.history,
+                    },
+                    color: colors.primary,
+                  )
+                else
+                  SizedBox(
+                    height: 72,
+                    width: double.infinity,
+                    child: StoredMediaImage(
+                      references: [card.imageUri!],
+                      width: double.infinity,
+                      height: 72,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 const Spacer(),
                 Text(
                   card.title,
