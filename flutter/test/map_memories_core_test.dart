@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wonderlog/features/map_memories/domain/journey_day_resolver.dart';
-import 'package:wonderlog/features/map_memories/domain/journey_route_builder.dart';
+import 'package:wonderlog/features/map_memories/domain/journey_replay_path_builder.dart';
 import 'package:wonderlog/features/map_memories/domain/map_cluster_engine.dart';
 import 'package:wonderlog/features/map_memories/domain/map_memory_filter.dart';
 import 'package:wonderlog/features/map_memories/domain/map_memory_models.dart';
@@ -66,14 +66,14 @@ void main() {
     );
   });
 
-  test('route skips near duplicate cluster points', () {
+  test('replay path skips near duplicate cluster points', () {
     const clusterer = MapClusterEngine(clusterRadiusMeters: 1);
     final clusters = clusterer.cluster([
       item('a', MapMemoryItemType.photo, 46.919, 11.955),
       item('b', MapMemoryItemType.photo, 46.91901, 11.95501),
       item('c', MapMemoryItemType.photo, 46.930, 11.970),
     ]);
-    const builder = JourneyRouteBuilder(minimumPointDistanceMeters: 50);
+    const builder = JourneyReplayPathBuilder(minimumPointDistanceMeters: 50);
     expect(builder.build(clusters).length, greaterThanOrEqualTo(2));
   });
 }
