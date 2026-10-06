@@ -162,6 +162,102 @@ final class JourneyDetailPage extends StatelessWidget {
     );
   }
 
+  Future<void> _handleJourneyAction(
+    BuildContext context,
+    Journey journey,
+    String action,
+  ) async {
+    switch (action) {
+      case 'edit':
+        await showEditJourneyDialog(context, repository, journey);
+        break;
+      case 'archive':
+        await repository.setJourneyArchived(
+          journey.id,
+          !journey.archived,
+        );
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              journey.archived
+                  ? AppLocalizations.of(context).journeyRestored
+                  : AppLocalizations.of(context).journeyArchived,
+            ),
+          ),
+        );
+        Navigator.pop(context);
+        break;
+      case 'delete':
+        await _deleteJourney(context, journey);
+        break;
+    }
+  }
+
+  Future<void> _deleteJourney(
+    BuildContext context,
+    Journey journey,
+  ) async {
+    final strings = AppLocalizations.of(context);
+    final impact = await repository.getJourneyDeletionImpact(journey.id);
+    if (!context.mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(strings.journeyDeleteTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(strings.journeyDeleteDescription),
+            const SizedBox(height: WonderlogSpacing.small),
+            Text(
+              strings.journeyDeleteImpact(
+                impact.memoryCount,
+                impact.photoCount,
+                impact.attachmentCount,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(strings.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(strings.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final photos = await repository.watchAlbum(journey.id).first;
+    final memories =
+        await repository.watchMemoriesWithPhotos(journey.id).first;
+    final removedReferences = <String>{
+      ...photos.map((photo) => photo.localUri),
+      ...memories.expand(
+        (item) =>
+            item.attachments.map((attachment) => attachment.localUri),
+      ),
+    };
+
+    await repository.deleteJourney(journey.id);
+    final remaining = await repository.referencedMediaUris();
+    final media = WonderlogServicesScope.of(context).photoImportService;
+    for (final reference in removedReferences) {
+      await media.deleteStoredReferenceIfUnreferenced(
+        reference,
+        remainingReferences: remaining,
+      );
+    }
+
+    if (context.mounted) Navigator.pop(context);
+  }
+
   Future<void> _openPdfExport(
     BuildContext context,
     Journey journey,
