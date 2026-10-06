@@ -37,6 +37,16 @@ destinations (existing Journey, new Journey, unassigned Memory, ignore/archive).
 The complete Wonderlog product is not production-certified yet. See the deep
 post-E2 audit for the remaining blockers.
 
+### Step 23 parity / dead-code audit
+
+The post-E2 Flutter parity audit is complete. It removed one proven duplicate
+runtime implementation (`DriftJourneyRepository`) and explicitly keeps cloud,
+offline-map, migration and ecosystem modules that are incomplete or unwired but
+still part of the approved cutover architecture. Full Kotlin -> Flutter product
+parity is **not** claimed; the next repair gate is MAXI STEP 23A E2 Hardening.
+
+See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`.
+
 See:
 
 - `flutter/README.md`
