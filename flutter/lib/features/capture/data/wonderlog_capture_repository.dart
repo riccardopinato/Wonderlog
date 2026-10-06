@@ -155,7 +155,7 @@ final class WonderlogCaptureRepository implements CaptureRepository {
         selectedCount: imageItems.length,
       );
       if (allowance.allowedCount == 0) {
-        throw StateError('Photo limit reached for free plan.');
+        throw StateError('Photo limit reached for current plan.');
       }
 
       for (final item in imageItems.take(allowance.allowedCount)) {
