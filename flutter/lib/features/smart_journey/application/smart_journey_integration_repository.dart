@@ -2,7 +2,8 @@ import 'package:uuid/uuid.dart';
 
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
-import '../domain/smart_journey_creation_policy.dart';
+import '../../premium/application/premium_access_policy.dart';
+import '../../premium/domain/premium_gate.dart';
 import '../domain/smart_journey_models.dart';
 import '../domain/smart_journey_photo_importer.dart';
 import '../domain/smart_journey_reconstruction_engine.dart';
@@ -11,14 +12,17 @@ final class SmartJourneyIntegrationRepository {
   SmartJourneyIntegrationRepository({
     required this.repository,
     required this.photoImporter,
-    required this.isPremium,
-    this.creationPolicy = const SmartJourneyCreationPolicy(),
-  });
+    required bool Function() isPremium,
+    PremiumAccessPolicy? premiumAccessPolicy,
+  }) : premiumAccessPolicy = premiumAccessPolicy ??
+            PremiumAccessPolicy(
+              repository: repository,
+              isPremium: isPremium,
+            );
 
   final WonderlogRepository repository;
   final SmartJourneyPhotoImporter photoImporter;
-  final bool Function() isPremium;
-  final SmartJourneyCreationPolicy creationPolicy;
+  final PremiumAccessPolicy premiumAccessPolicy;
   final Uuid _uuid = const Uuid();
 
   SmartJourneyDraft? _currentDraft;
@@ -79,11 +83,25 @@ final class SmartJourneyIntegrationRepository {
   Future<SmartJourneyCreationAllowance> evaluateCreationAllowance(
     SmartJourneyDraft draft,
   ) async {
-    final journeys = await repository.watchJourneys().first;
-    return creationPolicy.evaluate(
-      currentJourneyCount: journeys.length,
+    final journeyGate = await premiumAccessPolicy.canCreateJourney();
+    final photos = premiumAccessPolicy.photoImportAllowance(
+      currentCount: 0,
+      selectedCount: draft.includedPhotos.length,
+    );
+    final memories = premiumAccessPolicy.memoryCreationAllowanceForCount(
+      currentCount: 0,
+      selectedCount: _requestedMemoryCount(draft),
+    );
+
+    return SmartJourneyCreationAllowance(
+      isPremium: premiumAccessPolicy.hasPremiumAccess,
+      journeyCreationAllowed: journeyGate is PremiumAllowed,
       selectedPhotoCount: draft.includedPhotos.length,
-      isPremium: isPremium(),
+      allowedPhotoCount: photos.allowedCount,
+      blockedPhotoCount: photos.blockedCount,
+      selectedMemoryCount: memories.selectedCount,
+      allowedMemoryCount: memories.allowedCount,
+      blockedMemoryCount: memories.blockedCount,
     );
   }
 
@@ -116,6 +134,12 @@ final class SmartJourneyIntegrationRepository {
     if (allowance.allowedPhotoCount <= 0) {
       throw const SmartJourneyLimitException(
         'No additional photos can be added to this Journey.',
+      );
+    }
+    if (allowance.hasBlockedMemories) {
+      throw SmartJourneyLimitException(
+        'Your current plan supports up to '
+        '${allowance.allowedMemoryCount} Memories per Journey.',
       );
     }
 
@@ -151,7 +175,9 @@ final class SmartJourneyIntegrationRepository {
 
     var memoryCount = 0;
     for (final day in draft.days) {
-      for (final stop in day.stops.where((stop) => stop.createMemory)) {
+      for (final stop in day.stops.where(
+        (stop) => draft.createMemoryDrafts && stop.createMemory,
+      )) {
         final realPhotoIds = stop.photoIds
             .map((draftId) => realPhotoIdByDraftId[draftId])
             .whereType<String>()
