@@ -175,7 +175,16 @@ Step 25 adds/extends tests for:
 
 ## Delivery status
 
-Final PR CI evidence is recorded in ROADMAP/README after the final gate.
+Validated final PR head:
+- `cd23f06ee81d9fdd6c2f7811cda13b8892379684`;
+- GitHub Actions run `37541980040`: PASS;
+- Analyze: PASS;
+- tests: PASS;
+- Web release: PASS;
+- Android release APK: PASS;
+- Android AAB: PASS;
+- Android artifact upload: PASS;
+- Web artifact upload: PASS.
 
 Background scheduling remains disabled by design. The next product block is
 MAXI STEP 26 — Maps / Offline Completion.
