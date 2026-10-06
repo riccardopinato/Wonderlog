@@ -303,7 +303,7 @@
   "cloudSyncNow": "Jetzt synchronisieren",
   "cloudRestoreNow": "Aus der Cloud wiederherstellen",
   "cloudBackupScopeTitle": "Aktueller Cloud-Umfang",
-  "cloudBackupScopeDescription": "Reisen, Erinnerungen, Albumfotos und Erinnerung–Foto-Verknüpfungen werden synchronisiert. Keepsakes bleiben vorerst lokal.",
+  "cloudBackupScopeDescription": "Reisen, einer Reise zugeordnete Erinnerungen, Albumfotos und Erinnerung–Foto-Verknüpfungen werden synchronisiert. Nicht zugeordnete Erinnerungen und Keepsakes bleiben vorerst lokal.",
   "cloudLastSyncSummary": "Letzte Synchronisierung",
   "cloudSyncSummary": "Hochgeladen {uploaded}, gelöscht {deleted}, Fehler {failures}.",
   "cloudLastRestoreSummary": "Letzte Wiederherstellung",
