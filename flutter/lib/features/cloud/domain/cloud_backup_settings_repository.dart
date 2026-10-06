@@ -11,4 +11,7 @@ abstract interface class CloudBackupSettingsRepository {
   Future<void> setPeriodicIntervalHours(int hours);
   Future<void> setLastSuccessfulBackupAt(DateTime? value);
   Future<DateTime?> getLastSuccessfulBackupAt();
+
+  Future<String?> getBoundCloudUserId();
+  Future<void> setBoundCloudUserId(String userId);
 }
