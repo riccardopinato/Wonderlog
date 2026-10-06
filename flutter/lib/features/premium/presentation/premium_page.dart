@@ -68,7 +68,7 @@ final class PremiumPage extends StatelessWidget {
                       ),
                       _Benefit(
                         icon: Icons.photo_library_outlined,
-                        title: strings.premiumExtendedAlbum,
+                        title: strings.albumPhotoCount(100),
                       ),
                       _Benefit(
                         icon: Icons.picture_as_pdf_outlined,
