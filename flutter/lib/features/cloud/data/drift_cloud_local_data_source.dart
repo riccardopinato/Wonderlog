@@ -254,7 +254,7 @@ final class DriftCloudLocalDataSource implements CloudLocalDataSource {
           ..where((row) => row.id.equals(localId)))
         .write(
       const db.TripsCompanion(
-        futureCloudId: Value(null),
+        futureCloudId: Value<String?>(null),
         syncStatus: Value('LOCAL_ONLY'),
       ),
     );
@@ -266,7 +266,7 @@ final class DriftCloudLocalDataSource implements CloudLocalDataSource {
           ..where((row) => row.id.equals(localId)))
         .write(
       const db.MemoriesCompanion(
-        futureCloudId: Value(null),
+        futureCloudId: Value<String?>(null),
         syncStatus: Value('LOCAL_ONLY'),
       ),
     );
@@ -278,7 +278,7 @@ final class DriftCloudLocalDataSource implements CloudLocalDataSource {
           ..where((row) => row.id.equals(localId)))
         .write(
       const db.AlbumPhotosCompanion(
-        futureCloudId: Value(null),
+        futureCloudId: Value<String?>(null),
         syncStatus: Value('LOCAL_ONLY'),
       ),
     );
