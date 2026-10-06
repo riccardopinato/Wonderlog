@@ -144,8 +144,8 @@
   "rediscoverEmpty": "Für diesen Filter gibt es heute nichts wiederzuentdecken.",
   "albumImport": "Fotos importieren",
   "albumPhotoCount": "{count, plural, =0{Keine Fotos} =1{1 Foto} other{{count} Fotos}}",
-  "albumLimit": "Das Fotolimit des Free-Plans ist erreicht.",
-  "albumPartialImport": "{allowed} Fotos importiert; {blocked} ausgewählte Fotos benötigen Premium.",
+  "albumLimit": "Das Fotolimit deines aktuellen Tarifs ist erreicht.",
+  "albumPartialImport": "{allowed} Fotos importiert; {blocked} ausgewählte Fotos überschreiten das Limit deines aktuellen Tarifs.",
   "@albumPhotoCount": {
     "placeholders": {
       "count": {
