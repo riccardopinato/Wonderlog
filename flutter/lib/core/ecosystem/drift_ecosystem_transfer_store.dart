@@ -158,7 +158,11 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
   @override
   Stream<List<EcosystemInboxItem>> watchPendingInbox() {
     final query = database.select(database.ecosystemInbox)
-      ..where((row) => row.consumedAt.isNull())
+      ..where(
+        (row) =>
+            row.consumedAt.isNull() &
+            row.disposition.equals(EcosystemInboxDisposition.pending.name),
+      )
       ..orderBy([(row) => OrderingTerm.asc(row.receivedAt)]);
     return query.watch().map(
           (rows) => rows.map(_inbox).toList(growable: false),
@@ -175,6 +179,35 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
   }
 
   @override
+  Future<T?> runInboxMaterialization<T>(
+    String id,
+    Future<T> Function() materialize,
+  ) =>
+      database.transaction(() async {
+        final claimed = await (database.update(database.ecosystemInbox)
+              ..where(
+                (row) =>
+                    row.id.equals(id) &
+                    row.consumedAt.isNull() &
+                    row.disposition.equals(
+                      EcosystemInboxDisposition.pending.name,
+                    ),
+              ))
+            .write(
+          db.EcosystemInboxCompanion(
+            disposition: Value(EcosystemInboxDisposition.processing.name),
+          ),
+        );
+
+        if (claimed != 1) return null;
+
+        // All Wonderlog repositories participating in E2 use this same Drift
+        // database. Any failure below rolls the claim and domain writes back,
+        // returning the item to pending instead of leaving a half-import.
+        return materialize();
+      });
+
+  @override
   Future<void> resolveInbox(
     String id, {
     required EcosystemInboxDisposition disposition,
@@ -182,7 +215,8 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
     String? materializedJourneyId,
     String? materializedMemoryId,
   }) async {
-    if (disposition == EcosystemInboxDisposition.pending) {
+    if (disposition == EcosystemInboxDisposition.pending ||
+        disposition == EcosystemInboxDisposition.processing) {
       throw ArgumentError.value(disposition, 'disposition');
     }
     await (database.update(database.ecosystemInbox)
