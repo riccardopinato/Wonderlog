@@ -2,6 +2,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../premium/application/premium_access_policy.dart';
 import '../../premium/domain/premium_gate.dart';
 import '../domain/capture_media_port.dart';
 import '../domain/capture_models.dart';
@@ -12,14 +13,17 @@ final class WonderlogCaptureRepository implements CaptureRepository {
   WonderlogCaptureRepository({
     required this.repository,
     required this.mediaPort,
-    required this.isPremium,
-    this.premiumGate = const PremiumGate(),
-  });
+    required bool Function() isPremium,
+    PremiumAccessPolicy? premiumAccessPolicy,
+  }) : premiumAccessPolicy = premiumAccessPolicy ??
+            PremiumAccessPolicy(
+              repository: repository,
+              isPremium: isPremium,
+            );
 
   final WonderlogRepository repository;
   final CaptureMediaPort mediaPort;
-  final bool Function() isPremium;
-  final PremiumGate premiumGate;
+  final PremiumAccessPolicy premiumAccessPolicy;
   final Uuid _uuid = const Uuid();
 
   @override
@@ -65,15 +69,11 @@ final class WonderlogCaptureRepository implements CaptureRepository {
       throw ArgumentError('Journey is required.');
     }
 
-    final premium = isPremium();
     var targetMemoryId = draft.memoryId;
 
     if (draft.createNewMemory) {
-      final existingMemories =
-          await repository.watchMemories(journeyId).first;
-      final memoryCheck = premiumGate.canCreateMemory(
-        existingMemories.length,
-        premium,
+      final memoryCheck = await premiumAccessPolicy.canCreateMemory(
+        journeyId: journeyId,
       );
       if (memoryCheck is PremiumLimitReached) {
         throw StateError('Memory limit reached for free plan.');
@@ -150,10 +150,9 @@ final class WonderlogCaptureRepository implements CaptureRepository {
 
     if (imageItems.isNotEmpty) {
       final currentPhotos = await repository.watchAlbum(journeyId).first;
-      final allowance = premiumGate.calculatePhotoImportAllowance(
-        currentPhotos.length,
-        imageItems.length,
-        premium,
+      final allowance = premiumAccessPolicy.photoImportAllowance(
+        currentCount: currentPhotos.length,
+        selectedCount: imageItems.length,
       );
       if (allowance.allowedCount == 0) {
         throw StateError('Photo limit reached for free plan.');
