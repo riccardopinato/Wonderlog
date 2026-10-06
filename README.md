@@ -62,12 +62,21 @@ Journey/Memory creation, reassignment, Album, Capture, Smart Journey and the
 Ecosystem Inbox. RevenueCat CustomerInfo remains the entitlement truth; the
 current paywall advertises only shipped Premium capabilities.
 
-The next repair gate is **MAXI STEP 25 Cloud Runtime Completion**.
+MAXI STEP 25 Cloud Runtime Completion is implemented: Wonderlog now has
+real local-first mutation queueing, authenticated + Premium manual Sync Now /
+Restore, merge conflict protection, private-photo cloud restore, account-owner
+binding and a provisioned Supabase backend with RLS and a private Storage
+bucket. Cloud Backup is again a truthful shipped Premium capability; automatic
+background scheduling remains deliberately disabled until its own
+certification.
+
+The next repair gate is **MAXI STEP 26 Maps / Offline Completion**.
 
 See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`,
 `docs/STEP_23A_E2_HARDENING.md`,
-`docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md` and
-`docs/STEP_24_PREMIUM_TRUTH.md`.
+`docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md`,
+`docs/STEP_24_PREMIUM_TRUTH.md` and
+`docs/STEP_25_CLOUD_RUNTIME_COMPLETION.md`.
 
 See:
 
