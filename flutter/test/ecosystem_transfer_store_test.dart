@@ -155,12 +155,19 @@ void main() {
 
     await store.receiveInbox(envelope);
     final item = (await store.watchPendingInbox().first).single;
-    await store.resolveInbox(
+    final result = await store.runInboxMaterialization(
       item.id,
-      disposition: EcosystemInboxDisposition.savedFreeMemory,
-      resolvedAt: DateTime.utc(2026, 10, 5, 16),
-      materializedMemoryId: 'memory-1',
+      () async {
+        await store.resolveInbox(
+          item.id,
+          disposition: EcosystemInboxDisposition.savedFreeMemory,
+          resolvedAt: DateTime.utc(2026, 10, 5, 16),
+          materializedMemoryId: 'memory-1',
+        );
+        return 'resolved';
+      },
     );
+    expect(result, 'resolved');
 
     expect(await store.watchPendingInbox().first, isEmpty);
     final history = await store.watchInboxHistory().first;
@@ -174,4 +181,36 @@ void main() {
 
     await database.close();
   });
+
+  test('failed claimed materialization rolls back to pending', () async {
+    final database = WonderlogDatabase(NativeDatabase.memory());
+    final store = DriftEcosystemTransferStore(database);
+    final envelope = EcosystemEnvelope(
+      sourceApp: EcosystemAppId.annasDiary,
+      sourceEntityType: EcosystemEntityType.note,
+      sourceEntityId: 'rollback-1',
+      createdAtUtc: DateTime.utc(2026, 10, 6),
+      title: 'Rollback',
+    );
+    await store.receiveInbox(envelope);
+    final item = (await store.watchPendingInbox().first).single;
+
+    expect(
+      () => store.runInboxMaterialization<void>(
+        item.id,
+        () async {
+          throw StateError('boom');
+        },
+      ),
+      throwsStateError,
+    );
+
+    final pending = await store.watchPendingInbox().first;
+    expect(pending, hasLength(1));
+    expect(pending.single.id, item.id);
+    expect(pending.single.disposition, EcosystemInboxDisposition.pending);
+
+    await database.close();
+  });
+
 }
