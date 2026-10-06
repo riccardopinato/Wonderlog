@@ -234,6 +234,7 @@ final class JourneyDetailPage extends StatelessWidget {
     );
     if (confirmed != true || !context.mounted) return;
 
+    final media = WonderlogServicesScope.of(context).photoImportService;
     final photos = await repository.watchAlbum(journey.id).first;
     final memories =
         await repository.watchMemoriesWithPhotos(journey.id).first;
@@ -247,7 +248,6 @@ final class JourneyDetailPage extends StatelessWidget {
 
     await repository.deleteJourney(journey.id);
     final remaining = await repository.referencedMediaUris();
-    final media = WonderlogServicesScope.of(context).photoImportService;
     for (final reference in removedReferences) {
       await media.deleteStoredReferenceIfUnreferenced(
         reference,
