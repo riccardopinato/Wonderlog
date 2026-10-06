@@ -2,7 +2,7 @@ abstract final class CloudBackupConfig {
   static const maxRetryCount = 5;
   static const initialRetryDelay = Duration(seconds: 5);
   static const autoSyncWifiOnlyDefault = true;
-  static const autoSyncEnabledDefault = true;
+  static const autoSyncEnabledDefault = false;
   static const syncBatchSize = 25;
   static const photoUploadBatchSize = 5;
   static const cloudSchemaVersion = 1;

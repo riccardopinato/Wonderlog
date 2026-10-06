@@ -9,6 +9,7 @@ import 'cloud_provider.dart';
 import 'sync_queue_store.dart';
 
 typedef CloudAssetReader = Future<Uint8List?> Function(String reference);
+typedef CloudMemoryPhotoLinksReader = Future<List<CloudMemoryPhotoLink>> Function();
 
 final class CloudSyncRepository {
   CloudSyncRepository({
@@ -16,43 +17,55 @@ final class CloudSyncRepository {
     required this.queueStore,
     required this.localDataSource,
     required this.assetReader,
+    this.relationshipReader,
   });
 
   final CloudProvider cloudProvider;
   final SyncQueueStore queueStore;
   final CloudLocalDataSource localDataSource;
   final CloudAssetReader assetReader;
+  final CloudMemoryPhotoLinksReader? relationshipReader;
   final Uuid _uuid = const Uuid();
 
-  Future<void> enqueueJourney(String journeyId) =>
-      _enqueue(SyncEntityType.journey, journeyId);
+  Future<void> enqueueJourney(String journeyId) async {
+    await localDataSource.markJourneyPendingUpload(journeyId);
+    await _enqueue(SyncEntityType.journey, journeyId);
+  }
 
-  Future<void> enqueueMemory(String memoryId) =>
-      _enqueue(SyncEntityType.memory, memoryId);
+  Future<void> enqueueMemory(String memoryId) async {
+    await localDataSource.markMemoryPendingUpload(memoryId);
+    await _enqueue(SyncEntityType.memory, memoryId);
+  }
 
-  Future<void> enqueuePhoto(String photoId) =>
-      _enqueue(SyncEntityType.albumPhoto, photoId);
+  Future<void> enqueuePhoto(String photoId) async {
+    await localDataSource.markPhotoPendingUpload(photoId);
+    await _enqueue(SyncEntityType.albumPhoto, photoId);
+  }
 
   Future<void> enqueueDelete(
     SyncEntityType entityType,
     String localId,
-  ) =>
-      _enqueue(
-        entityType,
-        localId,
-        operation: SyncOperation.delete,
-      );
+  ) async {
+    await localDataSource.markPendingDelete(entityType, localId);
+    await _enqueue(
+      entityType,
+      localId,
+      operation: SyncOperation.delete,
+    );
+  }
 
-  Future<int> pendingCount() async =>
-      (await queueStore.nextBatch(limit: 5000)).length;
+  Future<int> pendingCount() => queueStore.watchPendingCount().first;
 
-  Future<SyncSummary> syncNow() async {
+  Future<SyncSummary> syncNow({
+    bool includePhotoUploads = true,
+  }) async {
     if (!await cloudProvider.isAuthenticated()) {
       throw StateError('Cloud backup requires an authenticated account.');
     }
 
     final items = await queueStore.nextBatch(
       limit: CloudBackupConfig.syncBatchSize,
+      includePhotoUploads: includePhotoUploads,
     );
     var uploaded = 0;
     var deleted = 0;
@@ -92,7 +105,9 @@ final class CloudSyncRepository {
       await enqueueJourney(id);
     }
 
-    final journeys = await syncNow();
+    final journeys = await _drainQueue(
+      includePhotoUploads: includePhotos,
+    );
 
     for (final id in await localDataSource.getPendingMemoryIds()) {
       await enqueueMemory(id);
@@ -103,13 +118,60 @@ final class CloudSyncRepository {
       }
     }
 
-    final content = await syncNow();
+    final content = await _drainQueue(
+      includePhotoUploads: includePhotos,
+    );
+
+    var relationshipFailures = 0;
+    if (relationshipReader != null) {
+      try {
+        final links = await relationshipReader!();
+        await cloudProvider.uploadMemoryPhotoLinks(links);
+      } catch (_) {
+        relationshipFailures++;
+      }
+    }
+
     return SyncSummary(
       uploaded: journeys.uploaded + content.uploaded,
       downloaded: journeys.downloaded + content.downloaded,
       deleted: journeys.deleted + content.deleted,
       conflicts: journeys.conflicts + content.conflicts,
-      failures: journeys.failures + content.failures,
+      failures:
+          journeys.failures + content.failures + relationshipFailures,
+    );
+  }
+
+  Future<SyncSummary> _drainQueue({
+    required bool includePhotoUploads,
+  }) async {
+    var uploaded = 0;
+    var deleted = 0;
+    var failures = 0;
+
+    while (true) {
+      final eligible = await queueStore.nextBatch(
+        limit: CloudBackupConfig.syncBatchSize,
+        includePhotoUploads: includePhotoUploads,
+      );
+      if (eligible.isEmpty) break;
+
+      final batch = await syncNow(
+        includePhotoUploads: includePhotoUploads,
+      );
+      uploaded += batch.uploaded;
+      deleted += batch.deleted;
+      failures += batch.failures;
+
+      // A batch made only of failures remains queued for an explicit later
+      // retry. Stop here instead of hammering the same remote operation.
+      if (batch.uploaded == 0 && batch.deleted == 0) break;
+    }
+
+    return SyncSummary(
+      uploaded: uploaded,
+      deleted: deleted,
+      failures: failures,
     );
   }
 
@@ -212,22 +274,35 @@ final class CloudSyncRepository {
         final cloudId =
             await localDataSource.getJourneyCloudId(item.localEntityId);
         if (cloudId != null) await cloudProvider.deleteJourney(cloudId);
+        await localDataSource.markJourneyCloudDeleted(item.localEntityId);
 
       case SyncEntityType.memory:
         final cloudId =
             await localDataSource.getMemoryCloudId(item.localEntityId);
         if (cloudId != null) await cloudProvider.deleteMemory(cloudId);
+        await localDataSource.markMemoryCloudDeleted(item.localEntityId);
 
       case SyncEntityType.albumPhoto:
         final info = await localDataSource.getPhotoCloudDeleteInfo(
           item.localEntityId,
         );
         if (info != null) {
+          var remotePath = info.remoteFilePath;
+          if (remotePath == null || remotePath.trim().isEmpty) {
+            final cloudPhotos = await cloudProvider.fetchPhotos(null);
+            for (final photo in cloudPhotos) {
+              if (photo.id == info.cloudId) {
+                remotePath = photo.remoteFilePath;
+                break;
+              }
+            }
+          }
           await cloudProvider.deletePhoto(
             info.cloudId,
-            info.remoteFilePath,
+            remotePath,
           );
         }
+        await localDataSource.markPhotoCloudDeleted(item.localEntityId);
     }
   }
 }

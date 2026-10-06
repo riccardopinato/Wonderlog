@@ -285,5 +285,78 @@
   "keepsakeRenamed": "Keepsake renombrado.",
   "keepsakeExported": "Keepsake exportado.",
   "mediaUnavailable": "Contenido no disponible",
-  "journeyDescription": "Descripción"
+  "journeyDescription": "Descripción",
+  "cloudBackupTitle": "Copia de seguridad en la nube",
+  "cloudBackupProfileDescription": "Sincroniza y restaura tu diario de viaje",
+  "cloudBackupStatus": "Estado de la nube",
+  "cloudAccountReady": "Cuenta conectada",
+  "cloudSignInRequired": "Inicia sesión desde Perfil antes de usar la copia en la nube.",
+  "cloudPremiumReady": "Wonderlog Premium activo",
+  "cloudPremiumRequired": "Wonderlog Premium es necesario para la copia en la nube.",
+  "cloudPendingOperations": "{count} operaciones en la nube pendientes",
+  "cloudNeverBackedUp": "Aún no hay una copia en la nube correcta",
+  "cloudLastBackup": "Última copia correcta: {date}",
+  "cloudIncludePhotos": "Incluir fotos del álbum",
+  "cloudIncludePhotosDescription": "Sube los originales privados del álbum junto con los datos del diario.",
+  "cloudAutomaticBackup": "Copia automática",
+  "cloudAutomaticBackupDeferred": "Primero se certifica la sincronización manual; la programación en segundo plano permanece desactivada.",
+  "cloudSyncNow": "Sincronizar ahora",
+  "cloudRestoreNow": "Restaurar desde la nube",
+  "cloudBackupScopeTitle": "Alcance actual de la nube",
+  "cloudBackupScopeDescription": "Se sincronizan viajes, recuerdos asignados a un viaje, fotos de álbum y enlaces Recuerdo–Foto. Los recuerdos sin asignar y los Keepsakes permanecen locales por ahora.",
+  "cloudLastSyncSummary": "Última sincronización",
+  "cloudSyncSummary": "Subidos {uploaded}, eliminados {deleted}, errores {failures}.",
+  "cloudLastRestoreSummary": "Última restauración",
+  "cloudRestoreSummary": "Viajes {journeys}, recuerdos {memories}, fotos {photos}, conflictos {conflicts}, errores {failures}.",
+  "cloudOperationFailed": "La operación en la nube falló. Tus datos locales siguen disponibles.",
+  "cloudRestoreConfirmTitle": "¿Restaurar desde la nube?",
+  "cloudRestoreConfirmDescription": "Los datos de la nube se fusionarán con el diario local. Los cambios locales más recientes sin sincronizar se protegen y los conflictos se marcan en lugar de sobrescribirse.",
+  "cloudOperationBusy": "Ya hay otra operación en la nube en curso.",
+  "@cloudPendingOperations": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@cloudLastBackup": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@cloudSyncSummary": {
+    "placeholders": {
+      "uploaded": {
+        "type": "int"
+      },
+      "deleted": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "@cloudRestoreSummary": {
+    "placeholders": {
+      "journeys": {
+        "type": "int"
+      },
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "conflicts": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "cloudAccountMismatch": "Este archivo local de Wonderlog está vinculado a otra cuenta de nube. Inicia sesión con la cuenta original; la migración entre cuentas no es automática."
 }

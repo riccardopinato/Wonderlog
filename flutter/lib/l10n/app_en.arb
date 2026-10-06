@@ -333,5 +333,78 @@
   "keepsakeRenamed": "Keepsake renamed.",
   "keepsakeExported": "Keepsake exported.",
   "mediaUnavailable": "Media unavailable",
-  "journeyDescription": "Description"
+  "journeyDescription": "Description",
+  "cloudBackupTitle": "Cloud backup",
+  "cloudBackupProfileDescription": "Sync and restore your travel journal",
+  "cloudBackupStatus": "Cloud status",
+  "cloudAccountReady": "Account connected",
+  "cloudSignInRequired": "Sign in from Profile before using cloud backup.",
+  "cloudPremiumReady": "Wonderlog Premium active",
+  "cloudPremiumRequired": "Wonderlog Premium is required for cloud backup.",
+  "cloudPendingOperations": "{count} pending cloud operations",
+  "cloudNeverBackedUp": "No successful cloud backup yet",
+  "cloudLastBackup": "Last successful backup: {date}",
+  "cloudIncludePhotos": "Include album photos",
+  "cloudIncludePhotosDescription": "Uploads private album originals together with journal data.",
+  "cloudAutomaticBackup": "Automatic backup",
+  "cloudAutomaticBackupDeferred": "Manual sync is enabled first; background scheduling stays off until it is certified.",
+  "cloudSyncNow": "Sync now",
+  "cloudRestoreNow": "Restore from cloud",
+  "cloudBackupScopeTitle": "Current cloud scope",
+  "cloudBackupScopeDescription": "Journeys, Memories assigned to a Journey, album photos and Memory–Photo links are synced. Unassigned Memories and Keepsakes remain local for now.",
+  "cloudLastSyncSummary": "Last sync",
+  "cloudSyncSummary": "Uploaded {uploaded}, deleted {deleted}, failures {failures}.",
+  "cloudLastRestoreSummary": "Last restore",
+  "cloudRestoreSummary": "Journeys {journeys}, Memories {memories}, photos {photos}, conflicts {conflicts}, failures {failures}.",
+  "cloudOperationFailed": "Cloud operation failed. Your local data remains available.",
+  "cloudRestoreConfirmTitle": "Restore from cloud?",
+  "cloudRestoreConfirmDescription": "Cloud data will be merged into the local journal. Newer unsynced local changes are protected and conflicts are flagged instead of overwritten.",
+  "cloudOperationBusy": "Another cloud operation is already running.",
+  "@cloudPendingOperations": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@cloudLastBackup": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@cloudSyncSummary": {
+    "placeholders": {
+      "uploaded": {
+        "type": "int"
+      },
+      "deleted": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "@cloudRestoreSummary": {
+    "placeholders": {
+      "journeys": {
+        "type": "int"
+      },
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "conflicts": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "cloudAccountMismatch": "This local Wonderlog dataset is linked to a different cloud account. Sign back in with the original account; account migration is not automatic."
 }

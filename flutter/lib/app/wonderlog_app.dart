@@ -6,6 +6,7 @@ import '../core/ecosystem/ecosystem_inbound_transfer_service.dart';
 import '../core/ecosystem/ecosystem_transfer_service.dart';
 import '../core/ecosystem/ecosystem_transfer_store.dart';
 import '../core/runtime/wonderlog_services_scope.dart';
+import '../features/cloud/application/cloud_runtime_controller.dart';
 import '../features/location/domain/location_repository.dart';
 import '../features/memories/data/photo_import_service.dart';
 import '../features/memories/domain/wonderlog_repository.dart';
@@ -24,6 +25,7 @@ final class WonderlogApp extends StatelessWidget {
     required this.ecosystemTransferStore,
     required this.ecosystemTransferService,
     required this.ecosystemInboundTransferService,
+    this.cloudRuntime,
   });
 
   final AppController controller;
@@ -33,6 +35,7 @@ final class WonderlogApp extends StatelessWidget {
   final EcosystemTransferStore ecosystemTransferStore;
   final EcosystemTransferService ecosystemTransferService;
   final EcosystemInboundTransferService ecosystemInboundTransferService;
+  final CloudRuntimeController? cloudRuntime;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +47,7 @@ final class WonderlogApp extends StatelessWidget {
       ecosystemTransferStore: ecosystemTransferStore,
       ecosystemTransferService: ecosystemTransferService,
       ecosystemInboundTransferService: ecosystemInboundTransferService,
+      cloudRuntime: cloudRuntime,
     );
 
     return WonderlogServicesScope(

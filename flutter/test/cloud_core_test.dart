@@ -25,7 +25,31 @@ void main() {
     expect(decision, CloudMergeDecision.conflict);
   });
 
-  test('backup requires auth premium and explicit automatic setting', () {
+  test('manual sync requires auth and Premium, not automatic setting', () {
+    expect(
+      CloudSyncGuard.canSyncNow(
+        authenticated: true,
+        premium: true,
+      ),
+      isTrue,
+    );
+    expect(
+      CloudSyncGuard.canSyncNow(
+        authenticated: true,
+        premium: false,
+      ),
+      isFalse,
+    );
+    expect(
+      CloudSyncGuard.canSyncNow(
+        authenticated: false,
+        premium: true,
+      ),
+      isFalse,
+    );
+  });
+
+  test('automatic backup additionally requires explicit setting', () {
     expect(
       CloudSyncGuard.canStartBackup(
         authenticated: true,

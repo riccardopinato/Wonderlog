@@ -18,6 +18,11 @@ abstract interface class CloudLocalDataSource {
   Future<String?> getPhotoLocalReference(String localId);
   Future<String> buildRemotePhotoPath(String localId);
 
+  Future<void> markJourneyPendingUpload(String localId);
+  Future<void> markMemoryPendingUpload(String localId);
+  Future<void> markPhotoPendingUpload(String localId);
+  Future<void> markPendingDelete(SyncEntityType type, String localId);
+
   Future<void> markJourneySynced(String localId, String cloudId);
   Future<void> markMemorySynced(String localId, String cloudId);
   Future<void> markPhotoSynced(
@@ -29,6 +34,10 @@ abstract interface class CloudLocalDataSource {
   Future<String?> getJourneyCloudId(String localId);
   Future<String?> getMemoryCloudId(String localId);
   Future<PhotoCloudDeleteInfo?> getPhotoCloudDeleteInfo(String localId);
+
+  Future<void> markJourneyCloudDeleted(String localId);
+  Future<void> markMemoryCloudDeleted(String localId);
+  Future<void> markPhotoCloudDeleted(String localId);
 
   Future<List<String>> getPendingJourneyIds();
   Future<List<String>> getPendingMemoryIds();

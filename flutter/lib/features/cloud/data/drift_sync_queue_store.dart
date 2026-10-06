@@ -19,6 +19,19 @@ final class DriftSyncQueueStore implements SyncQueueStore {
 
   @override
   Future<void> enqueue(SyncQueueItem item) async {
+    if (item.operation == SyncOperation.delete) {
+      await (database.delete(database.cloudSyncQueue)
+            ..where(
+              (row) =>
+                  row.entityType.equals(_entityTypeWire(item.entityType)) &
+                  row.localEntityId.equals(item.localEntityId) &
+                  row.operation.equals(
+                    _operationWire(SyncOperation.createOrUpdate),
+                  ),
+            ))
+          .go();
+    }
+
     final existing = await (database.select(database.cloudSyncQueue)
           ..where(
             (row) =>
@@ -45,9 +58,20 @@ final class DriftSyncQueueStore implements SyncQueueStore {
   @override
   Future<List<SyncQueueItem>> nextBatch({
     required int limit,
+    bool includePhotoUploads = true,
   }) async {
     final safeLimit = limit.clamp(1, 500);
-    final query = database.select(database.cloudSyncQueue)
+    final query = database.select(database.cloudSyncQueue);
+    if (!includePhotoUploads) {
+      query.where(
+        (row) =>
+            row.entityType
+                    .equals(_entityTypeWire(SyncEntityType.albumPhoto))
+                    .not() |
+                row.operation.equals(_operationWire(SyncOperation.delete)),
+      );
+    }
+    query
       ..orderBy([(row) => OrderingTerm.asc(row.createdAt)])
       ..limit(safeLimit);
     final rows = await query.get();

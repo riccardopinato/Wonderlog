@@ -56,6 +56,12 @@ Cloud auth is optional. Configure it with dart-defines only when needed:
 - SUPABASE_PUBLISHABLE_KEY
 - WONDERLOG_AUTH_REDIRECT
 - WONDERLOG_WEB_AUTH_REDIRECT
+- WONDERLOG_CLOUD_DATA_ENABLED=true (only after the intended Wonderlog
+  Supabase schema/RLS/storage bucket has been provisioned and verified)
+
+Supabase identity and Wonderlog cloud data are deliberately separate switches:
+a shared identity backend must not automatically become the Wonderlog backup
+database.
 
 No secret belongs in the repository.
 

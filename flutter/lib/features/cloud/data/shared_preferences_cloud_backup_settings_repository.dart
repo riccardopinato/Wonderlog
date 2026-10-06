@@ -13,6 +13,7 @@ final class SharedPreferencesCloudBackupSettingsRepository
   static const _battery = 'cloud.battery_not_low_only';
   static const _hours = 'cloud.periodic_interval_hours';
   static const _lastSuccess = 'cloud.last_successful_backup_at';
+  static const _boundUserId = 'cloud.bound_user_id';
 
   final StreamController<CloudBackupSettings> _stream =
       StreamController<CloudBackupSettings>.broadcast();
@@ -92,6 +93,23 @@ final class SharedPreferencesCloudBackupSettingsRepository
     return millis == null || millis <= 0
         ? null
         : DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
+  }
+
+  @override
+  Future<String?> getBoundCloudUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_boundUserId)?.trim();
+    return value == null || value.isEmpty ? null : value;
+  }
+
+  @override
+  Future<void> setBoundCloudUserId(String userId) async {
+    final normalized = userId.trim();
+    if (normalized.isEmpty) {
+      throw ArgumentError.value(userId, 'userId', 'User id is required.');
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_boundUserId, normalized);
   }
 
   int _boundedHours(int value) => value < 6 ? 6 : value;

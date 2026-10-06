@@ -6,7 +6,9 @@ import '../../../core/config/app_config.dart';
 import '../../../core/identity/identity_models.dart';
 import '../../../core/ecosystem/ecosystem_models.dart';
 import '../../../core/profile/app_profile.dart';
+import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../cloud/presentation/cloud_backup_page.dart';
 import '../../ecosystem/presentation/ecosystem_app_detail_page.dart';
 import '../../premium/presentation/premium_page.dart';
 
@@ -52,6 +54,39 @@ final class ProfilePage extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+          const SizedBox(height: WonderlogSpacing.medium),
+          Builder(
+            builder: (context) {
+              final cloudRuntime =
+                  WonderlogServicesScope.maybeOf(context)?.cloudRuntime;
+              return Card(
+                child: ListTile(
+                  leading: const Icon(Icons.cloud_outlined),
+                  title: Text(strings.cloudBackupTitle),
+                  subtitle: Text(
+                    cloudRuntime == null
+                        ? strings.cloudNotConfigured
+                        : strings.cloudBackupProfileDescription,
+                  ),
+                  trailing: cloudRuntime == null
+                      ? null
+                      : const Icon(Icons.chevron_right),
+                  enabled: cloudRuntime != null,
+                  onTap: cloudRuntime == null
+                      ? null
+                      : () => Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder: (_) => CloudBackupPage(
+                                runtime: cloudRuntime,
+                                controller: controller,
+                              ),
+                            ),
+                          ),
+                ),
+              );
+            },
           ),
           const SizedBox(height: WonderlogSpacing.medium),
           Card(

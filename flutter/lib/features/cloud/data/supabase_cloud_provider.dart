@@ -189,18 +189,40 @@ final class SupabaseCloudProvider implements CloudProvider {
   Future<void> uploadMemoryPhotoLinks(
     List<CloudMemoryPhotoLink> links,
   ) async {
-    if (links.isEmpty) return;
     final userId = _requireUserId();
-    await client.from(memoryPhotosTable).upsert(
-          links
-              .map(
-                (link) => CloudCodec.linkToJson(
-                  link,
-                  ownerId: userId,
-                ),
-              )
-              .toList(growable: false),
-        );
+    final existing = await fetchMemoryPhotoLinks();
+
+    // Upsert the desired snapshot first. If this fails, the previous cloud
+    // relationships are still intact.
+    if (links.isNotEmpty) {
+      await client.from(memoryPhotosTable).upsert(
+            links
+                .map(
+                  (link) => CloudCodec.linkToJson(
+                    link,
+                    ownerId: userId,
+                  ),
+                )
+                .toList(growable: false),
+          );
+    }
+
+    final desiredKeys = links
+        .map((link) => link.memoryCloudId + '|' + link.photoCloudId)
+        .toSet();
+
+    // Remove only links that no longer exist locally. Partial cleanup is safe:
+    // a later manual sync retries the remaining stale links.
+    for (final link in existing) {
+      final key = link.memoryCloudId + '|' + link.photoCloudId;
+      if (desiredKeys.contains(key)) continue;
+      await client
+          .from(memoryPhotosTable)
+          .delete()
+          .eq('owner_id', userId)
+          .eq('memory_cloud_id', link.memoryCloudId)
+          .eq('photo_cloud_id', link.photoCloudId);
+    }
   }
 
   @override

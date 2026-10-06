@@ -27,6 +27,10 @@ void main() {
     );
     expect(
       gate.canUseFeature(PremiumFeature.cloudBackup, true),
+      isA<PremiumAllowed>(),
+    );
+    expect(
+      gate.canUseFeature(PremiumFeature.cloudBackup, false),
       isA<PremiumRequired>(),
     );
     expect(
