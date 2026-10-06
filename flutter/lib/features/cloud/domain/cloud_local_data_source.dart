@@ -21,6 +21,7 @@ abstract interface class CloudLocalDataSource {
   Future<void> markJourneyPendingUpload(String localId);
   Future<void> markMemoryPendingUpload(String localId);
   Future<void> markPhotoPendingUpload(String localId);
+  Future<void> markPendingDelete(SyncEntityType type, String localId);
 
   Future<void> markJourneySynced(String localId, String cloudId);
   Future<void> markMemorySynced(String localId, String cloudId);
