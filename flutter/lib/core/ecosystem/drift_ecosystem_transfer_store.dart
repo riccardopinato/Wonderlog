@@ -204,7 +204,21 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
         // All Wonderlog repositories participating in E2 use this same Drift
         // database. Any failure below rolls the claim and domain writes back,
         // returning the item to pending instead of leaving a half-import.
-        return materialize();
+        final result = await materialize();
+        final finalized = await (database.select(database.ecosystemInbox)
+              ..where((row) => row.id.equals(id)))
+            .getSingleOrNull();
+        if (finalized == null ||
+            finalized.consumedAt == null ||
+            finalized.disposition ==
+                EcosystemInboxDisposition.processing.name ||
+            finalized.disposition ==
+                EcosystemInboxDisposition.pending.name) {
+          throw StateError(
+            'Inbox materialization completed without a final resolution.',
+          );
+        }
+        return result;
       });
 
   @override
@@ -219,8 +233,15 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
         disposition == EcosystemInboxDisposition.processing) {
       throw ArgumentError.value(disposition, 'disposition');
     }
-    await (database.update(database.ecosystemInbox)
-          ..where((row) => row.id.equals(id)))
+    final updated = await (database.update(database.ecosystemInbox)
+          ..where(
+            (row) =>
+                row.id.equals(id) &
+                row.consumedAt.isNull() &
+                row.disposition.equals(
+                  EcosystemInboxDisposition.processing.name,
+                ),
+          ))
         .write(
       db.EcosystemInboxCompanion(
         consumedAt: Value(resolvedAt.toUtc().millisecondsSinceEpoch),
@@ -229,6 +250,9 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
         materializedMemoryId: Value(materializedMemoryId),
       ),
     );
+    if (updated != 1) {
+      throw StateError('Inbox item is not owned by a materialization claim.');
+    }
   }
 
   @override
