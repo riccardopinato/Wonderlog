@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:wonderlog/core/app_controller.dart';
-import 'package:wonderlog/core/database/wonderlog_database.dart';
+import 'package:wonderlog/core/database/wonderlog_database.dart' show WonderlogDatabase;
 import 'package:wonderlog/core/ecosystem/drift_ecosystem_transfer_store.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_envelope.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_inbound_transfer_service.dart';
