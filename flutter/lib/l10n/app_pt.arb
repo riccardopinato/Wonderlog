@@ -222,5 +222,7 @@
   "ecosystemCapabilityPhoto": "Fotos",
   "ecosystemCapabilityPlace": "Locais",
   "ecosystemCapabilityJourney": "Viagens",
-  "ecosystemCapabilityRoute": "Percursos"
+  "ecosystemCapabilityRoute": "Percursos",
+  "premiumJourneyLimitReached": "Atingiste o limite de viagens do plano atual.",
+  "premiumMemoryLimitReached": "Atingiste o limite de memórias para este destino."
 }
