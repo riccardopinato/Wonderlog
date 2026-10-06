@@ -51,9 +51,12 @@ final class MapLibreOfflineMapService implements OfflineMapService {
       onEvent: (event) {
         if (event is! ml.InProgress) return;
         downloadedBytes = event.completedResourceSize;
+        final fraction = event.requiredResourceCount > 0
+            ? event.completedResourceCount / event.requiredResourceCount
+            : (event.progress / 100).clamp(0.0, 1.0);
         onProgress(
           OfflineMapDownloadProgress(
-            fraction: event.progress.clamp(0.0, 1.0),
+            fraction: fraction.clamp(0.0, 1.0),
             downloadedBytes: event.completedResourceSize,
             completedResources: event.completedResourceCount,
             requiredResources: event.requiredResourceCount,
@@ -70,8 +73,10 @@ final class MapLibreOfflineMapService implements OfflineMapService {
 
     return region.copyWith(
       sizeBytes: downloadedBytes,
-      isDownloaded: status.complete,
-      downloadProgress: status.complete ? 1 : status.progress.clamp(0.0, 1.0),
+      isDownloaded: status.isComplete,
+      downloadProgress: status.isComplete
+          ? 1
+          : (status.downloadProgress / 100).clamp(0.0, 1.0),
     );
   }
 
@@ -98,7 +103,7 @@ final class MapLibreOfflineMapService implements OfflineMapService {
         continue;
       }
       final status = await ml.getOfflineRegionStatus(region.id);
-      return status.complete;
+      return status.isComplete;
     }
     return false;
   }
