@@ -228,7 +228,8 @@ void main() {
       ),
       throwsA(isA<EcosystemInboxLimitException>()),
     );
-    expect(await store.watchPendingInbox().first, contains(item));
+    final pending = await store.watchPendingInbox().first;
+    expect(pending.single.id, item.id);
   });
 }
 
