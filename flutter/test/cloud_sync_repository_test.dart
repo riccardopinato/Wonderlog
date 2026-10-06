@@ -9,6 +9,7 @@ import 'package:wonderlog/features/cloud/domain/cloud_models.dart';
 import 'package:wonderlog/features/cloud/domain/cloud_provider.dart';
 import 'package:wonderlog/features/cloud/domain/cloud_sync_repository.dart';
 import 'package:wonderlog/features/memories/data/drift_wonderlog_repository.dart';
+import 'package:wonderlog/features/memories/domain/memory_models.dart';
 
 void main() {
   late WonderlogDatabase database;
@@ -81,6 +82,58 @@ void main() {
     expect(await cloudRepository.pendingCount(), 0);
   });
 
+  test('photo opt-out pauses uploads but still allows remote deletion',
+      () async {
+    final journey = await localRepository.createJourney(
+      title: 'Photo trip',
+      destination: 'Verona',
+      startDate: DateTime.utc(2026, 4, 1),
+      endDate: DateTime.utc(2026, 4, 2),
+    );
+    await cloudRepository.enqueueJourney(journey.id);
+    await cloudRepository.syncNow();
+
+    final now = DateTime.utc(2026, 4, 1, 12);
+    final photo = AlbumPhotoEntry(
+      id: 'photo-1',
+      journeyId: journey.id,
+      localUri: 'missing://photo-1',
+      thumbnailUri: 'missing://photo-1',
+      originalUri: 'missing://photo-1',
+      fileName: 'photo-1.jpg',
+      mimeType: 'image/jpeg',
+      width: 100,
+      height: 100,
+      fileSize: 100,
+      createdAt: now,
+      updatedAt: now,
+    );
+    await localRepository.savePhoto(photo);
+    await cloudRepository.enqueuePhoto(photo.id);
+
+    final paused = await cloudRepository.syncAllPending(
+      includePhotos: false,
+    );
+
+    expect(paused.uploaded, 0);
+    expect(provider.uploadedPhotos, isEmpty);
+    expect(await cloudRepository.pendingCount(), 1);
+
+    await localRepository.deletePhoto(photo.id);
+    await cloudRepository.enqueueDelete(
+      SyncEntityType.albumPhoto,
+      photo.id,
+    );
+    final deleted = await cloudRepository.syncAllPending(
+      includePhotos: false,
+    );
+
+    expect(deleted.deleted, 1);
+    expect(provider.deletedPhotoIds, hasLength(1));
+    expect(provider.uploadedPhotos, isEmpty);
+    expect(await cloudRepository.pendingCount(), 0);
+  });
+
   test('queued Journey delete survives local row deletion', () async {
     final journey = await localRepository.createJourney(
       title: 'Delete me',
@@ -114,7 +167,9 @@ void main() {
 
 final class _RecordingCloudProvider implements CloudProvider {
   final List<CloudJourney> uploadedJourneys = [];
+  final List<CloudAlbumPhoto> uploadedPhotos = [];
   final List<String> deletedJourneyIds = [];
+  final List<String> deletedPhotoIds = [];
 
   @override
   Future<bool> isAuthenticated() async => true;
@@ -131,8 +186,10 @@ final class _RecordingCloudProvider implements CloudProvider {
   @override
   Future<CloudAlbumPhoto> uploadPhotoMetadata(
     CloudAlbumPhoto payload,
-  ) async =>
-      payload;
+  ) async {
+    uploadedPhotos.add(payload);
+    return payload;
+  }
 
   @override
   Future<String> uploadPhotoFile(
@@ -153,7 +210,9 @@ final class _RecordingCloudProvider implements CloudProvider {
   Future<void> deletePhoto(
     String cloudId,
     String? remoteFilePath,
-  ) async {}
+  ) async {
+    deletedPhotoIds.add(cloudId);
+  }
 
   @override
   Future<List<CloudJourney>> fetchJourneys(DateTime? updatedAfter) async =>
