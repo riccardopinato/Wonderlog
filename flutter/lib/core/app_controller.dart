@@ -40,6 +40,11 @@ final class AppController extends ChangeNotifier {
     return Locale(code);
   }
 
+  Locale get effectiveLocale =>
+      locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+
+  String get effectiveLocaleTag => effectiveLocale.toLanguageTag();
+
   Future<void> initialize() async {
     _profile = await _profileRepository.load();
     await identityService.initialize();
