@@ -45,14 +45,23 @@ offline-map, migration and ecosystem modules that are incomplete or unwired but
 still part of the approved cutover architecture. Full Kotlin -> Flutter product
 parity is **not** claimed.
 
-MAXI STEP 23A E2 Hardening is also complete: E2 materialization is
+MAXI STEP 23A E2 Hardening is complete: E2 materialization is
 transactional/exactly-once, E2 Premium counting is scoped correctly,
 the deterministic Drift v8 -> v9 fixture is in CI and all four Inbox actions
-have widget coverage. The next repair gate is **MAXI STEP 23B Core Functional
-Repair**.
+have widget coverage.
 
-See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md` and
-`docs/STEP_23A_E2_HARDENING.md`.
+MAXI STEP 23B Core Functional Repair is also complete at deterministic CI
+level. Journey/Memory/Album now expose real media, first-class Memories and
+Unassigned Memories, Keepsake open/share/export/rename/delete, Journey
+edit/archive/restore/delete, Memory reassignment/delete and corrected
+Rediscover/Replay photo linkage.
+
+The next repair gate is **MAXI STEP 24 Premium Truth & Entitlement
+Unification**.
+
+See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`,
+`docs/STEP_23A_E2_HARDENING.md` and
+`docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md`.
 
 See:
 
