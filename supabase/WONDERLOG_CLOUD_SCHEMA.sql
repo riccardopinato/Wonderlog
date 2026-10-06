@@ -1,7 +1,8 @@
--- Wonderlog Step 25 cloud schema bootstrap.
--- This file is intentionally NOT a Supabase migration-history entry.
--- Apply it only to the Supabase project dedicated to (or explicitly shared with)
--- Wonderlog after verifying the target project.
+-- Wonderlog Step 25 cloud schema contract.
+-- Applied to the shared Supabase backend as migration
+-- wonderlog_cloud_runtime_v1, followed by wonderlog_cloud_fk_indexes_v1.
+-- Keep this file aligned with the deployed schema so a new backend can be
+-- provisioned deterministically.
 --
 -- Runtime contract:
 --   public.journeys
@@ -71,6 +72,9 @@ create unique index if not exists memories_owner_local_reference_uidx
 create index if not exists memories_owner_journey_updated_idx
   on public.memories(owner_id, journey_cloud_id, updated_at);
 
+create index if not exists memories_journey_owner_fk_idx
+  on public.memories(journey_cloud_id, owner_id);
+
 create table if not exists public.album_photos (
   id uuid primary key,
   owner_id uuid not null references auth.users(id) on delete cascade,
@@ -103,6 +107,9 @@ create unique index if not exists album_photos_owner_local_reference_uidx
 create index if not exists album_photos_owner_journey_updated_idx
   on public.album_photos(owner_id, journey_cloud_id, updated_at);
 
+create index if not exists album_photos_journey_owner_fk_idx
+  on public.album_photos(journey_cloud_id, owner_id);
+
 create table if not exists public.memory_photos (
   owner_id uuid not null references auth.users(id) on delete cascade,
   memory_cloud_id uuid not null,
@@ -119,6 +126,12 @@ create table if not exists public.memory_photos (
     references public.album_photos(id, owner_id)
     on delete cascade
 );
+
+create index if not exists memory_photos_memory_owner_fk_idx
+  on public.memory_photos(memory_cloud_id, owner_id);
+
+create index if not exists memory_photos_photo_owner_fk_idx
+  on public.memory_photos(photo_cloud_id, owner_id);
 
 alter table public.journeys enable row level security;
 alter table public.memories enable row level security;
