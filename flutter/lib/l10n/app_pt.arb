@@ -144,8 +144,8 @@
   "rediscoverEmpty": "Hoje não há nada para redescobrir com este filtro.",
   "albumImport": "Importar fotos",
   "albumPhotoCount": "{count, plural, =0{Sem fotos} =1{1 foto} other{{count} fotos}}",
-  "albumLimit": "Atingiste o limite de fotos do plano Free.",
-  "albumPartialImport": "Foram importadas {allowed} fotos; {blocked} fotos selecionadas exigem Premium.",
+  "albumLimit": "Atingiste o limite de fotos do teu plano atual.",
+  "albumPartialImport": "Foram importadas {allowed} fotos; {blocked} fotos selecionadas excedem o limite do teu plano atual.",
   "@albumPhotoCount": {
     "placeholders": {
       "count": {

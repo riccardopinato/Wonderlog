@@ -16,13 +16,21 @@ void main() {
     expect(allowance.isFullyAllowed, isFalse);
   });
 
-  test('premium unlocks gated feature flags', () {
+  test('Premium unlocks only capabilities that are actually shipped', () {
     expect(
-      gate.canUseFeature(PremiumFeature.cloudBackup, true),
+      gate.canUseFeature(PremiumFeature.pdfExport, true),
       isA<PremiumAllowed>(),
     );
     expect(
-      gate.canUseFeature(PremiumFeature.cloudBackup, false),
+      gate.canUseFeature(PremiumFeature.pdfExport, false),
+      isA<PremiumRequired>(),
+    );
+    expect(
+      gate.canUseFeature(PremiumFeature.cloudBackup, true),
+      isA<PremiumRequired>(),
+    );
+    expect(
+      gate.canUseFeature(PremiumFeature.offlineMaps, true),
       isA<PremiumRequired>(),
     );
   });

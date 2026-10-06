@@ -12,6 +12,7 @@ final class SmartJourneyCreationPolicy {
     required int currentJourneyCount,
     required int selectedPhotoCount,
     required bool isPremium,
+    int selectedMemoryCount = 0,
   }) {
     final journeyGate = premiumGate.canCreateJourney(
       currentJourneyCount,
@@ -22,6 +23,10 @@ final class SmartJourneyCreationPolicy {
       selectedPhotoCount,
       isPremium,
     );
+    final memoryLimit = premiumGate.memoryLimit(isPremium);
+    final safeMemoryCount = selectedMemoryCount < 0 ? 0 : selectedMemoryCount;
+    final allowedMemoryCount =
+        safeMemoryCount < memoryLimit ? safeMemoryCount : memoryLimit;
 
     return SmartJourneyCreationAllowance(
       isPremium: isPremium,
@@ -29,6 +34,9 @@ final class SmartJourneyCreationPolicy {
       selectedPhotoCount: selectedPhotoCount,
       allowedPhotoCount: photos.allowedCount,
       blockedPhotoCount: photos.blockedCount,
+      selectedMemoryCount: safeMemoryCount,
+      allowedMemoryCount: allowedMemoryCount,
+      blockedMemoryCount: safeMemoryCount - allowedMemoryCount,
     );
   }
 }

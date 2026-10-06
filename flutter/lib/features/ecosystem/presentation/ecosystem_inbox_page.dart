@@ -9,6 +9,7 @@ import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../journeys/presentation/journey_detail_page.dart';
 import '../../memories/presentation/memory_detail_page.dart';
+import '../../premium/presentation/premium_page.dart';
 import '../application/ecosystem_inbox_materialization_service.dart';
 
 final class EcosystemInboxPage extends StatelessWidget {
@@ -21,7 +22,7 @@ final class EcosystemInboxPage extends StatelessWidget {
     final materializer = EcosystemInboxMaterializationService(
       repository: services.repository,
       store: services.ecosystemTransferStore,
-      isPremium: () => services.controller.isPremium,
+      premiumAccessPolicy: services.premiumAccessPolicy,
     );
 
     return DefaultTabController(
@@ -441,6 +442,15 @@ final class _InboxItemCardState extends State<_InboxItemCard> {
     } on EcosystemInboxLimitException {
       if (!context.mounted) return;
       _message(context, strings.ecosystemPremiumLimit);
+      final services = WonderlogServicesScope.of(context);
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => PremiumPage(
+            service: services.controller.premiumService,
+          ),
+        ),
+      );
     } on EcosystemInboxAlreadyResolvedException {
       if (!context.mounted) return;
       _message(context, strings.ecosystemActionDone);

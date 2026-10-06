@@ -223,6 +223,9 @@ final class SmartJourneyCreationAllowance {
     required this.selectedPhotoCount,
     required this.allowedPhotoCount,
     required this.blockedPhotoCount,
+    required this.selectedMemoryCount,
+    required this.allowedMemoryCount,
+    required this.blockedMemoryCount,
   });
 
   final bool isPremium;
@@ -230,12 +233,18 @@ final class SmartJourneyCreationAllowance {
   final int selectedPhotoCount;
   final int allowedPhotoCount;
   final int blockedPhotoCount;
+  final int selectedMemoryCount;
+  final int allowedMemoryCount;
+  final int blockedMemoryCount;
 
   bool get journeyLimitReached => !journeyCreationAllowed;
   bool get hasBlockedPhotos => blockedPhotoCount > 0;
+  bool get hasBlockedMemories => blockedMemoryCount > 0;
   bool get requiresUpgrade =>
-      !isPremium && (journeyLimitReached || hasBlockedPhotos);
+      !isPremium &&
+      (journeyLimitReached || hasBlockedPhotos || hasBlockedMemories);
   bool get allPhotosAllowed => blockedPhotoCount == 0;
+  bool get allMemoriesAllowed => blockedMemoryCount == 0;
 }
 
 

@@ -3,7 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
+import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../premium/domain/premium_gate.dart';
+import '../../premium/presentation/premium_page.dart';
 import '../domain/memory_models.dart';
 import '../domain/wonderlog_repository.dart';
 
@@ -154,6 +157,25 @@ final class _MemoryEditorPageState extends State<MemoryEditorPage> {
         SnackBar(content: Text(strings.memoryTitleRequired)),
       );
       return;
+    }
+
+    if (widget.existing == null) {
+      final services = WonderlogServicesScope.of(context);
+      final creationGate = await services.premiumAccessPolicy.canCreateMemory(
+        journeyId: widget.journeyId,
+      );
+      if (!mounted) return;
+      if (creationGate is PremiumLimitReached) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => PremiumPage(
+              service: services.controller.premiumService,
+            ),
+          ),
+        );
+        return;
+      }
     }
 
     setState(() => _saving = true);

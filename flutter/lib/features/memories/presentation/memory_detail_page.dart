@@ -8,6 +8,8 @@ import '../../../core/ecosystem/wonderlog_ecosystem_adapter.dart';
 import '../../../core/picker/device_content_picker.dart';
 import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../premium/domain/premium_gate.dart';
+import '../../premium/presentation/premium_page.dart';
 import '../application/keepsake_file_actions.dart';
 import '../data/photo_import_service.dart';
 import '../domain/memory_models.dart';
@@ -347,6 +349,7 @@ final class _MemoryDetailPageState extends State<MemoryDetailPage> {
         await _moveMemory(item.memory);
         break;
       case 'unassign':
+        if (!await _ensureMemoryDestinationAvailable(null)) return;
         await _run(
           () => widget.repository.moveMemoryToJourney(
             item.memory.id,
@@ -393,6 +396,7 @@ final class _MemoryDetailPageState extends State<MemoryDetailPage> {
       ),
     );
     if (destination == null || !mounted) return;
+    if (!await _ensureMemoryDestinationAvailable(destination)) return;
     await _run(
       () => widget.repository.moveMemoryToJourney(
         memory.id,
@@ -400,6 +404,28 @@ final class _MemoryDetailPageState extends State<MemoryDetailPage> {
       ),
     );
     if (mounted) _message(strings.memoryMoved);
+  }
+
+  Future<bool> _ensureMemoryDestinationAvailable(
+    String? journeyId,
+  ) async {
+    final services = WonderlogServicesScope.of(context);
+    final access = await services.premiumAccessPolicy.canCreateMemory(
+      journeyId: journeyId,
+    );
+    if (!mounted) return false;
+    if (access is PremiumLimitReached) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => PremiumPage(
+            service: services.controller.premiumService,
+          ),
+        ),
+      );
+      return false;
+    }
+    return true;
   }
 
   Future<void> _deleteMemory(MemoryWithPhotos item) async {

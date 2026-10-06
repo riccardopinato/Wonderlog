@@ -8,8 +8,9 @@ import '../../../core/ecosystem/wonderlog_ecosystem_adapter.dart';
 import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../premium/domain/premium_gate.dart';
+import '../../premium/presentation/premium_page.dart';
 import '../domain/journey.dart';
-import '../domain/journey_repository.dart';
 
 final class JourneyCard extends StatelessWidget {
   const JourneyCard({
@@ -129,8 +130,23 @@ final class JourneyCard extends StatelessWidget {
 
 Future<void> showCreateJourneyDialog(
   BuildContext context,
-  JourneyRepository repository,
+  WonderlogRepository repository,
 ) async {
+  final services = WonderlogServicesScope.of(context);
+  final initialGate = await services.premiumAccessPolicy.canCreateJourney();
+  if (!context.mounted) return;
+  if (initialGate is PremiumLimitReached) {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => PremiumPage(
+          service: services.controller.premiumService,
+        ),
+      ),
+    );
+    return;
+  }
+
   final strings = AppLocalizations.of(context);
   final titleController = TextEditingController();
   final destinationController = TextEditingController();
@@ -216,6 +232,23 @@ Future<void> showCreateJourneyDialog(
                   final title = titleController.text.trim();
                   final destination = destinationController.text.trim();
                   if (title.isEmpty || destination.isEmpty) return;
+
+                  final creationGate =
+                      await services.premiumAccessPolicy.canCreateJourney();
+                  if (creationGate is PremiumLimitReached) {
+                    if (dialogContext.mounted) Navigator.pop(dialogContext);
+                    if (context.mounted) {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (_) => PremiumPage(
+                            service: services.controller.premiumService,
+                          ),
+                        ),
+                      );
+                    }
+                    return;
+                  }
 
                   await repository.createJourney(
                     title: title,

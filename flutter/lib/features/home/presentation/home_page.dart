@@ -24,13 +24,11 @@ final class HomePage extends StatelessWidget {
   const HomePage({
     super.key,
     required this.repository,
-    required this.isPremium,
     required this.locationRepository,
     required this.photoImportService,
   });
 
   final WonderlogRepository repository;
-  final bool Function() isPremium;
   final LocationRepository locationRepository;
   final PhotoImportService photoImportService;
 
@@ -47,12 +45,13 @@ final class HomePage extends StatelessWidget {
           IconButton(
             tooltip: strings.smartJourneyTitle,
             onPressed: () {
+              final services = WonderlogServicesScope.of(context);
               final integration = SmartJourneyIntegrationRepository(
                 repository: repository,
                 photoImporter: PhotoImportServiceSmartJourneyAdapter(
                   photoImportService,
                 ),
-                isPremium: isPremium,
+                premiumAccessPolicy: services.premiumAccessPolicy,
               );
               Navigator.push(
                 context,
@@ -69,12 +68,13 @@ final class HomePage extends StatelessWidget {
           IconButton(
             tooltip: strings.captureTitle,
             onPressed: () {
+              final services = WonderlogServicesScope.of(context);
               final captureRepository = WonderlogCaptureRepository(
                 repository: repository,
                 mediaPort: PhotoCaptureMediaPort(
                   photoImportService: photoImportService,
                 ),
-                isPremium: isPremium,
+                premiumAccessPolicy: services.premiumAccessPolicy,
               );
               Navigator.push(
                 context,

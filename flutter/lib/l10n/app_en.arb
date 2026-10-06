@@ -102,13 +102,13 @@
   "timelineEmpty": "No memories match these timeline filters.",
   "premiumTitle": "Wonderlog Premium",
   "premiumHeadline": "Unlock the full travel journal",
-  "premiumDescription": "Unlimited journeys and memories, secure cloud backup, offline maps and PDF travel books.",
+  "premiumDescription": "Unlimited journeys and memories, up to 100 photos per Journey, and PDF travel books.",
   "premiumUnlimited": "Unlimited journeys and memories",
   "premiumCloud": "Secure cloud backup and restore",
   "premiumPdf": "PDF travel books",
   "premiumOfflineMaps": "Offline maps",
   "premiumActive": "Premium active",
-  "premiumActiveDescription": "All Premium capabilities are unlocked for this account.",
+  "premiumActiveDescription": "Premium access is active for this account.",
   "premiumStoreUnavailable": "Store unavailable",
   "premiumStoreUnavailableDescription": "This build has no configured store credentials. Local Wonderlog remains available.",
   "premiumRestore": "Restore purchases",
@@ -192,8 +192,8 @@
   "rediscoverEmpty": "There is nothing to rediscover for this filter today.",
   "albumImport": "Import photos",
   "albumPhotoCount": "{count, plural, =0{No photos} =1{1 photo} other{{count} photos}}",
-  "albumLimit": "Photo limit reached for the Free plan.",
-  "albumPartialImport": "Imported {allowed} photos; {blocked} selected photos require Premium.",
+  "albumLimit": "Photo limit reached for your current plan.",
+  "albumPartialImport": "{allowed} photos imported; {blocked} selected photos exceed your current plan limit.",
   "@albumPhotoCount": {
     "placeholders": {
       "count": {

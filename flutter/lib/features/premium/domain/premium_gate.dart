@@ -122,19 +122,26 @@ final class PremiumGate {
           );
   }
 
-  bool hasFeature(PremiumFeature feature, bool premium) {
-    if (premium) return true;
-    return switch (feature) {
-      PremiumFeature.unlimitedJourneys => false,
-      PremiumFeature.extendedAlbum => false,
-      PremiumFeature.unlimitedMemories => false,
-      PremiumFeature.cloudBackup => SubscriptionConfig.freeCloudBackup,
-      PremiumFeature.pdfExport => SubscriptionConfig.freePdfExport,
-      PremiumFeature.offlineMaps => SubscriptionConfig.freeOfflineMaps,
-      PremiumFeature.premiumThemes => SubscriptionConfig.freePremiumThemes,
-      PremiumFeature.advancedStatistics => SubscriptionConfig.freeAdvancedStats,
-    };
-  }
+  bool hasFeature(PremiumFeature feature, bool premium) => switch (feature) {
+        PremiumFeature.unlimitedJourneys => premium,
+        PremiumFeature.extendedAlbum => premium,
+        PremiumFeature.unlimitedMemories => premium,
+        PremiumFeature.cloudBackup => premium
+            ? SubscriptionConfig.premiumCloudBackup
+            : SubscriptionConfig.freeCloudBackup,
+        PremiumFeature.pdfExport => premium
+            ? SubscriptionConfig.premiumPdfExport
+            : SubscriptionConfig.freePdfExport,
+        PremiumFeature.offlineMaps => premium
+            ? SubscriptionConfig.premiumOfflineMaps
+            : SubscriptionConfig.freeOfflineMaps,
+        PremiumFeature.premiumThemes => premium
+            ? SubscriptionConfig.premiumPremiumThemes
+            : SubscriptionConfig.freePremiumThemes,
+        PremiumFeature.advancedStatistics => premium
+            ? SubscriptionConfig.premiumAdvancedStats
+            : SubscriptionConfig.freeAdvancedStats,
+      };
 
   PremiumGateResult canUseFeature(PremiumFeature feature, bool premium) =>
       hasFeature(feature, premium)
