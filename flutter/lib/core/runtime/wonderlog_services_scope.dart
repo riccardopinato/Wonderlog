@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../features/cloud/application/cloud_runtime_controller.dart';
 import '../../features/location/domain/location_repository.dart';
 import '../../features/memories/data/photo_import_service.dart';
 import '../../features/memories/domain/wonderlog_repository.dart';
@@ -18,6 +19,7 @@ final class WonderlogServices {
     required this.ecosystemTransferStore,
     required this.ecosystemTransferService,
     required this.ecosystemInboundTransferService,
+    required this.cloudRuntime,
   }) : premiumAccessPolicy = PremiumAccessPolicy(
           repository: repository,
           isPremium: () => controller.isPremium,
@@ -30,6 +32,7 @@ final class WonderlogServices {
   final EcosystemTransferStore ecosystemTransferStore;
   final EcosystemTransferService ecosystemTransferService;
   final EcosystemInboundTransferService ecosystemInboundTransferService;
+  final CloudRuntimeController? cloudRuntime;
   final PremiumAccessPolicy premiumAccessPolicy;
 }
 
