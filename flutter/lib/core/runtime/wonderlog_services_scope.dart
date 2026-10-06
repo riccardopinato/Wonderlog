@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../../features/location/domain/location_repository.dart';
 import '../../features/memories/data/photo_import_service.dart';
 import '../../features/memories/domain/wonderlog_repository.dart';
+import '../../features/premium/application/premium_access_policy.dart';
 import '../app_controller.dart';
 import '../ecosystem/ecosystem_inbound_transfer_service.dart';
 import '../ecosystem/ecosystem_transfer_service.dart';
@@ -26,6 +27,11 @@ final class WonderlogServices {
   final EcosystemTransferStore ecosystemTransferStore;
   final EcosystemTransferService ecosystemTransferService;
   final EcosystemInboundTransferService ecosystemInboundTransferService;
+
+  PremiumAccessPolicy get premiumAccessPolicy => PremiumAccessPolicy(
+        repository: repository,
+        isPremium: () => controller.isPremium,
+      );
 }
 
 final class WonderlogServicesScope extends InheritedWidget {
