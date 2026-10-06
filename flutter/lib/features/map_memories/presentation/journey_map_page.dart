@@ -356,7 +356,7 @@ final class _JourneyMapPageState extends State<JourneyMapPage> {
 
     try {
       final result = await routing.route(replay);
-      if (!mounted) return;
+      if (!context.mounted) return;
       if (result == null) {
         setState(() => _pathMode = _PathMode.replay);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -369,7 +369,7 @@ final class _JourneyMapPageState extends State<JourneyMapPage> {
         _renderSignature = null;
       });
     } catch (_) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() => _pathMode = _PathMode.replay);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).mapRoadRouteFailed)),
@@ -509,6 +509,17 @@ final class _JourneyMapPageState extends State<JourneyMapPage> {
         existing = region;
         break;
       }
+    }
+
+    final nativeDownloaded =
+        await services.offlineMapService.isDownloaded(proposed.id);
+    if (nativeDownloaded != existing.isDownloaded) {
+      existing = existing.copyWith(
+        isDownloaded: nativeDownloaded,
+        downloadProgress: nativeDownloaded ? 1 : 0,
+        sizeBytes: nativeDownloaded ? existing.sizeBytes : 0,
+      );
+      await services.locationRepository.saveOfflineRegion(existing);
     }
 
     if (!context.mounted) return;
