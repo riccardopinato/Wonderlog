@@ -189,8 +189,16 @@ final class SupabaseCloudProvider implements CloudProvider {
   Future<void> uploadMemoryPhotoLinks(
     List<CloudMemoryPhotoLink> links,
   ) async {
-    if (links.isEmpty) return;
     final userId = _requireUserId();
+
+    // Links are a complete user-owned snapshot. Replacing the snapshot avoids
+    // stale cloud relationships after unlink/reorder operations.
+    await client
+        .from(memoryPhotosTable)
+        .delete()
+        .eq('owner_id', userId);
+
+    if (links.isEmpty) return;
     await client.from(memoryPhotosTable).upsert(
           links
               .map(
