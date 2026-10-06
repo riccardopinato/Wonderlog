@@ -3,7 +3,10 @@ import 'package:uuid/uuid.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../core/picker/device_content_picker.dart';
+import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../premium/domain/premium_gate.dart';
+import '../../premium/presentation/premium_page.dart';
 import '../application/capture_controller.dart';
 import '../domain/capture_models.dart';
 import '../domain/capture_validator.dart';
@@ -242,8 +245,9 @@ final class _CapturePageState extends State<CapturePage> {
                 ),
               const SizedBox(height: WonderlogSpacing.small),
               FilledButton.icon(
-                onPressed:
-                    validation.valid && !saving ? widget.controller.save : null,
+                onPressed: validation.valid && !saving
+                    ? () => _save(draft)
+                    : null,
                 icon: saving
                     ? const SizedBox.square(
                         dimension: 18,
@@ -257,5 +261,52 @@ final class _CapturePageState extends State<CapturePage> {
         );
       },
     );
+  }
+
+  Future<void> _save(CaptureDraft draft) async {
+    final journeyId = draft.journeyId;
+    if (journeyId == null) {
+      await widget.controller.save();
+      return;
+    }
+
+    final services = WonderlogServicesScope.of(context);
+    final policy = services.premiumAccessPolicy;
+    var upgradeRequired = false;
+
+    if (draft.createNewMemory) {
+      final memoryAccess = await policy.canCreateMemory(
+        journeyId: journeyId,
+      );
+      upgradeRequired = memoryAccess is PremiumLimitReached;
+    }
+
+    final selectedPhotos = draft.items
+        .where((item) => item.type == CaptureContentType.image)
+        .length;
+    if (selectedPhotos > 0) {
+      final currentPhotos =
+          await services.repository.watchAlbum(journeyId).first;
+      final allowance = policy.photoImportAllowance(
+        currentCount: currentPhotos.length,
+        selectedCount: selectedPhotos,
+      );
+      upgradeRequired = upgradeRequired || allowance.blockedCount > 0;
+    }
+
+    if (!mounted) return;
+    if (upgradeRequired) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => PremiumPage(
+            service: services.controller.premiumService,
+          ),
+        ),
+      );
+      return;
+    }
+
+    await widget.controller.save();
   }
 }
