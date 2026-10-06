@@ -285,5 +285,77 @@
   "keepsakeRenamed": "Keepsake renomeado.",
   "keepsakeExported": "Keepsake exportado.",
   "mediaUnavailable": "Media indisponível",
-  "journeyDescription": "Descrição"
+  "journeyDescription": "Descrição",
+  "cloudBackupTitle": "Backup na cloud",
+  "cloudBackupProfileDescription": "Sincronize e restaure o seu diário de viagem",
+  "cloudBackupStatus": "Estado da cloud",
+  "cloudAccountReady": "Conta ligada",
+  "cloudSignInRequired": "Inicie sessão no Perfil antes de usar o backup na cloud.",
+  "cloudPremiumReady": "Wonderlog Premium ativo",
+  "cloudPremiumRequired": "Wonderlog Premium é necessário para o backup na cloud.",
+  "cloudPendingOperations": "{count} operações cloud pendentes",
+  "cloudNeverBackedUp": "Ainda não existe um backup cloud concluído",
+  "cloudLastBackup": "Último backup concluído: {date}",
+  "cloudIncludePhotos": "Incluir fotos do álbum",
+  "cloudIncludePhotosDescription": "Carrega os originais privados do álbum juntamente com os dados do diário.",
+  "cloudAutomaticBackup": "Backup automático",
+  "cloudAutomaticBackupDeferred": "Primeiro é certificada a sincronização manual; o agendamento em segundo plano permanece desativado.",
+  "cloudSyncNow": "Sincronizar agora",
+  "cloudRestoreNow": "Restaurar da cloud",
+  "cloudBackupScopeTitle": "Âmbito cloud atual",
+  "cloudBackupScopeDescription": "Viagens, Memórias, fotos de álbuns e ligações Memória–Foto são sincronizadas. Os Keepsakes permanecem locais por agora.",
+  "cloudLastSyncSummary": "Última sincronização",
+  "cloudSyncSummary": "Carregados {uploaded}, eliminados {deleted}, falhas {failures}.",
+  "cloudLastRestoreSummary": "Último restauro",
+  "cloudRestoreSummary": "Viagens {journeys}, Memórias {memories}, fotos {photos}, conflitos {conflicts}, falhas {failures}.",
+  "cloudOperationFailed": "A operação cloud falhou. Os dados locais continuam disponíveis.",
+  "cloudRestoreConfirmTitle": "Restaurar da cloud?",
+  "cloudRestoreConfirmDescription": "Os dados cloud serão combinados com o diário local. Alterações locais mais recentes e não sincronizadas são protegidas e os conflitos são assinalados em vez de substituídos.",
+  "cloudOperationBusy": "Já existe outra operação cloud em curso.",
+  "@cloudPendingOperations": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@cloudLastBackup": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@cloudSyncSummary": {
+    "placeholders": {
+      "uploaded": {
+        "type": "int"
+      },
+      "deleted": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "@cloudRestoreSummary": {
+    "placeholders": {
+      "journeys": {
+        "type": "int"
+      },
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "conflicts": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  }
 }
