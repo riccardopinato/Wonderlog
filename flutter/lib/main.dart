@@ -54,7 +54,8 @@ Future<void> main() async {
   await controller.initialize();
 
   CloudRuntimeController? cloudRuntime;
-  if (AppConfig.current.cloudConfigured) {
+  if (AppConfig.current.cloudConfigured &&
+      controller.identity.status != IdentityStatus.error) {
     final cloudProvider = SupabaseCloudProvider();
     final queueStore = DriftSyncQueueStore(database);
     final cloudLocalDataSource = DriftCloudLocalDataSource(
@@ -92,6 +93,7 @@ Future<void> main() async {
       settingsRepository: cloudSettings,
       queueStore: queueStore,
       isPremium: () => controller.isPremium,
+      currentUserId: () => controller.identity.user?.id,
     );
     await cloudRuntime.initialize();
 
