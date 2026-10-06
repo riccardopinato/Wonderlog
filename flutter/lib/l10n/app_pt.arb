@@ -303,7 +303,7 @@
   "cloudSyncNow": "Sincronizar agora",
   "cloudRestoreNow": "Restaurar da cloud",
   "cloudBackupScopeTitle": "Âmbito cloud atual",
-  "cloudBackupScopeDescription": "Viagens, Memórias, fotos de álbuns e ligações Memória–Foto são sincronizadas. Os Keepsakes permanecem locais por agora.",
+  "cloudBackupScopeDescription": "Viagens, Memórias associadas a uma Viagem, fotos de álbuns e ligações Memória–Foto são sincronizadas. Memórias não atribuídas e Keepsakes permanecem locais por agora.",
   "cloudLastSyncSummary": "Última sincronização",
   "cloudSyncSummary": "Carregados {uploaded}, eliminados {deleted}, falhas {failures}.",
   "cloudLastRestoreSummary": "Último restauro",
