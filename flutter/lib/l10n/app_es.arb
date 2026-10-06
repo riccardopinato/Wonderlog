@@ -358,5 +358,34 @@
       }
     }
   },
-  "cloudAccountMismatch": "Este archivo local de Wonderlog está vinculado a otra cuenta de nube. Inicia sesión con la cuenta original; la migración entre cuentas no es automática."
+  "cloudAccountMismatch": "Este archivo local de Wonderlog está vinculado a otra cuenta de nube. Inicia sesión con la cuenta original; la migración entre cuentas no es automática.",
+  "mapReplayPathShort": "Replay",
+  "mapRoadRouteShort": "Carreteras",
+  "mapReplayPathTruth": "Ruta de replay: conecta recuerdos geolocalizados en orden temporal. No es navegación por carretera.",
+  "mapRoadRouteTruth": "Ruta por carretera: calculada por el proveedor de rutas configurado.",
+  "mapRoadRouteFailed": "La ruta por carretera no está disponible. Se muestra la ruta cronológica de replay.",
+  "offlineMapsTitle": "Mapas sin conexión",
+  "offlineMapsNativeOnly": "La descarga de regiones sin conexión está disponible en Android e iOS. La Web sigue siendo solo online.",
+  "offlineMapsProviderUnavailable": "Las descargas sin conexión están desactivadas hasta configurar un proveedor que autorice explícitamente el uso offline.",
+  "offlineMapsRegionDescription": "Guarda unos {radius} km alrededor de este viaje, zoom {minZoom}–{maxZoom}.",
+  "offlineMapsReady": "La región de este viaje está disponible sin conexión.",
+  "offlineMapsDelete": "Eliminar región offline",
+  "offlineMapsDownload": "Descargar región",
+  "offlineMapsDownloaded": "Región de mapa sin conexión descargada.",
+  "offlineMapsDownloadFailed": "Falló la descarga offline. El mapa online no se presenta como offline.",
+  "offlineMapsDeleted": "Región offline eliminada.",
+  "offlineMapsDeleteFailed": "No se pudo eliminar la región offline.",
+  "@offlineMapsRegionDescription": {
+    "placeholders": {
+      "radius": {
+        "type": "String"
+      },
+      "minZoom": {
+        "type": "int"
+      },
+      "maxZoom": {
+        "type": "int"
+      }
+    }
+  }
 }
