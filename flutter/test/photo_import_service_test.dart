@@ -30,14 +30,6 @@ void main() {
     expect(photo.localUri, startsWith('media://sha256_'));
     expect(photo.fileSize, 4);
   });
-}
-
-final class _Reader implements SourceByteReader {
-  const _Reader(this.bytes);
-  final Uint8List bytes;
-
-  @override
-  Future<Uint8List> read(String reference) async => bytes;
 
   test('Keepsake importer persists a private content-addressed copy', () async {
     final backend = MemoryMediaAssetBackend();
@@ -87,5 +79,13 @@ final class _Reader implements SourceByteReader {
     );
     expect(await store.read(assetId), isNull);
   });
+}
 
+final class _Reader implements SourceByteReader {
+  const _Reader(this.bytes);
+
+  final Uint8List bytes;
+
+  @override
+  Future<Uint8List> read(String reference) async => bytes;
 }
