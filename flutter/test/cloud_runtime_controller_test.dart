@@ -55,8 +55,8 @@ void main() {
     );
     await runtime.initialize();
 
-    expect(
-      () => runtime.syncNow(),
+    await expectLater(
+      runtime.syncNow(),
       throwsA(
         isA<CloudRuntimeException>().having(
           (error) => error.reason,
@@ -73,8 +73,8 @@ void main() {
     expect(await settings.getBoundCloudUserId(), 'user-a');
 
     userId = 'user-b';
-    expect(
-      () => runtime.syncNow(),
+    await expectLater(
+      runtime.syncNow(),
       throwsA(
         isA<CloudRuntimeException>().having(
           (error) => error.reason,
