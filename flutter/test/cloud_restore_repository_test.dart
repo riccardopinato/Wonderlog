@@ -7,6 +7,7 @@ import 'package:wonderlog/features/cloud/data/cloud_restore_repository.dart';
 import 'package:wonderlog/features/cloud/domain/cloud_models.dart';
 import 'package:wonderlog/features/cloud/domain/cloud_provider.dart';
 import 'package:wonderlog/features/cloud/domain/restored_photo_storage.dart';
+import 'package:wonderlog/features/memories/data/drift_wonderlog_repository.dart';
 
 void main() {
   test('restore rebuilds Journey, Memory, Photo and relationship', () async {
@@ -33,6 +34,37 @@ void main() {
 
     await database.close();
   });
+
+  test('restore flags newer cloud data when local edit is unsynced', () async {
+    final database = WonderlogDatabase(NativeDatabase.memory());
+    final localRepository = DriftWonderlogRepository(database);
+    final journey = await localRepository.createJourney(
+      title: 'Local title',
+      destination: 'Padova',
+      startDate: DateTime.utc(2026, 8, 10),
+      endDate: DateTime.utc(2026, 8, 11),
+    );
+
+    final repository = CloudRestoreRepository(
+      database: database,
+      cloudProvider: _ConflictProvider(journey.id),
+      photoStorage: _FakeStorage(),
+    );
+
+    final summary = await repository.restoreEverything();
+    final restored = await localRepository.watchJourney(journey.id).first;
+
+    expect(summary.conflicts, 1);
+    expect(summary.journeysUpdated, 0);
+    expect(restored?.title, 'Local title');
+
+    final row = await (database.select(database.trips)
+          ..where((item) => item.id.equals(journey.id)))
+        .getSingle();
+    expect(row.syncStatus, 'CONFLICT');
+
+    await database.close();
+  });
 }
 
 final class _FakeStorage implements RestoredPhotoStorage {
@@ -53,7 +85,7 @@ final class _FakeStorage implements RestoredPhotoStorage {
       );
 }
 
-final class _FakeProvider implements CloudProvider {
+class _FakeProvider implements CloudProvider {
   @override
   Future<bool> isAuthenticated() async => true;
 
@@ -164,4 +196,42 @@ final class _FakeProvider implements CloudProvider {
   Future<void> uploadMemoryPhotoLinks(
     List<CloudMemoryPhotoLink> links,
   ) async {}
+}
+
+
+final class _ConflictProvider extends _FakeProvider {
+  _ConflictProvider(this.localReferenceId);
+
+  final String localReferenceId;
+
+  @override
+  Future<List<CloudJourney>> fetchJourneys(DateTime? updatedAfter) async => [
+        CloudJourney(
+          id: 'cj-conflict',
+          ownerId: 'u',
+          localReferenceId: localReferenceId,
+          title: 'Cloud title',
+          destination: 'Padova',
+          country: 'IT',
+          description: '',
+          startDate: '2026-08-10',
+          endDate: '2026-08-11',
+          accentTheme: 'Preset_0',
+          coverPhotoCloudId: null,
+          createdAt: DateTime.utc(2026, 8, 10),
+          updatedAt: DateTime.utc(2030, 1, 1),
+        ),
+      ];
+
+  @override
+  Future<List<CloudMemory>> fetchMemories(DateTime? updatedAfter) async =>
+      const [];
+
+  @override
+  Future<List<CloudAlbumPhoto>> fetchPhotos(DateTime? updatedAfter) async =>
+      const [];
+
+  @override
+  Future<List<CloudMemoryPhotoLink>> fetchMemoryPhotoLinks() async =>
+      const [];
 }
