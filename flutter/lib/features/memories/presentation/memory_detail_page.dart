@@ -341,6 +341,7 @@ final class _MemoryDetailPageState extends State<MemoryDetailPage> {
     MemoryWithPhotos item,
     String action,
   ) async {
+    final strings = AppLocalizations.of(context);
     switch (action) {
       case 'move':
         await _moveMemory(item.memory);
@@ -353,7 +354,7 @@ final class _MemoryDetailPageState extends State<MemoryDetailPage> {
           ),
         );
         if (mounted) {
-          _message(AppLocalizations.of(context).memoryMoved);
+          _message(strings.memoryMoved);
         }
         break;
       case 'delete':
