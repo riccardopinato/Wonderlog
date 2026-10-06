@@ -303,7 +303,7 @@
   "cloudSyncNow": "Synchroniser maintenant",
   "cloudRestoreNow": "Restaurer depuis le cloud",
   "cloudBackupScopeTitle": "Périmètre cloud actuel",
-  "cloudBackupScopeDescription": "Voyages, Souvenirs, photos d'album et liens Souvenir–Photo sont synchronisés. Les Keepsakes restent locaux pour le moment.",
+  "cloudBackupScopeDescription": "Voyages, Souvenirs rattachés à un Voyage, photos d'album et liens Souvenir–Photo sont synchronisés. Les Souvenirs non attribués et les Keepsakes restent locaux pour le moment.",
   "cloudLastSyncSummary": "Dernière synchronisation",
   "cloudSyncSummary": "Téléversés {uploaded}, supprimés {deleted}, échecs {failures}.",
   "cloudLastRestoreSummary": "Dernière restauration",
