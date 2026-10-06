@@ -7,6 +7,7 @@ import 'package:wonderlog/core/ecosystem/ecosystem_envelope.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_models.dart';
 import 'package:wonderlog/core/ecosystem/ecosystem_transfer_store.dart';
 import 'package:wonderlog/features/ecosystem/application/ecosystem_inbox_materialization_service.dart';
+import 'package:wonderlog/features/memories/domain/memory_models.dart';
 import 'package:wonderlog/features/memories/data/drift_wonderlog_repository.dart';
 
 void main() {
@@ -111,6 +112,150 @@ void main() {
     expect(history.single.materializedJourneyId, isNull);
     expect(history.single.materializedMemoryId, isNull);
   });
+
+  test('concurrent actions materialize one inbox item exactly once', () async {
+    final item = await _receive(store, 'note-race');
+
+    final settled = await Future.wait<Object>([
+      _settle(service.saveFreeMemory(item)),
+      _settle(service.saveFreeMemory(item)),
+    ]);
+
+    expect(
+      settled.whereType<EcosystemInboxMaterializationResult>(),
+      hasLength(1),
+    );
+    expect(
+      settled.whereType<EcosystemInboxAlreadyResolvedException>(),
+      hasLength(1),
+    );
+    expect(await repository.watchAllMemories().first, hasLength(1));
+    expect(await store.watchPendingInbox().first, isEmpty);
+  });
+
+  test('failed atomic materialization rolls back domain writes', () async {
+    final item = await _receive(store, 'note-rollback');
+    final memory = _memory('rollback-memory', journeyId: null);
+
+    await expectLater(
+      store.materializeInboxExactlyOnce<void>(
+        item.id,
+        materialize: () async {
+          await repository.saveMemory(memory);
+          throw StateError('forced failure');
+        },
+      ),
+      throwsStateError,
+    );
+
+    expect(await repository.watchAllMemories().first, isEmpty);
+    final pending = await store.watchPendingInbox().first;
+    expect(pending.single.id, item.id);
+  });
+
+  test('free Memory limits are scoped per Journey and unassigned bucket',
+      () async {
+    final freeService = EcosystemInboxMaterializationService(
+      repository: repository,
+      store: store,
+      isPremium: () => false,
+    );
+    final fullJourney = await repository.createJourney(
+      title: 'Full',
+      destination: 'A',
+      startDate: DateTime(2026, 1, 1),
+      endDate: DateTime(2026, 1, 2),
+    );
+    final openJourney = await repository.createJourney(
+      title: 'Open',
+      destination: 'B',
+      startDate: DateTime(2026, 2, 1),
+      endDate: DateTime(2026, 2, 2),
+    );
+    for (var index = 0; index < 5; index++) {
+      await repository.saveMemory(
+        _memory('full-$index', journeyId: fullJourney.id),
+      );
+    }
+
+    final openItem = await _receive(store, 'note-open-bucket');
+    await freeService.addToJourney(openItem, openJourney.id);
+    expect(await repository.watchMemories(openJourney.id).first, hasLength(1));
+
+    final fullItem = await _receive(store, 'note-full-bucket');
+    await expectLater(
+      freeService.addToJourney(fullItem, fullJourney.id),
+      throwsA(isA<EcosystemInboxLimitException>()),
+    );
+
+    final firstFree = await _receive(store, 'note-free-bucket');
+    await freeService.saveFreeMemory(firstFree);
+    for (var index = 0; index < 4; index++) {
+      await repository.saveMemory(
+        _memory('free-$index', journeyId: null),
+      );
+    }
+    final blockedFree = await _receive(store, 'note-free-blocked');
+    await expectLater(
+      freeService.saveFreeMemory(blockedFree),
+      throwsA(isA<EcosystemInboxLimitException>()),
+    );
+  });
+
+  test('free Journey limit is enforced inside atomic E2 creation', () async {
+    final freeService = EcosystemInboxMaterializationService(
+      repository: repository,
+      store: store,
+      isPremium: () => false,
+    );
+    for (var index = 0; index < 3; index++) {
+      await repository.createJourney(
+        title: 'Journey $index',
+        destination: 'Destination $index',
+        startDate: DateTime(2026, index + 1, 1),
+        endDate: DateTime(2026, index + 1, 2),
+      );
+    }
+    final item = await _receive(store, 'note-journey-limit');
+
+    await expectLater(
+      freeService.createJourney(
+        item: item,
+        title: 'Fourth',
+        destination: 'Blocked',
+        startDate: DateTime(2026, 4, 1),
+        endDate: DateTime(2026, 4, 2),
+      ),
+      throwsA(isA<EcosystemInboxLimitException>()),
+    );
+    expect(await store.watchPendingInbox().first, contains(item));
+  });
+}
+
+Future<Object> _settle(
+  Future<EcosystemInboxMaterializationResult> future,
+) async {
+  try {
+    return await future;
+  } catch (error) {
+    return error;
+  }
+}
+
+MemoryEntry _memory(String id, {required String? journeyId}) {
+  final now = DateTime.utc(2026, 10, 6, 12);
+  return MemoryEntry(
+    id: id,
+    journeyId: journeyId,
+    title: id,
+    journalText: '',
+    locationName: '',
+    date: now,
+    mood: Mood.calm,
+    tags: const [],
+    createdAt: now,
+    updatedAt: now,
+  );
 }
 
 Future<EcosystemInboxItem> _receive(
