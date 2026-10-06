@@ -2,6 +2,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../premium/domain/premium_creation_guard.dart';
 import '../domain/smart_journey_creation_policy.dart';
 import '../domain/smart_journey_models.dart';
 import '../domain/smart_journey_photo_importer.dart';
@@ -107,6 +108,18 @@ final class SmartJourneyIntegrationRepository {
       throw ArgumentError('The Journey must contain at least one photo.');
     }
 
+    final creationGuard = PremiumCreationGuard(
+      repository: repository,
+      isPremium: isPremium,
+    );
+    try {
+      await creationGuard.ensureJourneyAllowed();
+    } on PremiumCreationLimitException {
+      throw const SmartJourneyLimitException(
+        'Your current plan has reached the Journey limit.',
+      );
+    }
+
     final allowance = await evaluateCreationAllowance(draft);
     if (!allowance.journeyCreationAllowed) {
       throw const SmartJourneyLimitException(
@@ -120,6 +133,27 @@ final class SmartJourneyIntegrationRepository {
     }
 
     final importable = included.take(allowance.allowedPhotoCount).toList();
+    final importableIds = importable.map((photo) => photo.id).toSet();
+    final plannedMemoryCount = draft.createMemoryDrafts
+        ? draft.days
+            .expand((day) => day.stops)
+            .where(
+              (stop) =>
+                  stop.createMemory &&
+                  stop.photoIds.any(importableIds.contains),
+            )
+            .length
+        : 0;
+    try {
+      creationGuard.ensureNewJourneyMemoryBatchAllowed(
+        requested: plannedMemoryCount,
+      );
+    } on PremiumCreationLimitException {
+      throw const SmartJourneyLimitException(
+        'Your current plan has reached the Memory limit for this Journey.',
+      );
+    }
+
     final startDate = draft.startDate ?? DateTime.now();
     final endDate = draft.endDate ?? startDate;
     final journey = await repository.createJourney(
@@ -150,8 +184,9 @@ final class SmartJourneyIntegrationRepository {
     }
 
     var memoryCount = 0;
-    for (final day in draft.days) {
-      for (final stop in day.stops.where((stop) => stop.createMemory)) {
+    if (draft.createMemoryDrafts) {
+      for (final day in draft.days) {
+        for (final stop in day.stops.where((stop) => stop.createMemory)) {
         final realPhotoIds = stop.photoIds
             .map((draftId) => realPhotoIdByDraftId[draftId])
             .whereType<String>()
@@ -181,7 +216,8 @@ final class SmartJourneyIntegrationRepository {
           memoryId: memoryId,
           photoIds: realPhotoIds,
         );
-        memoryCount++;
+          memoryCount++;
+        }
       }
     }
 
