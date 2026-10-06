@@ -405,5 +405,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "cloudAccountMismatch": "This local Wonderlog dataset is linked to a different cloud account. Sign back in with the original account; account migration is not automatic."
 }
