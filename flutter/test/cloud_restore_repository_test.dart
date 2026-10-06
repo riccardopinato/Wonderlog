@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'dart:typed_data';
 
 import 'package:drift/native.dart';
