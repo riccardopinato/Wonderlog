@@ -284,5 +284,6 @@
   "keepsakeActionFailed": "No se pudo completar la acción del archivo.",
   "keepsakeRenamed": "Keepsake renombrado.",
   "keepsakeExported": "Keepsake exportado.",
-  "mediaUnavailable": "Contenido no disponible"
+  "mediaUnavailable": "Contenido no disponible",
+  "journeyDescription": "Descripción"
 }
