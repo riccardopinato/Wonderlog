@@ -358,5 +358,34 @@
       }
     }
   },
-  "cloudAccountMismatch": "Ces données locales Wonderlog sont liées à un autre compte cloud. Reconnectez-vous avec le compte d'origine ; la migration entre comptes n'est pas automatique."
+  "cloudAccountMismatch": "Ces données locales Wonderlog sont liées à un autre compte cloud. Reconnectez-vous avec le compte d'origine ; la migration entre comptes n'est pas automatique.",
+  "mapReplayPathShort": "Replay",
+  "mapRoadRouteShort": "Routes",
+  "mapReplayPathTruth": "Trace replay : relie les souvenirs géolocalisés dans l'ordre chronologique. Ce n'est pas une navigation routière.",
+  "mapRoadRouteTruth": "Itinéraire routier : calculé par le fournisseur de routage configuré.",
+  "mapRoadRouteFailed": "Le routage routier est indisponible. La trace replay chronologique est affichée.",
+  "offlineMapsTitle": "Cartes hors ligne",
+  "offlineMapsNativeOnly": "Le téléchargement de régions hors ligne est disponible sur Android et iOS. Le Web reste uniquement en ligne.",
+  "offlineMapsProviderUnavailable": "Les téléchargements hors ligne restent désactivés tant qu'un fournisseur autorisant explicitement l'usage hors ligne n'est pas configuré.",
+  "offlineMapsRegionDescription": "Enregistrer environ {radius} km autour de ce voyage, zoom {minZoom}–{maxZoom}.",
+  "offlineMapsReady": "La région de ce voyage est disponible hors ligne.",
+  "offlineMapsDelete": "Supprimer la région hors ligne",
+  "offlineMapsDownload": "Télécharger la région",
+  "offlineMapsDownloaded": "Région de carte hors ligne téléchargée.",
+  "offlineMapsDownloadFailed": "Échec du téléchargement hors ligne. La carte en ligne n'est pas présentée comme hors ligne.",
+  "offlineMapsDeleted": "Région hors ligne supprimée.",
+  "offlineMapsDeleteFailed": "Impossible de supprimer la région hors ligne.",
+  "@offlineMapsRegionDescription": {
+    "placeholders": {
+      "radius": {
+        "type": "String"
+      },
+      "minZoom": {
+        "type": "int"
+      },
+      "maxZoom": {
+        "type": "int"
+      }
+    }
+  }
 }
