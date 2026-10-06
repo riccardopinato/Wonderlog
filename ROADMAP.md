@@ -166,7 +166,35 @@ Post-merge integration gate:
 Evidence:
 - `docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md`.
 
-## NEXT — MAXI STEP 24 Premium Truth & Entitlement Unification
+## DONE — MAXI STEP 24 Premium Truth & Entitlement Unification
+
+Completed in PR #16.
+
+Completed:
+- one canonical `PremiumAccessPolicy` for product-wide plan decisions;
+- entitlement truth derives from RevenueCat CustomerInfo through `AppController`;
+- Free limits unified at 3 owned Journeys, 5 Memories per Journey, a separate 5-item unassigned Memory bucket and 5 photos per Journey;
+- Premium Journey/Memory creation effectively unlimited, with 100 photos per Journey;
+- archived Journeys count toward the Free ownership quota;
+- standard Journey/Memory creation, reassignment, Album, Capture, Smart Journey and Ecosystem Inbox use the same policy;
+- Smart Journey blocks Memory-overflow before persistence;
+- PDF export uses the canonical feature gate;
+- unfinished Cloud Backup / Offline Maps / Premium Themes / Advanced Statistics are not exposed as available Premium capabilities;
+- RevenueCat offerings/store data remain the package/price truth; hardcoded product ids were removed.
+
+Validated runtime head `0b60f7dd5420fe72c6b489fffe85f41ca0e9de3c`:
+- GitHub Actions run `37495356564`: PASS;
+- analyze PASS;
+- tests PASS;
+- Web release PASS;
+- Android APK PASS;
+- Android AAB PASS;
+- artifact uploads PASS.
+
+Evidence:
+- `docs/STEP_24_PREMIUM_TRUTH.md`.
+
+## NEXT — MAXI STEP 25 Cloud Runtime Completion
 
 ## LATER — Wonderlog production cutover
 
@@ -177,7 +205,7 @@ Still separate from E1 handoff readiness:
 - Smart Journey parity;
 - Map Memories parity;
 - Rediscover/Replay parity;
-- Premium/RevenueCat parity;
+- production RevenueCat/store configuration;
 - cloud backup/sync parity;
 - real-device legacy Room -> Drift migration validation;
 - macOS/iOS build gate;
