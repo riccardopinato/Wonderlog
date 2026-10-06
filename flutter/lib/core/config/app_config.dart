@@ -21,7 +21,7 @@ final class AppConfig {
     webAuthRedirect: String.fromEnvironment('WONDERLOG_WEB_AUTH_REDIRECT'),
     cloudDataEnabled: bool.fromEnvironment(
       'WONDERLOG_CLOUD_DATA_ENABLED',
-      defaultValue: false,
+      defaultValue: true,
     ),
   );
 
