@@ -222,5 +222,67 @@
   "ecosystemCapabilityPhoto": "Foto",
   "ecosystemCapabilityPlace": "Luoghi",
   "ecosystemCapabilityJourney": "Viaggi",
-  "ecosystemCapabilityRoute": "Percorsi"
+  "ecosystemCapabilityRoute": "Percorsi",
+  "navMemories": "Ricordi",
+  "memoriesTitle": "Ricordi",
+  "memoriesAll": "Tutti",
+  "memoriesUnassigned": "Non assegnati",
+  "memoryUnassigned": "Ricordo non assegnato",
+  "memoryAssignJourney": "Sposta in un viaggio",
+  "memoryMakeUnassigned": "Rimuovi dal viaggio",
+  "memoryMoveTitle": "Scegli destinazione",
+  "memoryMoved": "Ricordo spostato.",
+  "memoryDeleteTitle": "Eliminare il ricordo?",
+  "memoryDeleteDescription": "Il ricordo e i suoi Keepsakes verranno eliminati. Le foto dell'album restano finché non le elimini separatamente.",
+  "memoryDeleted": "Ricordo eliminato.",
+  "journeyEdit": "Modifica viaggio",
+  "journeyArchive": "Archivia viaggio",
+  "journeyRestore": "Ripristina viaggio",
+  "journeysActive": "Attivi",
+  "journeysArchived": "Archiviati",
+  "journeyDeleteTitle": "Eliminare il viaggio?",
+  "journeyDeleteDescription": "Questa operazione elimina definitivamente il viaggio e i dati locali collegati.",
+  "journeyDeleteImpact": "Verranno rimossi {memories} ricordi, {photos} foto e {attachments} Keepsakes.",
+  "@journeyDeleteImpact": {
+    "placeholders": {
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "attachments": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyArchived": "Viaggio archiviato.",
+  "journeyRestored": "Viaggio ripristinato.",
+  "delete": "Elimina",
+  "archive": "Archivia",
+  "restore": "Ripristina",
+  "rename": "Rinomina",
+  "share": "Condividi",
+  "export": "Esporta",
+  "photoAddFavorite": "Aggiungi ai preferiti",
+  "photoRemoveFavorite": "Rimuovi dai preferiti",
+  "photoSetCover": "Imposta come copertina del viaggio",
+  "photoClearCover": "Rimuovi come copertina",
+  "photoCover": "Foto di copertina",
+  "photoUnlinkMemory": "Rimuovi da questo ricordo",
+  "photoDeleteTitle": "Eliminare la foto?",
+  "photoDeleteDescription": "La foto verrà rimossa dal viaggio e da tutti i ricordi che la collegano.",
+  "keepsakeAdd": "Aggiungi Keepsake",
+  "keepsakeOpen": "Apri",
+  "keepsakeShare": "Condividi",
+  "keepsakeExport": "Esporta",
+  "keepsakeRename": "Rinomina",
+  "keepsakeDeleteTitle": "Eliminare il Keepsake?",
+  "keepsakeDeleteDescription": "L'allegato verrà rimosso dal ricordo e dallo storage locale quando nessun altro elemento usa lo stesso file.",
+  "keepsakeUnavailable": "Il file locale non è disponibile.",
+  "keepsakeImportFailed": "Impossibile importare questo Keepsake.",
+  "keepsakeActionFailed": "Impossibile completare l'operazione sul file.",
+  "keepsakeRenamed": "Keepsake rinominato.",
+  "keepsakeExported": "Keepsake esportato.",
+  "mediaUnavailable": "Media non disponibile"
 }
