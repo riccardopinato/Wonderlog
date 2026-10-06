@@ -180,15 +180,19 @@ final class DriftCloudLocalDataSource implements CloudLocalDataSource {
   }
 
   @override
-  Future<String?> getJourneyCloudId(String localId) async =>
-      (await _trip(localId))?.futureCloudId;
+  Future<String?> getJourneyCloudId(String localId) async {
+    final row = await _trip(localId);
+    return row?.futureCloudId ??
+        CloudIdFactory.journey(_requireUserId(), localId);
+  }
 
   @override
   Future<String?> getMemoryCloudId(String localId) async {
     final row = await (database.select(database.memories)
           ..where((item) => item.id.equals(localId)))
         .getSingleOrNull();
-    return row?.futureCloudId;
+    return row?.futureCloudId ??
+        CloudIdFactory.memory(_requireUserId(), localId);
   }
 
   @override
@@ -196,8 +200,15 @@ final class DriftCloudLocalDataSource implements CloudLocalDataSource {
     String localId,
   ) async {
     final photo = await _photo(localId);
-    final cloudId = photo?.futureCloudId;
-    if (photo == null || cloudId == null || cloudId.isEmpty) return null;
+    if (photo == null) {
+      return PhotoCloudDeleteInfo(
+        cloudId: CloudIdFactory.photo(_requireUserId(), localId),
+        remoteFilePath: null,
+      );
+    }
+
+    final cloudId = photo.futureCloudId ??
+        CloudIdFactory.photo(_requireUserId(), localId);
     return PhotoCloudDeleteInfo(
       cloudId: cloudId,
       remoteFilePath: await buildRemotePhotoPath(localId),
