@@ -7,6 +7,7 @@ abstract interface class SyncQueueStore {
 
   Future<List<SyncQueueItem>> nextBatch({
     required int limit,
+    bool includePhotoUploads = true,
   });
 
   Future<void> remove(String id);
