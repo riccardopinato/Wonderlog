@@ -58,9 +58,20 @@ final class DriftSyncQueueStore implements SyncQueueStore {
   @override
   Future<List<SyncQueueItem>> nextBatch({
     required int limit,
+    bool includePhotoUploads = true,
   }) async {
     final safeLimit = limit.clamp(1, 500);
-    final query = database.select(database.cloudSyncQueue)
+    final query = database.select(database.cloudSyncQueue);
+    if (!includePhotoUploads) {
+      query.where(
+        (row) =>
+            row.entityType
+                    .equals(_entityTypeWire(SyncEntityType.albumPhoto))
+                    .not() |
+                row.operation.equals(_operationWire(SyncOperation.delete)),
+      );
+    }
+    query
       ..orderBy([(row) => OrderingTerm.asc(row.createdAt)])
       ..limit(safeLimit);
     final rows = await query.get();
