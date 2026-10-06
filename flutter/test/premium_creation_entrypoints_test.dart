@@ -92,7 +92,7 @@ void main() {
     );
 
     await tester.enterText(find.byType(TextField).first, 'Blocked Memory');
-    await tester.tap(find.byIcon(Icons.save_outlined));
+    await tester.tap(find.widgetWithText(TextButton, 'Salva'));
     await tester.pumpAndSettle();
 
     expect(await repository.countMemoriesForJourney(journey.id), 5);
