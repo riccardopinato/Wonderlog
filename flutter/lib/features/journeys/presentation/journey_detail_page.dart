@@ -107,6 +107,8 @@ final class JourneyDetailPage extends StatelessWidget {
                   builder: (_) => MemoryEditorPage(
                     repository: repository,
                     journeyId: journeyId,
+                    isPremium: () =>
+                        WonderlogServicesScope.of(context).controller.isPremium,
                   ),
                 ),
               ),
