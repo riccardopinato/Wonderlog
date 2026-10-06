@@ -261,11 +261,13 @@ final class CloudSyncRepository {
         final cloudId =
             await localDataSource.getJourneyCloudId(item.localEntityId);
         if (cloudId != null) await cloudProvider.deleteJourney(cloudId);
+        await localDataSource.markJourneyCloudDeleted(item.localEntityId);
 
       case SyncEntityType.memory:
         final cloudId =
             await localDataSource.getMemoryCloudId(item.localEntityId);
         if (cloudId != null) await cloudProvider.deleteMemory(cloudId);
+        await localDataSource.markMemoryCloudDeleted(item.localEntityId);
 
       case SyncEntityType.albumPhoto:
         final info = await localDataSource.getPhotoCloudDeleteInfo(
@@ -287,6 +289,7 @@ final class CloudSyncRepository {
             remotePath,
           );
         }
+        await localDataSource.markPhotoCloudDeleted(item.localEntityId);
     }
   }
 }
