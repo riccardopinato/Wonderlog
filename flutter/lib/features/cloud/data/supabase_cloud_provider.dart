@@ -190,25 +190,39 @@ final class SupabaseCloudProvider implements CloudProvider {
     List<CloudMemoryPhotoLink> links,
   ) async {
     final userId = _requireUserId();
+    final existing = await fetchMemoryPhotoLinks();
 
-    // Links are a complete user-owned snapshot. Replacing the snapshot avoids
-    // stale cloud relationships after unlink/reorder operations.
-    await client
-        .from(memoryPhotosTable)
-        .delete()
-        .eq('owner_id', userId);
+    // Upsert the desired snapshot first. If this fails, the previous cloud
+    // relationships are still intact.
+    if (links.isNotEmpty) {
+      await client.from(memoryPhotosTable).upsert(
+            links
+                .map(
+                  (link) => CloudCodec.linkToJson(
+                    link,
+                    ownerId: userId,
+                  ),
+                )
+                .toList(growable: false),
+          );
+    }
 
-    if (links.isEmpty) return;
-    await client.from(memoryPhotosTable).upsert(
-          links
-              .map(
-                (link) => CloudCodec.linkToJson(
-                  link,
-                  ownerId: userId,
-                ),
-              )
-              .toList(growable: false),
-        );
+    final desiredKeys = links
+        .map((link) => link.memoryCloudId + '|' + link.photoCloudId)
+        .toSet();
+
+    // Remove only links that no longer exist locally. Partial cleanup is safe:
+    // a later manual sync retries the remaining stale links.
+    for (final link in existing) {
+      final key = link.memoryCloudId + '|' + link.photoCloudId;
+      if (desiredKeys.contains(key)) continue;
+      await client
+          .from(memoryPhotosTable)
+          .delete()
+          .eq('owner_id', userId)
+          .eq('memory_cloud_id', link.memoryCloudId)
+          .eq('photo_cloud_id', link.photoCloudId);
+    }
   }
 
   @override
