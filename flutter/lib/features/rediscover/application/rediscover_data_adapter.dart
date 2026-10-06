@@ -37,15 +37,10 @@ abstract final class RediscoverDataAdapter {
       }).toList(growable: false);
 
   static List<RediscoverMemory> memories(
-    List<MemoryEntry> memories,
-    List<AlbumPhotoEntry> photos,
+    List<MemoryWithPhotos> items,
   ) =>
-      memories.map((memory) {
-        final linked = photos
-            .where((photo) => photo.journeyId == memory.journeyId)
-            .take(1)
-            .map((photo) => photo.localUri)
-            .toList(growable: false);
+      items.map((item) {
+        final memory = item.memory;
         return RediscoverMemory(
           id: memory.id,
           journeyId: memory.journeyId,
@@ -53,7 +48,9 @@ abstract final class RediscoverDataAdapter {
           journalText: memory.journalText,
           timestamp: memory.date,
           locationName: memory.locationName,
-          photoUris: linked,
+          photoUris: item.photos
+              .map((photo) => photo.localUri)
+              .toList(growable: false),
         );
       }).toList(growable: false);
 
