@@ -11,9 +11,11 @@ final class JourneysPage extends StatelessWidget {
   const JourneysPage({
     super.key,
     required this.repository,
+    required this.isPremium,
   });
 
   final WonderlogRepository repository;
+  final bool Function() isPremium;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,7 @@ final class JourneysPage extends StatelessWidget {
         onPressed: () => showCreateJourneyDialog(
           context,
           repository,
+          isPremium: isPremium,
         ),
         icon: const Icon(Icons.add),
         label: Text(strings.addJourney),
