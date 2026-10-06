@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wonderlog/features/memories/domain/memory_models.dart';
+import 'package:wonderlog/features/rediscover/application/rediscover_data_adapter.dart';
 import 'package:wonderlog/features/rediscover/domain/journey_replay_builder.dart';
 import 'package:wonderlog/features/rediscover/domain/rediscover_engine.dart';
 import 'package:wonderlog/features/rediscover/domain/rediscover_models.dart';
@@ -70,4 +72,43 @@ void main() {
     expect(replay.slides.first.type, JourneyReplaySlideType.cover);
     expect(replay.slides.last.type, JourneyReplaySlideType.end);
   });
+
+  test('Rediscover Memory uses only explicitly linked photos', () {
+    final now = DateTime.utc(2026, 8, 10);
+    final memory = MemoryEntry(
+      id: 'memory',
+      journeyId: 'journey',
+      title: 'Linked Memory',
+      journalText: '',
+      locationName: '',
+      date: now,
+      mood: Mood.calm,
+      tags: const [],
+      createdAt: now,
+      updatedAt: now,
+    );
+    final linked = AlbumPhotoEntry(
+      id: 'linked',
+      journeyId: 'journey',
+      localUri: 'media://linked',
+      thumbnailUri: 'media://linked',
+      originalUri: '',
+      fileName: 'linked.jpg',
+      mimeType: 'image/jpeg',
+      width: 0,
+      height: 0,
+      fileSize: 4,
+      createdAt: now,
+      updatedAt: now,
+    );
+    final result = RediscoverDataAdapter.memories([
+      MemoryWithPhotos(
+        memory: memory,
+        photos: [linked],
+      ),
+    ]);
+
+    expect(result.single.photoUris, ['media://linked']);
+  });
+
 }

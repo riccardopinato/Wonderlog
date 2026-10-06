@@ -7,6 +7,7 @@ import '../../journeys/presentation/journey_detail_page.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
 import '../../memories/presentation/memory_detail_page.dart';
+import '../../memories/presentation/stored_media_image.dart';
 import '../application/rediscover_data_adapter.dart';
 import '../domain/rediscover_engine.dart';
 import '../domain/rediscover_models.dart';
@@ -38,8 +39,8 @@ final class _RediscoverPageState extends State<RediscoverPage> {
       body: StreamBuilder<List<Journey>>(
         stream: widget.repository.watchJourneys(),
         builder: (context, journeySnapshot) {
-          return StreamBuilder<List<MemoryEntry>>(
-            stream: widget.repository.watchAllMemories(),
+          return StreamBuilder<List<MemoryWithPhotos>>(
+            stream: widget.repository.watchAllMemoriesWithPhotos(),
             builder: (context, memorySnapshot) {
               return StreamBuilder<List<AlbumPhotoEntry>>(
                 stream: widget.repository.watchAllPhotos(),
@@ -51,7 +52,10 @@ final class _RediscoverPageState extends State<RediscoverPage> {
                   }
 
                   final journeys = journeySnapshot.data!;
-                  final memories = memorySnapshot.data!;
+                  final memoryBundles = memorySnapshot.data!;
+                  final memories = memoryBundles
+                      .map((item) => item.memory)
+                      .toList(growable: false);
                   final photos = photoSnapshot.data!;
                   final feed = const RediscoverEngine().buildFeed(
                     today: DateTime.now(),
@@ -61,7 +65,7 @@ final class _RediscoverPageState extends State<RediscoverPage> {
                       memories,
                     ),
                     memories:
-                        RediscoverDataAdapter.memories(memories, photos),
+                        RediscoverDataAdapter.memories(memoryBundles),
                     photos: RediscoverDataAdapter.photos(photos),
                   );
 
@@ -132,17 +136,33 @@ final class _RediscoverPageState extends State<RediscoverPage> {
                                   final card = cards[index];
                                   return Card(
                                     child: ListTile(
-                                      leading: Icon(
-                                        switch (card.type) {
-                                          RediscoverType.journeyAnniversary =>
-                                            Icons.celebration_outlined,
-                                          RediscoverType.memory =>
-                                            Icons.auto_stories_outlined,
-                                          RediscoverType.photo =>
-                                            Icons.photo_outlined,
-                                          RediscoverType.onThisDay =>
-                                            Icons.history,
-                                        },
+                                      leading: SizedBox.square(
+                                        dimension: 52,
+                                        child: card.imageUri == null
+                                            ? Icon(
+                                                switch (card.type) {
+                                                  RediscoverType
+                                                          .journeyAnniversary =>
+                                                    Icons
+                                                        .celebration_outlined,
+                                                  RediscoverType.memory =>
+                                                    Icons
+                                                        .auto_stories_outlined,
+                                                  RediscoverType.photo =>
+                                                    Icons.photo_outlined,
+                                                  RediscoverType.onThisDay =>
+                                                    Icons.history,
+                                                },
+                                              )
+                                            : StoredMediaImage(
+                                                references: [
+                                                  card.imageUri!,
+                                                ],
+                                                width: 52,
+                                                height: 52,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
                                       ),
                                       title: Text(card.title),
                                       subtitle:

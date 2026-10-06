@@ -35,6 +35,16 @@ final class DriftWonderlogRepository implements WonderlogRepository {
   }
 
   @override
+  Stream<List<Journey>> watchArchivedJourneys() {
+    final query = database.select(database.trips)
+      ..where((row) => row.archived.equals(true))
+      ..orderBy([(row) => OrderingTerm.desc(row.updatedAt)]);
+    return query.watch().map(
+      (rows) => rows.map(_journey).toList(growable: false),
+    );
+  }
+
+  @override
   Stream<List<MemoryEntry>> watchMemories(String journeyId) {
     final query = database.select(database.memories)
       ..where((row) => row.tripId.equals(journeyId))
@@ -61,6 +71,21 @@ final class DriftWonderlogRepository implements WonderlogRepository {
   }
 
   @override
+  Stream<List<MemoryEntry>> watchUnassignedMemories() {
+    final query = database.select(database.memories)
+      ..where(
+        (row) => row.tripId.isNull() & row.journeyId.isNull(),
+      )
+      ..orderBy([
+        (row) => OrderingTerm.desc(row.date),
+        (row) => OrderingTerm.desc(row.updatedAt),
+      ]);
+    return query.watch().map(
+      (rows) => rows.map(_memory).toList(growable: false),
+    );
+  }
+
+  @override
   Stream<List<MemoryWithPhotos>> watchMemoriesWithPhotos(
     String journeyId,
   ) {
@@ -72,36 +97,17 @@ final class DriftWonderlogRepository implements WonderlogRepository {
         (row) => OrderingTerm.asc(row.createdAt),
       ]);
 
-    return query.watch().asyncMap((rows) async {
-      final result = <MemoryWithPhotos>[];
-      for (final row in rows) {
-        final links = await (database.select(database.memoryPhotos)
-              ..where((link) => link.memoryId.equals(row.id))
-              ..orderBy([(link) => OrderingTerm.asc(link.displayOrder)]))
-            .get();
-        final photos = <AlbumPhotoEntry>[];
-        for (final link in links) {
-          final photo = await (database.select(database.albumPhotos)
-                ..where((item) => item.id.equals(link.albumPhotoId)))
-              .getSingleOrNull();
-          if (photo != null) photos.add(_photo(photo));
-        }
-        final attachments = await (database.select(database.memoryAttachments)
-              ..where((item) => item.memoryId.equals(row.id))
-              ..orderBy([(item) => OrderingTerm.asc(item.createdAt)]))
-            .get();
-        result.add(
-          MemoryWithPhotos(
-            memory: _memory(row),
-            photos: photos,
-            attachments: attachments
-                .map(_attachment)
-                .toList(growable: false),
-          ),
-        );
-      }
-      return result;
-    });
+    return query.watch().asyncMap(_memoryBundles);
+  }
+
+  @override
+  Stream<List<MemoryWithPhotos>> watchAllMemoriesWithPhotos() {
+    final query = database.select(database.memories)
+      ..orderBy([
+        (row) => OrderingTerm.desc(row.date),
+        (row) => OrderingTerm.desc(row.updatedAt),
+      ]);
+    return query.watch().asyncMap(_memoryBundles);
   }
 
   @override
@@ -240,6 +246,48 @@ final class DriftWonderlogRepository implements WonderlogRepository {
       );
 
   @override
+  Future<void> setJourneyArchived(String journeyId, bool archived) async {
+    await (database.update(database.trips)
+          ..where((row) => row.id.equals(journeyId)))
+        .write(
+      db.TripsCompanion(
+        archived: Value(archived),
+        updatedAt: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
+      ),
+    );
+  }
+
+  @override
+  Future<JourneyDeletionImpact> getJourneyDeletionImpact(
+    String journeyId,
+  ) async {
+    final memoryRows = await (database.select(database.memories)
+          ..where(
+            (row) =>
+                row.tripId.equals(journeyId) |
+                row.journeyId.equals(journeyId),
+          ))
+        .get();
+    final photoRows = await (database.select(database.albumPhotos)
+          ..where((row) => row.journeyId.equals(journeyId)))
+        .get();
+
+    var attachmentCount = 0;
+    for (final memory in memoryRows) {
+      attachmentCount += await (database.select(database.memoryAttachments)
+            ..where((row) => row.memoryId.equals(memory.id)))
+          .get()
+          .then((rows) => rows.length);
+    }
+
+    return JourneyDeletionImpact(
+      memoryCount: memoryRows.length,
+      photoCount: photoRows.length,
+      attachmentCount: attachmentCount,
+    );
+  }
+
+  @override
   Future<void> deleteJourney(String journeyId) async {
     await (database.delete(database.trips)
           ..where((row) => row.id.equals(journeyId)))
@@ -269,6 +317,31 @@ final class DriftWonderlogRepository implements WonderlogRepository {
           futureCloudId: Value(memory.futureCloudId),
         ),
       );
+
+  @override
+  Future<void> moveMemoryToJourney(
+    String memoryId,
+    String? journeyId,
+  ) async {
+    if (journeyId != null) {
+      final journey = await (database.select(database.trips)
+            ..where((row) => row.id.equals(journeyId)))
+          .getSingleOrNull();
+      if (journey == null) {
+        throw StateError('Journey not found.');
+      }
+    }
+
+    await (database.update(database.memories)
+          ..where((row) => row.id.equals(memoryId)))
+        .write(
+      db.MemoriesCompanion(
+        tripId: Value(journeyId),
+        journeyId: Value(journeyId),
+        updatedAt: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
+      ),
+    );
+  }
 
   @override
   Future<void> deleteMemory(String memoryId) async {
@@ -307,9 +380,15 @@ final class DriftWonderlogRepository implements WonderlogRepository {
 
   @override
   Future<void> deletePhoto(String photoId) async {
+    final links = await (database.select(database.memoryPhotos)
+          ..where((row) => row.albumPhotoId.equals(photoId)))
+        .get();
     await (database.delete(database.albumPhotos)
           ..where((row) => row.id.equals(photoId)))
         .go();
+    for (final memoryId in links.map((link) => link.memoryId).toSet()) {
+      await _touchMemory(memoryId);
+    }
   }
 
   @override
@@ -318,15 +397,17 @@ final class DriftWonderlogRepository implements WonderlogRepository {
     required String photoId,
     required int displayOrder,
     required bool isHero,
-  }) =>
-      database.into(database.memoryPhotos).insertOnConflictUpdate(
-        db.MemoryPhotosCompanion.insert(
-          memoryId: memoryId,
-          albumPhotoId: photoId,
-          displayOrder: Value(displayOrder),
-          isHeroPhoto: Value(isHero),
-        ),
-      );
+  }) async {
+    await database.into(database.memoryPhotos).insertOnConflictUpdate(
+          db.MemoryPhotosCompanion.insert(
+            memoryId: memoryId,
+            albumPhotoId: photoId,
+            displayOrder: Value(displayOrder),
+            isHeroPhoto: Value(isHero),
+          ),
+        );
+    await _touchMemory(memoryId);
+  }
 
   @override
   Future<void> replaceMemoryPhotoLinks({
@@ -338,36 +419,147 @@ final class DriftWonderlogRepository implements WonderlogRepository {
             ..where((row) => row.memoryId.equals(memoryId)))
           .go();
       for (var index = 0; index < photoIds.length; index++) {
-        await linkPhotoToMemory(
-          memoryId: memoryId,
-          photoId: photoIds[index],
-          displayOrder: index,
-          isHero: index == 0,
-        );
+        await database.into(database.memoryPhotos).insertOnConflictUpdate(
+              db.MemoryPhotosCompanion.insert(
+                memoryId: memoryId,
+                albumPhotoId: photoIds[index],
+                displayOrder: Value(index),
+                isHeroPhoto: Value(index == 0),
+              ),
+            );
+      }
+      await _touchMemory(memoryId);
+    });
+  }
+
+  @override
+  Future<void> unlinkPhotoFromMemory({
+    required String memoryId,
+    required String photoId,
+  }) async {
+    await (database.delete(database.memoryPhotos)
+          ..where(
+            (row) =>
+                row.memoryId.equals(memoryId) &
+                row.albumPhotoId.equals(photoId),
+          ))
+        .go();
+    await _touchMemory(memoryId);
+  }
+
+  @override
+  Future<void> setJourneyCoverPhoto({
+    required String journeyId,
+    String? photoId,
+  }) async {
+    await database.transaction(() async {
+      await (database.update(database.albumPhotos)
+            ..where((row) => row.journeyId.equals(journeyId)))
+          .write(
+        const db.AlbumPhotosCompanion(
+          isCoverPhoto: Value(false),
+        ),
+      );
+
+      if (photoId == null) return;
+
+      final updated = await (database.update(database.albumPhotos)
+            ..where(
+              (row) =>
+                  row.journeyId.equals(journeyId) &
+                  row.id.equals(photoId),
+            ))
+          .write(
+        const db.AlbumPhotosCompanion(
+          isCoverPhoto: Value(true),
+        ),
+      );
+      if (updated != 1) {
+        throw StateError('Cover photo not found in Journey.');
       }
     });
   }
 
   @override
-  Future<void> saveAttachment(MemoryAttachment attachment) =>
-      database.into(database.memoryAttachments).insertOnConflictUpdate(
-        db.MemoryAttachmentsCompanion.insert(
-          id: attachment.id,
-          memoryId: attachment.memoryId,
-          localUri: attachment.localUri,
-          originalName: Value(attachment.originalName),
-          mimeType: attachment.mimeType,
-          attachmentType: attachment.attachmentType,
-          createdAt: attachment.createdAt.toUtc().millisecondsSinceEpoch,
-          syncStatus: Value(attachment.syncStatus),
-        ),
-      );
+  Future<Set<String>> referencedMediaUris() async {
+    final photos = await database.select(database.albumPhotos).get();
+    final attachments =
+        await database.select(database.memoryAttachments).get();
+    return <String>{
+      for (final photo in photos) photo.localUri,
+      for (final attachment in attachments) attachment.localUri,
+    };
+  }
+
+  @override
+  Future<void> saveAttachment(MemoryAttachment attachment) async {
+    await database.into(database.memoryAttachments).insertOnConflictUpdate(
+          db.MemoryAttachmentsCompanion.insert(
+            id: attachment.id,
+            memoryId: attachment.memoryId,
+            localUri: attachment.localUri,
+            originalName: Value(attachment.originalName),
+            mimeType: attachment.mimeType,
+            attachmentType: attachment.attachmentType,
+            createdAt: attachment.createdAt.toUtc().millisecondsSinceEpoch,
+            syncStatus: Value(attachment.syncStatus),
+          ),
+        );
+    await _touchMemory(attachment.memoryId);
+  }
 
   @override
   Future<void> deleteAttachment(String attachmentId) async {
+    final attachment = await (database.select(database.memoryAttachments)
+          ..where((row) => row.id.equals(attachmentId)))
+        .getSingleOrNull();
     await (database.delete(database.memoryAttachments)
           ..where((row) => row.id.equals(attachmentId)))
         .go();
+    if (attachment != null) {
+      await _touchMemory(attachment.memoryId);
+    }
+  }
+
+  Future<void> _touchMemory(String memoryId) async {
+    await (database.update(database.memories)
+          ..where((row) => row.id.equals(memoryId)))
+        .write(
+      db.MemoriesCompanion(
+        updatedAt: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
+      ),
+    );
+  }
+
+  Future<List<MemoryWithPhotos>> _memoryBundles(
+    List<db.Memory> rows,
+  ) async {
+    final result = <MemoryWithPhotos>[];
+    for (final row in rows) {
+      final links = await (database.select(database.memoryPhotos)
+            ..where((link) => link.memoryId.equals(row.id))
+            ..orderBy([(link) => OrderingTerm.asc(link.displayOrder)]))
+          .get();
+      final photos = <AlbumPhotoEntry>[];
+      for (final link in links) {
+        final photo = await (database.select(database.albumPhotos)
+              ..where((item) => item.id.equals(link.albumPhotoId)))
+            .getSingleOrNull();
+        if (photo != null) photos.add(_photo(photo));
+      }
+      final attachments = await (database.select(database.memoryAttachments)
+            ..where((item) => item.memoryId.equals(row.id))
+            ..orderBy([(item) => OrderingTerm.asc(item.createdAt)]))
+          .get();
+      result.add(
+        MemoryWithPhotos(
+          memory: _memory(row),
+          photos: photos,
+          attachments: attachments.map(_attachment).toList(growable: false),
+        ),
+      );
+    }
+    return result;
   }
 
   Journey _journey(db.Trip row) => Journey(

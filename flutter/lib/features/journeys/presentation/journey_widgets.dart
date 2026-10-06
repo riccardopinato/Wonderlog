@@ -7,6 +7,7 @@ import '../../../core/ecosystem/ecosystem_transfer_service.dart';
 import '../../../core/ecosystem/wonderlog_ecosystem_adapter.dart';
 import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../memories/domain/wonderlog_repository.dart';
 import '../domain/journey.dart';
 import '../domain/journey_repository.dart';
 
@@ -237,5 +238,161 @@ Future<void> showCreateJourneyDialog(
   } finally {
     titleController.dispose();
     destinationController.dispose();
+  }
+}
+
+
+Future<void> showEditJourneyDialog(
+  BuildContext context,
+  WonderlogRepository repository,
+  Journey journey,
+) async {
+  final strings = AppLocalizations.of(context);
+  final titleController = TextEditingController(text: journey.title);
+  final destinationController =
+      TextEditingController(text: journey.destination);
+  final descriptionController =
+      TextEditingController(text: journey.description);
+  var startDate = journey.startDate;
+  var endDate = journey.endDate;
+  var saving = false;
+
+  try {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final locale = Localizations.localeOf(context).toLanguageTag();
+          final formatter = DateFormat.yMMMd(locale);
+
+          Future<void> pickStart() async {
+            final value = await showDatePicker(
+              context: context,
+              initialDate: startDate,
+              firstDate: DateTime(1900),
+              lastDate: DateTime(2200),
+            );
+            if (value == null) return;
+            setDialogState(() {
+              startDate = value;
+              if (endDate.isBefore(startDate)) endDate = startDate;
+            });
+          }
+
+          Future<void> pickEnd() async {
+            final value = await showDatePicker(
+              context: context,
+              initialDate: endDate,
+              firstDate: startDate,
+              lastDate: DateTime(2200),
+            );
+            if (value == null) return;
+            setDialogState(() => endDate = value);
+          }
+
+          return AlertDialog(
+            title: Text(strings.journeyEdit),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: titleController,
+                    decoration:
+                        InputDecoration(labelText: strings.journeyTitle),
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: WonderlogSpacing.small),
+                  TextField(
+                    controller: destinationController,
+                    decoration:
+                        InputDecoration(labelText: strings.destination),
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: WonderlogSpacing.small),
+                  TextField(
+                    controller: descriptionController,
+                    minLines: 2,
+                    maxLines: 5,
+                    decoration:
+                        InputDecoration(labelText: strings.journeyDescription),
+                  ),
+                  const SizedBox(height: WonderlogSpacing.medium),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(strings.startDate),
+                    subtitle: Text(formatter.format(startDate)),
+                    trailing: const Icon(Icons.calendar_today_outlined),
+                    onTap: saving ? null : pickStart,
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(strings.endDate),
+                    subtitle: Text(formatter.format(endDate)),
+                    trailing: const Icon(Icons.calendar_today_outlined),
+                    onTap: saving ? null : pickEnd,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed:
+                    saving ? null : () => Navigator.pop(dialogContext),
+                child: Text(strings.cancel),
+              ),
+              FilledButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        final title = titleController.text.trim();
+                        final destination =
+                            destinationController.text.trim();
+                        if (title.isEmpty || destination.isEmpty) return;
+                        setDialogState(() => saving = true);
+                        try {
+                          await repository.saveJourney(
+                            Journey(
+                              id: journey.id,
+                              title: title,
+                              destination: destination,
+                              country: journey.country,
+                              startDate: startDate,
+                              endDate: endDate,
+                              description:
+                                  descriptionController.text.trim(),
+                              latitude: journey.latitude,
+                              longitude: journey.longitude,
+                              favorite: journey.favorite,
+                              archived: journey.archived,
+                              createdAt: journey.createdAt,
+                              updatedAt: DateTime.now().toUtc(),
+                            ),
+                          );
+                          if (dialogContext.mounted) {
+                            Navigator.pop(dialogContext);
+                          }
+                        } finally {
+                          if (dialogContext.mounted) {
+                            setDialogState(() => saving = false);
+                          }
+                        }
+                      },
+                child: saving
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(strings.save),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  } finally {
+    titleController.dispose();
+    destinationController.dispose();
+    descriptionController.dispose();
   }
 }

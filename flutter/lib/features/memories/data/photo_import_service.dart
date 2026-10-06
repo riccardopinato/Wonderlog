@@ -50,6 +50,95 @@ final class PhotoImportService {
     }
   }
 
+  Future<MemoryAttachment> importKeepsake({
+    required String memoryId,
+    required String sourceUri,
+    required List<MemoryAttachment> existingAttachments,
+    String? fileName,
+    String? mimeType,
+  }) async {
+    final normalizedSource = sourceUri.trim();
+    if (normalizedSource.isEmpty) {
+      throw const PhotoImportException(
+        PhotoImportFailureReason.readFailed,
+        'Keepsake source is empty.',
+      );
+    }
+
+    late final List<int> bytes;
+    try {
+      bytes = await byteReader.read(normalizedSource);
+    } catch (error) {
+      throw PhotoImportException(
+        PhotoImportFailureReason.readFailed,
+        'Unable to read keepsake: ' + error.toString(),
+      );
+    }
+
+    if (bytes.isEmpty) {
+      throw const PhotoImportException(
+        PhotoImportFailureReason.corrupted,
+        'Keepsake is empty or corrupted.',
+      );
+    }
+    if (bytes.length > maxSourceBytes) {
+      throw const PhotoImportException(
+        PhotoImportFailureReason.tooLarge,
+        'Keepsake is too large to import safely.',
+      );
+    }
+
+    final resolvedMime = (mimeType ?? 'application/octet-stream')
+        .trim()
+        .toLowerCase();
+    if (!_supportedKeepsakeMime.contains(resolvedMime)) {
+      throw const PhotoImportException(
+        PhotoImportFailureReason.unsupportedFormat,
+        'Unsupported keepsake format.',
+      );
+    }
+
+    final assetId = await mediaStore.putOriginal(
+      bytes,
+      mimeType: resolvedMime,
+    );
+    final reference = MediaAssetReference.encode(assetId);
+    if (existingAttachments.any(
+      (attachment) => attachment.localUri == reference,
+    )) {
+      throw const PhotoImportException(
+        PhotoImportFailureReason.duplicate,
+        'Keepsake is already attached to this Memory.',
+      );
+    }
+
+    final resolvedName = _resolveFileName(fileName, normalizedSource);
+    return MemoryAttachment(
+      id: 'attachment_' + _uuid.v4(),
+      memoryId: memoryId,
+      localUri: reference,
+      originalName: resolvedName,
+      mimeType: resolvedMime,
+      attachmentType: resolvedMime == 'application/pdf'
+          ? 'DOCUMENT'
+          : resolvedMime.startsWith('image/')
+              ? 'SCREENSHOT'
+              : 'OTHER',
+      createdAt: DateTime.now().toUtc(),
+      syncStatus: 'LOCAL_ONLY',
+    );
+  }
+
+  Future<void> deleteStoredReferenceIfUnreferenced(
+    String reference, {
+    required Set<String> remainingReferences,
+  }) async {
+    if (remainingReferences.contains(reference)) return;
+    final assetId = MediaAssetReference.tryDecode(reference);
+    if (assetId == null) return;
+    await mediaStore.delete(assetId);
+  }
+
   Future<AlbumPhotoEntry> importPhoto({
     required String journeyId,
     required String sourceUri,
@@ -187,6 +276,14 @@ final class PhotoImportService {
   }
 
   static const _supportedMime = {
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+  };
+
+  static const _supportedKeepsakeMime = {
+    'application/pdf',
     'image/jpeg',
     'image/jpg',
     'image/png',

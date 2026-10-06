@@ -132,7 +132,32 @@ still required later.
 Evidence:
 - `docs/STEP_23A_E2_HARDENING.md`.
 
-## NEXT — MAXI STEP 23B Core Functional Repair
+## DONE — MAXI STEP 23B Core Functional Repair
+
+Completed in PR #14.
+
+Completed:
+- real private-media rendering in Journey Album, Memory and Rediscover surfaces;
+- full-screen photo viewer with favorite, cover, unlink and delete actions;
+- reference-aware private media cleanup;
+- private Keepsake import plus open/share/export/rename/delete;
+- Journey edit/archive/restore/delete with cascade impact preview;
+- active + archived Journey lists;
+- Memory delete and Journey reassignment/unassignment;
+- first-class Memories navigation with All / Unassigned filters;
+- Rediscover and Replay now consume explicit Memory ↔ Photo links.
+
+Deterministic gate on head `8b40b92cdf182bed50f4cd4d873855d64e4787aa`:
+- analyze PASS;
+- 91 tests PASS;
+- Web release PASS;
+- Android APK PASS;
+- Android AAB PASS.
+
+Evidence:
+- `docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md`.
+
+## NEXT — MAXI STEP 24 Premium Truth & Entitlement Unification
 
 ## LATER — Wonderlog production cutover
 

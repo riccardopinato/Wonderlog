@@ -222,5 +222,68 @@
   "ecosystemCapabilityPhoto": "Fotos",
   "ecosystemCapabilityPlace": "Orte",
   "ecosystemCapabilityJourney": "Reisen",
-  "ecosystemCapabilityRoute": "Routen"
+  "ecosystemCapabilityRoute": "Routen",
+  "navMemories": "Erinnerungen",
+  "memoriesTitle": "Erinnerungen",
+  "memoriesAll": "Alle",
+  "memoriesUnassigned": "Nicht zugeordnet",
+  "memoryUnassigned": "Nicht zugeordnete Erinnerung",
+  "memoryAssignJourney": "Zu Reise verschieben",
+  "memoryMakeUnassigned": "Aus Reise entfernen",
+  "memoryMoveTitle": "Ziel auswählen",
+  "memoryMoved": "Erinnerung verschoben.",
+  "memoryDeleteTitle": "Erinnerung löschen?",
+  "memoryDeleteDescription": "Die Erinnerung und ihre Keepsakes werden gelöscht. Albumfotos bleiben erhalten, sofern sie nicht separat gelöscht werden.",
+  "memoryDeleted": "Erinnerung gelöscht.",
+  "journeyEdit": "Reise bearbeiten",
+  "journeyArchive": "Reise archivieren",
+  "journeyRestore": "Reise wiederherstellen",
+  "journeysActive": "Aktiv",
+  "journeysArchived": "Archiviert",
+  "journeyDeleteTitle": "Reise löschen?",
+  "journeyDeleteDescription": "Dadurch werden die Reise und ihre lokalen untergeordneten Daten dauerhaft gelöscht.",
+  "journeyDeleteImpact": "{memories} Erinnerungen, {photos} Fotos und {attachments} Keepsakes werden entfernt.",
+  "@journeyDeleteImpact": {
+    "placeholders": {
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "attachments": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyArchived": "Reise archiviert.",
+  "journeyRestored": "Reise wiederhergestellt.",
+  "delete": "Löschen",
+  "archive": "Archivieren",
+  "restore": "Wiederherstellen",
+  "rename": "Umbenennen",
+  "share": "Teilen",
+  "export": "Exportieren",
+  "photoAddFavorite": "Zu Favoriten",
+  "photoRemoveFavorite": "Aus Favoriten entfernen",
+  "photoSetCover": "Als Reisecover festlegen",
+  "photoClearCover": "Cover entfernen",
+  "photoCover": "Coverfoto",
+  "photoUnlinkMemory": "Aus dieser Erinnerung entfernen",
+  "photoDeleteTitle": "Foto löschen?",
+  "photoDeleteDescription": "Das Foto wird aus der Reise und aus allen verknüpften Erinnerungen entfernt.",
+  "keepsakeAdd": "Keepsake hinzufügen",
+  "keepsakeOpen": "Öffnen",
+  "keepsakeShare": "Teilen",
+  "keepsakeExport": "Exportieren",
+  "keepsakeRename": "Umbenennen",
+  "keepsakeDeleteTitle": "Keepsake löschen?",
+  "keepsakeDeleteDescription": "Der Anhang wird aus der Erinnerung und aus dem lokalen Speicher entfernt, wenn keine andere Referenz dieselbe Datei verwendet.",
+  "keepsakeUnavailable": "Die lokale Datei ist nicht verfügbar.",
+  "keepsakeImportFailed": "Dieses Keepsake konnte nicht importiert werden.",
+  "keepsakeActionFailed": "Die Dateiaktion konnte nicht abgeschlossen werden.",
+  "keepsakeRenamed": "Keepsake umbenannt.",
+  "keepsakeExported": "Keepsake exportiert.",
+  "mediaUnavailable": "Medium nicht verfügbar",
+  "journeyDescription": "Beschreibung"
 }

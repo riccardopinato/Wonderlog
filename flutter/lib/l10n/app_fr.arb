@@ -222,5 +222,68 @@
   "ecosystemCapabilityPhoto": "Photos",
   "ecosystemCapabilityPlace": "Lieux",
   "ecosystemCapabilityJourney": "Voyages",
-  "ecosystemCapabilityRoute": "Itinéraires"
+  "ecosystemCapabilityRoute": "Itinéraires",
+  "navMemories": "Souvenirs",
+  "memoriesTitle": "Souvenirs",
+  "memoriesAll": "Tous",
+  "memoriesUnassigned": "Non attribués",
+  "memoryUnassigned": "Souvenir non attribué",
+  "memoryAssignJourney": "Déplacer vers un voyage",
+  "memoryMakeUnassigned": "Retirer du voyage",
+  "memoryMoveTitle": "Choisir la destination",
+  "memoryMoved": "Souvenir déplacé.",
+  "memoryDeleteTitle": "Supprimer le souvenir ?",
+  "memoryDeleteDescription": "Le souvenir et ses Keepsakes seront supprimés. Les photos de l'album restent tant qu'elles ne sont pas supprimées séparément.",
+  "memoryDeleted": "Souvenir supprimé.",
+  "journeyEdit": "Modifier le voyage",
+  "journeyArchive": "Archiver le voyage",
+  "journeyRestore": "Restaurer le voyage",
+  "journeysActive": "Actifs",
+  "journeysArchived": "Archivés",
+  "journeyDeleteTitle": "Supprimer le voyage ?",
+  "journeyDeleteDescription": "Cette action supprime définitivement le voyage et ses données locales associées.",
+  "journeyDeleteImpact": "{memories} souvenirs, {photos} photos et {attachments} Keepsakes seront supprimés.",
+  "@journeyDeleteImpact": {
+    "placeholders": {
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "attachments": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyArchived": "Voyage archivé.",
+  "journeyRestored": "Voyage restauré.",
+  "delete": "Supprimer",
+  "archive": "Archiver",
+  "restore": "Restaurer",
+  "rename": "Renommer",
+  "share": "Partager",
+  "export": "Exporter",
+  "photoAddFavorite": "Ajouter aux favoris",
+  "photoRemoveFavorite": "Retirer des favoris",
+  "photoSetCover": "Définir comme couverture du voyage",
+  "photoClearCover": "Retirer la couverture",
+  "photoCover": "Photo de couverture",
+  "photoUnlinkMemory": "Retirer de ce souvenir",
+  "photoDeleteTitle": "Supprimer la photo ?",
+  "photoDeleteDescription": "La photo sera retirée du voyage et de tous les souvenirs qui y sont liés.",
+  "keepsakeAdd": "Ajouter un Keepsake",
+  "keepsakeOpen": "Ouvrir",
+  "keepsakeShare": "Partager",
+  "keepsakeExport": "Exporter",
+  "keepsakeRename": "Renommer",
+  "keepsakeDeleteTitle": "Supprimer le Keepsake ?",
+  "keepsakeDeleteDescription": "La pièce jointe sera retirée du souvenir et du stockage local lorsqu'aucun autre élément n'utilise le même fichier.",
+  "keepsakeUnavailable": "Le fichier local n'est pas disponible.",
+  "keepsakeImportFailed": "Impossible d'importer ce Keepsake.",
+  "keepsakeActionFailed": "Impossible d'effectuer l'action sur le fichier.",
+  "keepsakeRenamed": "Keepsake renommé.",
+  "keepsakeExported": "Keepsake exporté.",
+  "mediaUnavailable": "Média indisponible",
+  "journeyDescription": "Description"
 }
