@@ -61,7 +61,7 @@ final class EcosystemInboxMaterializationService {
       _runAtomically(
         item,
         () async {
-          final journey = await repository.watchJourney(journeyId).first;
+          final journey = await repository.getJourney(journeyId);
           if (journey == null) {
             throw StateError('Journey not found.');
           }
