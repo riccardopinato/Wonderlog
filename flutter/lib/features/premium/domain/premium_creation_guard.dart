@@ -24,8 +24,8 @@ final class PremiumCreationGuard {
   final PremiumGate gate;
 
   Future<void> ensureJourneyAllowed() async {
-    final journeys = await repository.watchJourneys().first;
-    final result = gate.canCreateJourney(journeys.length, isPremium());
+    final count = await repository.countJourneys();
+    final result = gate.canCreateJourney(count, isPremium());
     if (result is PremiumLimitReached) {
       throw PremiumCreationLimitException(result);
     }
@@ -45,14 +45,12 @@ final class PremiumCreationGuard {
   }) async {
     final premium = isPremium();
     if (journeyId != null) {
-      final memories = await repository.watchMemories(journeyId).first;
-      return gate.canCreateJourneyMemory(memories.length, premium);
+      final count = await repository.countMemoriesForJourney(journeyId);
+      return gate.canCreateJourneyMemory(count, premium);
     }
 
-    final memories = await repository.watchAllMemories().first;
-    final unassigned =
-        memories.where((memory) => memory.journeyId == null).length;
-    return gate.canCreateUnassignedMemory(unassigned, premium);
+    final count = await repository.countUnassignedMemories();
+    return gate.canCreateUnassignedMemory(count, premium);
   }
 
   Future<MemoryCreationAllowance> ensureMemoryBatchAllowed({
@@ -80,20 +78,18 @@ final class PremiumCreationGuard {
   }) async {
     final premium = isPremium();
     if (journeyId != null) {
-      final memories = await repository.watchMemories(journeyId).first;
+      final count = await repository.countMemoriesForJourney(journeyId);
       return gate.calculateMemoryCreationAllowance(
-        current: memories.length,
+        current: count,
         requested: requested,
         premium: premium,
         unassigned: false,
       );
     }
 
-    final memories = await repository.watchAllMemories().first;
-    final unassigned =
-        memories.where((memory) => memory.journeyId == null).length;
+    final count = await repository.countUnassignedMemories();
     return gate.calculateMemoryCreationAllowance(
-      current: unassigned,
+      current: count,
       requested: requested,
       premium: premium,
       unassigned: true,
