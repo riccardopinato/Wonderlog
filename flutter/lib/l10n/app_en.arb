@@ -351,7 +351,7 @@
   "cloudSyncNow": "Sync now",
   "cloudRestoreNow": "Restore from cloud",
   "cloudBackupScopeTitle": "Current cloud scope",
-  "cloudBackupScopeDescription": "Journeys, Memories, album photos and Memory–Photo links are synced. Keepsakes remain local for now.",
+  "cloudBackupScopeDescription": "Journeys, Memories assigned to a Journey, album photos and Memory–Photo links are synced. Unassigned Memories and Keepsakes remain local for now.",
   "cloudLastSyncSummary": "Last sync",
   "cloudSyncSummary": "Uploaded {uploaded}, deleted {deleted}, failures {failures}.",
   "cloudLastRestoreSummary": "Last restore",
