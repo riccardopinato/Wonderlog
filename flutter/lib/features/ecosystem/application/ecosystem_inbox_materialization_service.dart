@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/ecosystem/ecosystem_transfer_store.dart';
 import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../premium/application/premium_access_policy.dart';
 import '../../premium/domain/premium_gate.dart';
 
 final class EcosystemInboxLimitException implements Exception {
@@ -30,14 +31,17 @@ final class EcosystemInboxMaterializationService {
   EcosystemInboxMaterializationService({
     required this.repository,
     required this.store,
-    required this.isPremium,
-    this.premiumGate = const PremiumGate(),
-  });
+    required bool Function() isPremium,
+    PremiumAccessPolicy? premiumAccessPolicy,
+  }) : premiumAccessPolicy = premiumAccessPolicy ??
+            PremiumAccessPolicy(
+              repository: repository,
+              isPremium: isPremium,
+            );
 
   final WonderlogRepository repository;
   final EcosystemTransferStore store;
-  final bool Function() isPremium;
-  final PremiumGate premiumGate;
+  final PremiumAccessPolicy premiumAccessPolicy;
   final Uuid _uuid = const Uuid();
 
   Future<EcosystemInboxMaterializationResult> addToJourney(
@@ -82,15 +86,12 @@ final class EcosystemInboxMaterializationService {
     return store.materializeInboxExactlyOnce(
       item.id,
       materialize: () async {
-        final premium = isPremium();
-        final journeys = await repository.watchJourneys().first;
-        final journeyCheck =
-            premiumGate.canCreateJourney(journeys.length, premium);
+        final journeyCheck = await premiumAccessPolicy.canCreateJourney();
         if (journeyCheck is PremiumLimitReached) {
           throw EcosystemInboxLimitException(journeyCheck);
         }
 
-        final memoryCheck = premiumGate.canCreateMemory(0, premium);
+        final memoryCheck = premiumAccessPolicy.canCreateMemoryForCount(0);
         if (memoryCheck is PremiumLimitReached) {
           throw EcosystemInboxLimitException(memoryCheck);
         }
@@ -163,19 +164,18 @@ final class EcosystemInboxMaterializationService {
   }
 
   Future<void> _ensureMemoryAllowanceForJourney(String journeyId) async {
-    final memories = await repository.watchMemories(journeyId).first;
-    final check =
-        premiumGate.canCreateMemory(memories.length, isPremium());
+    final check = await premiumAccessPolicy.canCreateMemory(
+      journeyId: journeyId,
+    );
     if (check is PremiumLimitReached) {
       throw EcosystemInboxLimitException(check);
     }
   }
 
   Future<void> _ensureUnassignedMemoryAllowance() async {
-    final memories = await repository.watchAllMemories().first;
-    final unassigned =
-        memories.where((memory) => memory.journeyId == null).length;
-    final check = premiumGate.canCreateMemory(unassigned, isPremium());
+    final check = await premiumAccessPolicy.canCreateMemory(
+      journeyId: null,
+    );
     if (check is PremiumLimitReached) {
       throw EcosystemInboxLimitException(check);
     }
