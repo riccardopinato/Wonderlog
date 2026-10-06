@@ -55,6 +55,25 @@ final class PremiumCreationGuard {
     return gate.canCreateUnassignedMemory(unassigned, premium);
   }
 
+  Future<MemoryCreationAllowance> ensureMemoryBatchAllowed({
+    required String? journeyId,
+    required int requested,
+  }) async {
+    final allowance = await memoryAllowance(
+      journeyId: journeyId,
+      requested: requested,
+    );
+    _throwIfBlocked(allowance);
+    return allowance;
+  }
+
+  void ensureNewJourneyMemoryBatchAllowed({
+    required int requested,
+  }) {
+    final allowance = memoryAllowanceForNewJourney(requested: requested);
+    _throwIfBlocked(allowance);
+  }
+
   Future<MemoryCreationAllowance> memoryAllowance({
     required String? journeyId,
     required int requested,
@@ -90,4 +109,15 @@ final class PremiumCreationGuard {
         premium: isPremium(),
         unassigned: false,
       );
+
+  void _throwIfBlocked(MemoryCreationAllowance allowance) {
+    if (allowance.blockedCount <= 0) return;
+    throw PremiumCreationLimitException(
+      PremiumLimitReached(
+        feature: PremiumFeature.unlimitedMemories,
+        current: allowance.currentCount,
+        limit: allowance.limit,
+      ),
+    );
+  }
 }
