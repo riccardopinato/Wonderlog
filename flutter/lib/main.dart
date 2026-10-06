@@ -10,6 +10,7 @@ import 'core/ecosystem/drift_ecosystem_transfer_store.dart';
 import 'core/ecosystem/ecosystem_inbound_transfer_service.dart';
 import 'core/ecosystem/ecosystem_transfer_service.dart';
 import 'core/ecosystem/flutter_local_ecosystem_transport_port.dart';
+import 'core/identity/identity_models.dart';
 import 'core/identity/supabase_identity_service.dart';
 import 'core/profile/shared_preferences_profile_repository.dart';
 import 'features/cloud/application/cloud_runtime_controller.dart';
