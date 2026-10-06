@@ -20,7 +20,7 @@ abstract final class SubscriptionConfig {
   static const premiumMemoriesPerJourney = 0x7fffffff;
 
   static const freeCloudBackup = false;
-  static const premiumCloudBackup = false;
+  static const premiumCloudBackup = true;
   static const freePdfExport = false;
   static const premiumPdfExport = true;
   static const freeOfflineMaps = false;
