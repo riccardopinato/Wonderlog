@@ -143,10 +143,13 @@ final class _PhotoViewerPageState extends State<PhotoViewerPage> {
     switch (action) {
       case 'cover':
         await _setCover();
+        break;
       case 'unlink':
         await _unlink();
+        break;
       case 'delete':
         await _delete();
+        break;
     }
   }
 
