@@ -59,7 +59,7 @@ void main() {
     expect(fields, findsNWidgets(2));
     await tester.enterText(fields.at(0), 'Blocked Journey');
     await tester.enterText(fields.at(1), 'Blocked Destination');
-    await tester.tap(find.byIcon(Icons.save_outlined));
+    await tester.tap(find.text('Salva'));
     await tester.pumpAndSettle();
 
     expect(await repository.countJourneys(), 3);
@@ -92,7 +92,7 @@ void main() {
     );
 
     await tester.enterText(find.byType(TextField).first, 'Blocked Memory');
-    await tester.tap(find.widgetWithText(FilledButton, 'Salva'));
+    await tester.tap(find.byIcon(Icons.save_outlined));
     await tester.pumpAndSettle();
 
     expect(await repository.countMemoriesForJourney(journey.id), 5);
