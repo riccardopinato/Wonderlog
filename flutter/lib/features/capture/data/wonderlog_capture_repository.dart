@@ -13,13 +13,8 @@ final class WonderlogCaptureRepository implements CaptureRepository {
   WonderlogCaptureRepository({
     required this.repository,
     required this.mediaPort,
-    required bool Function() isPremium,
-    PremiumAccessPolicy? premiumAccessPolicy,
-  }) : premiumAccessPolicy = premiumAccessPolicy ??
-            PremiumAccessPolicy(
-              repository: repository,
-              isPremium: isPremium,
-            );
+    required this.premiumAccessPolicy,
+  });
 
   final WonderlogRepository repository;
   final CaptureMediaPort mediaPort;
