@@ -285,5 +285,77 @@
   "keepsakeRenamed": "Keepsake umbenannt.",
   "keepsakeExported": "Keepsake exportiert.",
   "mediaUnavailable": "Medium nicht verfügbar",
-  "journeyDescription": "Beschreibung"
+  "journeyDescription": "Beschreibung",
+  "cloudBackupTitle": "Cloud-Backup",
+  "cloudBackupProfileDescription": "Reisetagebuch synchronisieren und wiederherstellen",
+  "cloudBackupStatus": "Cloud-Status",
+  "cloudAccountReady": "Konto verbunden",
+  "cloudSignInRequired": "Melde dich im Profil an, bevor du das Cloud-Backup verwendest.",
+  "cloudPremiumReady": "Wonderlog Premium aktiv",
+  "cloudPremiumRequired": "Für Cloud-Backup ist Wonderlog Premium erforderlich.",
+  "cloudPendingOperations": "{count} ausstehende Cloud-Vorgänge",
+  "cloudNeverBackedUp": "Noch kein erfolgreiches Cloud-Backup",
+  "cloudLastBackup": "Letztes erfolgreiches Backup: {date}",
+  "cloudIncludePhotos": "Albumfotos einschließen",
+  "cloudIncludePhotosDescription": "Lädt private Album-Originale zusammen mit den Tagebuchdaten hoch.",
+  "cloudAutomaticBackup": "Automatisches Backup",
+  "cloudAutomaticBackupDeferred": "Zuerst wird die manuelle Synchronisierung zertifiziert; Hintergrundplanung bleibt deaktiviert.",
+  "cloudSyncNow": "Jetzt synchronisieren",
+  "cloudRestoreNow": "Aus der Cloud wiederherstellen",
+  "cloudBackupScopeTitle": "Aktueller Cloud-Umfang",
+  "cloudBackupScopeDescription": "Reisen, Erinnerungen, Albumfotos und Erinnerung–Foto-Verknüpfungen werden synchronisiert. Keepsakes bleiben vorerst lokal.",
+  "cloudLastSyncSummary": "Letzte Synchronisierung",
+  "cloudSyncSummary": "Hochgeladen {uploaded}, gelöscht {deleted}, Fehler {failures}.",
+  "cloudLastRestoreSummary": "Letzte Wiederherstellung",
+  "cloudRestoreSummary": "Reisen {journeys}, Erinnerungen {memories}, Fotos {photos}, Konflikte {conflicts}, Fehler {failures}.",
+  "cloudOperationFailed": "Cloud-Vorgang fehlgeschlagen. Lokale Daten bleiben verfügbar.",
+  "cloudRestoreConfirmTitle": "Aus der Cloud wiederherstellen?",
+  "cloudRestoreConfirmDescription": "Cloud-Daten werden mit dem lokalen Tagebuch zusammengeführt. Neuere nicht synchronisierte lokale Änderungen werden geschützt; Konflikte werden markiert statt überschrieben.",
+  "cloudOperationBusy": "Ein anderer Cloud-Vorgang läuft bereits.",
+  "@cloudPendingOperations": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@cloudLastBackup": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@cloudSyncSummary": {
+    "placeholders": {
+      "uploaded": {
+        "type": "int"
+      },
+      "deleted": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  },
+  "@cloudRestoreSummary": {
+    "placeholders": {
+      "journeys": {
+        "type": "int"
+      },
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "conflicts": {
+        "type": "int"
+      },
+      "failures": {
+        "type": "int"
+      }
+    }
+  }
 }
