@@ -312,6 +312,8 @@ final class CloudBackupPage extends StatelessWidget {
       CloudRuntimeBlockReason.signedOut => strings.cloudSignInRequired,
       CloudRuntimeBlockReason.premiumRequired =>
         strings.cloudPremiumRequired,
+      CloudRuntimeBlockReason.accountMismatch =>
+        strings.cloudAccountMismatch,
       CloudRuntimeBlockReason.busy => strings.cloudOperationBusy,
     };
     ScaffoldMessenger.of(context).showSnackBar(
