@@ -75,6 +75,8 @@ final class MemoryDetailPage extends StatelessWidget {
                     builder: (_) => MemoryEditorPage(
                       repository: repository,
                       journeyId: memory.journeyId,
+                      isPremium: () =>
+                          WonderlogServicesScope.of(context).controller.isPremium,
                       existing: memory,
                     ),
                   ),
