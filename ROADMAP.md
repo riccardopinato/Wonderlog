@@ -194,7 +194,39 @@ Validated runtime head `0b60f7dd5420fe72c6b489fffe85f41ca0e9de3c`:
 Evidence:
 - `docs/STEP_24_PREMIUM_TRUTH.md`.
 
-## NEXT — MAXI STEP 25 Cloud Runtime Completion
+## DONE — MAXI STEP 25 Cloud Runtime Completion
+
+Completed in PR #17.
+
+Completed:
+- production runtime wiring for `CloudSyncRepository`,
+  `DriftCloudLocalDataSource`, `SupabaseCloudProvider` and
+  `CloudRestoreRepository`;
+- canonical `CloudAwareWonderlogRepository` queues Journey/Memory/Album
+  mutations without compromising local-first writes;
+- explicit Profile Cloud Backup UI with authenticated + Premium manual
+  Sync Now / Restore;
+- durable `PENDING_UPLOAD` / `PENDING_DELETE` semantics;
+- deterministic multi-batch drain and failure-stop behavior;
+- remote delete survival after local-row removal;
+- include-photos opt-out that still permits privacy-critical remote deletes;
+- Memory–Photo relationship reconciliation without destructive pre-delete;
+- merge-safe restore conflict handling;
+- local dataset binding to a single cloud owner;
+- live Supabase schema, RLS and private `wonderlog-photos` bucket;
+- two-user RLS isolation smoke drill;
+- Cloud Backup re-enabled as a truthful Premium capability;
+- automatic background backup intentionally remains disabled pending later
+  scheduler certification.
+
+Live backend migrations:
+- `wonderlog_cloud_runtime_v1`;
+- `wonderlog_cloud_fk_indexes_v1`.
+
+Evidence:
+- `docs/STEP_25_CLOUD_RUNTIME_COMPLETION.md`.
+
+## NEXT — MAXI STEP 26 Maps / Offline Completion
 
 ## LATER — Wonderlog production cutover
 
