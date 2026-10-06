@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../premium/domain/premium_creation_guard.dart';
 import '../domain/memory_models.dart';
 import '../domain/wonderlog_repository.dart';
 
@@ -12,11 +13,13 @@ final class MemoryEditorPage extends StatefulWidget {
     super.key,
     required this.repository,
     required this.journeyId,
+    required this.isPremium,
     this.existing,
   });
 
   final WonderlogRepository repository;
   final String? journeyId;
+  final bool Function() isPremium;
   final MemoryEntry? existing;
 
   @override
@@ -156,10 +159,25 @@ final class _MemoryEditorPageState extends State<MemoryEditorPage> {
       return;
     }
 
+    final existing = widget.existing;
+    if (existing == null) {
+      try {
+        await PremiumCreationGuard(
+          repository: widget.repository,
+          isPremium: widget.isPremium,
+        ).ensureMemoryAllowed(journeyId: widget.journeyId);
+      } on PremiumCreationLimitException {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.premiumMemoryLimitReached)),
+        );
+        return;
+      }
+    }
+
     setState(() => _saving = true);
     try {
       final now = DateTime.now().toUtc();
-      final existing = widget.existing;
       final tags = _tags.text
           .split(',')
           .map((value) => value.trim())
