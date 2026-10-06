@@ -56,12 +56,18 @@ Unassigned Memories, Keepsake open/share/export/rename/delete, Journey
 edit/archive/restore/delete, Memory reassignment/delete and corrected
 Rediscover/Replay photo linkage.
 
-The next repair gate is **MAXI STEP 24 Premium Truth & Entitlement
-Unification**.
+MAXI STEP 24 Premium Truth & Entitlement Unification is complete at
+deterministic CI level. Wonderlog now uses one canonical Premium policy across
+Journey/Memory creation, reassignment, Album, Capture, Smart Journey and the
+Ecosystem Inbox. RevenueCat CustomerInfo remains the entitlement truth; the
+current paywall advertises only shipped Premium capabilities.
+
+The next repair gate is **MAXI STEP 25 Cloud Runtime Completion**.
 
 See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`,
-`docs/STEP_23A_E2_HARDENING.md` and
-`docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md`.
+`docs/STEP_23A_E2_HARDENING.md`,
+`docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md` and
+`docs/STEP_24_PREMIUM_TRUTH.md`.
 
 See:
 
