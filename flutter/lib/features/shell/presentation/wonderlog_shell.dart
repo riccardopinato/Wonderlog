@@ -41,7 +41,10 @@ final class _WonderlogShellState extends State<WonderlogShell> {
         locationRepository: widget.locationRepository,
         photoImportService: widget.photoImportService,
       ),
-      JourneysPage(repository: widget.repository),
+      JourneysPage(
+        repository: widget.repository,
+        isPremium: () => widget.controller.isPremium,
+      ),
       ProfilePage(controller: widget.controller),
     ];
 
