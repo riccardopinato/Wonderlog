@@ -284,5 +284,6 @@
   "keepsakeActionFailed": "Impossibile completare l'operazione sul file.",
   "keepsakeRenamed": "Keepsake rinominato.",
   "keepsakeExported": "Keepsake esportato.",
-  "mediaUnavailable": "Media non disponibile"
+  "mediaUnavailable": "Media non disponibile",
+  "journeyDescription": "Descrizione"
 }
