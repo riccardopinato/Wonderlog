@@ -12,13 +12,8 @@ final class SmartJourneyIntegrationRepository {
   SmartJourneyIntegrationRepository({
     required this.repository,
     required this.photoImporter,
-    required bool Function() isPremium,
-    PremiumAccessPolicy? premiumAccessPolicy,
-  }) : premiumAccessPolicy = premiumAccessPolicy ??
-            PremiumAccessPolicy(
-              repository: repository,
-              isPremium: isPremium,
-            );
+    required this.premiumAccessPolicy,
+  });
 
   final WonderlogRepository repository;
   final SmartJourneyPhotoImporter photoImporter;
