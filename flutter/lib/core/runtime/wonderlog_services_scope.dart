@@ -19,7 +19,7 @@ final class WonderlogServices {
     required this.ecosystemTransferStore,
     required this.ecosystemTransferService,
     required this.ecosystemInboundTransferService,
-    required this.cloudRuntime,
+    this.cloudRuntime,
   }) : premiumAccessPolicy = PremiumAccessPolicy(
           repository: repository,
           isPremium: () => controller.isPremium,
