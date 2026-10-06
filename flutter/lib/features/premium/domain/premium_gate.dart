@@ -36,6 +36,24 @@ final class PremiumRequired extends PremiumGateResult {
   final PremiumFeature feature;
 }
 
+final class MemoryCreationAllowance {
+  const MemoryCreationAllowance({
+    required this.requestedCount,
+    required this.allowedCount,
+    required this.blockedCount,
+    required this.currentCount,
+    required this.limit,
+  });
+
+  final int requestedCount;
+  final int allowedCount;
+  final int blockedCount;
+  final int currentCount;
+  final int limit;
+
+  bool get isFullyAllowed => blockedCount == 0;
+}
+
 final class PhotoImportAllowance {
   const PhotoImportAllowance({
     required this.selectedCount,
@@ -65,6 +83,9 @@ final class PremiumGate {
 
   int memoryLimit(bool premium) =>
       SubscriptionConfig.limits(premium).memoriesLimit;
+
+  int unassignedMemoryLimit(bool premium) =>
+      SubscriptionConfig.limits(premium).unassignedMemoriesLimit;
 
   PremiumGateResult canCreateJourney(int current, bool premium) {
     final limit = journeyLimit(premium);
@@ -111,16 +132,55 @@ final class PremiumGate {
     );
   }
 
-  PremiumGateResult canCreateMemory(int current, bool premium) {
-    final limit = memoryLimit(premium);
-    return current < limit
-        ? const PremiumAllowed()
-        : PremiumLimitReached(
-            feature: PremiumFeature.unlimitedMemories,
-            current: current,
-            limit: limit,
-          );
+  PremiumGateResult canCreateJourneyMemory(int current, bool premium) =>
+      _canCreateMemory(
+        current: current,
+        limit: memoryLimit(premium),
+      );
+
+  PremiumGateResult canCreateUnassignedMemory(int current, bool premium) =>
+      _canCreateMemory(
+        current: current,
+        limit: unassignedMemoryLimit(premium),
+      );
+
+  @Deprecated('Use canCreateJourneyMemory or canCreateUnassignedMemory.')
+  PremiumGateResult canCreateMemory(int current, bool premium) =>
+      canCreateJourneyMemory(current, premium);
+
+  MemoryCreationAllowance calculateMemoryCreationAllowance({
+    required int current,
+    required int requested,
+    required bool premium,
+    required bool unassigned,
+  }) {
+    final limit = unassigned
+        ? unassignedMemoryLimit(premium)
+        : memoryLimit(premium);
+    final safeRequested = requested < 0 ? 0 : requested;
+    final available = limit - current;
+    final slots = available < 0 ? 0 : available;
+    final allowed = safeRequested < slots ? safeRequested : slots;
+    return MemoryCreationAllowance(
+      requestedCount: safeRequested,
+      allowedCount: allowed,
+      blockedCount: safeRequested - allowed,
+      currentCount: current,
+      limit: limit,
+    );
   }
+
+  PremiumGateResult _canCreateMemory({
+    required int current,
+    required int limit,
+  }) =>
+      current < limit
+          ? const PremiumAllowed()
+          : PremiumLimitReached(
+              feature: PremiumFeature.unlimitedMemories,
+              current: current,
+              limit: limit,
+            );
 
   bool hasFeature(PremiumFeature feature, bool premium) {
     if (premium) return true;
