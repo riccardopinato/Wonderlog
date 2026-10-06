@@ -25,7 +25,7 @@ final class WonderlogApp extends StatelessWidget {
     required this.ecosystemTransferStore,
     required this.ecosystemTransferService,
     required this.ecosystemInboundTransferService,
-    required this.cloudRuntime,
+    this.cloudRuntime,
   });
 
   final AppController controller;
