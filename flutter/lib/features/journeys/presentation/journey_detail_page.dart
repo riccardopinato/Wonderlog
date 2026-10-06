@@ -13,6 +13,8 @@ import '../../memories/domain/memory_models.dart';
 import '../../memories/domain/wonderlog_repository.dart';
 import '../../memories/presentation/memory_detail_page.dart';
 import '../../memories/presentation/memory_editor_page.dart';
+import '../../memories/presentation/photo_viewer_page.dart';
+import '../../memories/presentation/stored_media_image.dart';
 import '../../premium/domain/premium_gate.dart';
 import '../../premium/presentation/premium_page.dart';
 import '../../rediscover/domain/journey_replay_builder.dart';
@@ -20,6 +22,7 @@ import '../../rediscover/domain/rediscover_models.dart';
 import '../../rediscover/presentation/journey_replay_page.dart';
 import '../../timeline/presentation/timeline_page.dart';
 import '../domain/journey.dart';
+import 'journey_widgets.dart';
 
 final class JourneyDetailPage extends StatelessWidget {
   const JourneyDetailPage({
@@ -76,6 +79,46 @@ final class JourneyDetailPage extends StatelessWidget {
                   tooltip: AppLocalizations.of(context).journeyReplay,
                   onPressed: () => _openReplay(context, journey),
                   icon: const Icon(Icons.play_circle_outline),
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (action) =>
+                      _handleJourneyAction(context, journey, action),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.edit_outlined),
+                        title: Text(
+                          AppLocalizations.of(context).journeyEdit,
+                        ),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'archive',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(
+                          journey.archived
+                              ? Icons.unarchive_outlined
+                              : Icons.archive_outlined,
+                        ),
+                        title: Text(
+                          journey.archived
+                              ? AppLocalizations.of(context).journeyRestore
+                              : AppLocalizations.of(context).journeyArchive,
+                        ),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.delete_outline),
+                        title: Text(AppLocalizations.of(context).delete),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -155,7 +198,8 @@ final class JourneyDetailPage extends StatelessWidget {
     BuildContext context,
     Journey journey,
   ) async {
-    final memories = await repository.watchMemories(journey.id).first;
+    final memoryBundles =
+        await repository.watchMemoriesWithPhotos(journey.id).first;
     final photos = await repository.watchAlbum(journey.id).first;
     if (!context.mounted) return;
 
@@ -167,7 +211,7 @@ final class JourneyDetailPage extends StatelessWidget {
       endTimestamp: journey.endDate,
       coverPhotoUri: photos.isEmpty ? null : photos.first.localUri,
       photoCount: photos.length,
-      memoryCount: memories.length,
+      memoryCount: memoryBundles.length,
     );
 
     final replay = const JourneyReplayBuilder().build(
@@ -183,16 +227,18 @@ final class JourneyDetailPage extends StatelessWidget {
             ),
           )
           .toList(growable: false),
-      memories: memories
+      memories: memoryBundles
           .map(
-            (memory) => RediscoverMemory(
-              id: memory.id,
-              journeyId: memory.journeyId,
-              title: memory.title,
-              journalText: memory.journalText,
-              timestamp: memory.date,
-              locationName: memory.locationName,
-              photoUris: const [],
+            (item) => RediscoverMemory(
+              id: item.memory.id,
+              journeyId: item.memory.journeyId,
+              title: item.memory.title,
+              journalText: item.memory.journalText,
+              timestamp: item.memory.date,
+              locationName: item.memory.locationName,
+              photoUris: item.photos
+                  .map((photo) => photo.localUri)
+                  .toList(growable: false),
             ),
           )
           .toList(growable: false),
@@ -273,8 +319,8 @@ final class _MemoriesTab extends StatelessWidget {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final dateFormat = DateFormat.yMMMd(locale);
 
-    return StreamBuilder<List<MemoryEntry>>(
-      stream: repository.watchMemories(journeyId),
+    return StreamBuilder<List<MemoryWithPhotos>>(
+      stream: repository.watchMemoriesWithPhotos(journeyId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
@@ -295,10 +341,26 @@ final class _MemoriesTab extends StatelessWidget {
           separatorBuilder: (_, _) =>
               const SizedBox(height: WonderlogSpacing.small),
           itemBuilder: (context, index) {
-            final memory = memories[index];
+            final item = memories[index];
+            final memory = item.memory;
             return Card(
+              clipBehavior: Clip.antiAlias,
               child: ListTile(
-                leading: CircleAvatar(child: Text(memory.mood.emoji)),
+                leading: SizedBox.square(
+                  dimension: 52,
+                  child: item.photos.isEmpty
+                      ? CircleAvatar(child: Text(memory.mood.emoji))
+                      : StoredMediaImage(
+                          references: [
+                            item.photos.first.thumbnailUri,
+                            item.photos.first.localUri,
+                            item.photos.first.originalUri,
+                          ],
+                          width: 52,
+                          height: 52,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                ),
                 title: Text(memory.title),
                 subtitle: Text(
                   [
@@ -416,42 +478,71 @@ final class _AlbumTabState extends State<_AlbumTab> {
                           clipBehavior: Clip.antiAlias,
                           child: Tooltip(
                             message: photo.fileName,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(
-                                  WonderlogSpacing.small,
+                            child: InkWell(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (_) => PhotoViewerPage(
+                                    repository: widget.repository,
+                                    photo: photo,
+                                  ),
                                 ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      photo.favorite
-                                          ? Icons.favorite
-                                          : Icons.photo_outlined,
-                                      size: 40,
-                                    ),
-                                    const SizedBox(
-                                      height: WonderlogSpacing.xSmall,
-                                    ),
-                                    Text(
-                                      photo.fileName.isEmpty
-                                          ? strings.photo
-                                          : photo.fileName,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    if (photo.locationName.trim().isNotEmpty)
-                                      Text(
-                                        photo.locationName,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
+                              ),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  StoredMediaImage(
+                                    references: [
+                                      photo.thumbnailUri,
+                                      photo.localUri,
+                                      photo.originalUri,
+                                    ],
+                                  ),
+                                  Positioned(
+                                    left: 6,
+                                    right: 6,
+                                    bottom: 6,
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface
+                                            .withValues(alpha: 0.84),
+                                        borderRadius:
+                                            BorderRadius.circular(8),
                                       ),
-                                  ],
-                                ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 4,
+                                        ),
+                                        child: Text(
+                                          photo.fileName.isEmpty
+                                              ? strings.photo
+                                              : photo.fileName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if (photo.favorite)
+                                    const Positioned(
+                                      top: 6,
+                                      right: 6,
+                                      child: Icon(Icons.favorite),
+                                    ),
+                                  if (photo.isCoverPhoto)
+                                    const Positioned(
+                                      top: 6,
+                                      left: 6,
+                                      child: Icon(Icons.wallpaper_outlined),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
