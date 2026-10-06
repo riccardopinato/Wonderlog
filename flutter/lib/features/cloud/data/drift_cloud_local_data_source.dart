@@ -173,6 +173,39 @@ final class DriftCloudLocalDataSource implements CloudLocalDataSource {
   }
 
   @override
+  Future<void> markPendingDelete(
+    SyncEntityType type,
+    String localId,
+  ) async {
+    switch (type) {
+      case SyncEntityType.journey:
+        await (database.update(database.trips)
+              ..where((row) => row.id.equals(localId)))
+            .write(
+          const db.TripsCompanion(
+            syncStatus: Value('PENDING_DELETE'),
+          ),
+        );
+      case SyncEntityType.memory:
+        await (database.update(database.memories)
+              ..where((row) => row.id.equals(localId)))
+            .write(
+          const db.MemoriesCompanion(
+            syncStatus: Value('PENDING_DELETE'),
+          ),
+        );
+      case SyncEntityType.albumPhoto:
+        await (database.update(database.albumPhotos)
+              ..where((row) => row.id.equals(localId)))
+            .write(
+          const db.AlbumPhotosCompanion(
+            syncStatus: Value('PENDING_DELETE'),
+          ),
+        );
+    }
+  }
+
+  @override
   Future<void> markJourneySynced(String localId, String cloudId) async {
     await (database.update(database.trips)
           ..where((row) => row.id.equals(localId)))
