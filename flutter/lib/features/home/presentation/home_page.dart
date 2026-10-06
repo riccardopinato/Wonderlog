@@ -140,6 +140,7 @@ final class HomePage extends StatelessWidget {
                     onPressed: () => showCreateJourneyDialog(
                       context,
                       repository,
+                      isPremium: isPremium,
                     ),
                     icon: const Icon(Icons.add),
                     label: Text(strings.addJourney),
