@@ -123,7 +123,9 @@ final class CloudAwareWonderlogRepository implements WonderlogRepository {
   @override
   Future<void> saveMemory(MemoryEntry memory) async {
     await delegate.saveMemory(memory);
-    await cloudSyncRepository.enqueueMemory(memory.id);
+    if (memory.journeyId != null) {
+      await cloudSyncRepository.enqueueMemory(memory.id);
+    }
   }
 
   @override
@@ -132,7 +134,14 @@ final class CloudAwareWonderlogRepository implements WonderlogRepository {
     String? journeyId,
   ) async {
     await delegate.moveMemoryToJourney(memoryId, journeyId);
-    await cloudSyncRepository.enqueueMemory(memoryId);
+    if (journeyId == null) {
+      await cloudSyncRepository.enqueueDelete(
+        SyncEntityType.memory,
+        memoryId,
+      );
+    } else {
+      await cloudSyncRepository.enqueueMemory(memoryId);
+    }
   }
 
   @override
@@ -219,26 +228,10 @@ final class CloudAwareWonderlogRepository implements WonderlogRepository {
       delegate.referencedMediaUris();
 
   @override
-  Future<void> saveAttachment(MemoryAttachment attachment) async {
-    await delegate.saveAttachment(attachment);
-    await cloudSyncRepository.enqueueMemory(attachment.memoryId);
-  }
+  Future<void> saveAttachment(MemoryAttachment attachment) =>
+      delegate.saveAttachment(attachment);
 
   @override
-  Future<void> deleteAttachment(String attachmentId) async {
-    final allMemories = await delegate.watchAllMemories().first;
-    String? memoryId;
-    for (final memory in allMemories) {
-      final attachments = await delegate.watchAttachments(memory.id).first;
-      if (attachments.any((item) => item.id == attachmentId)) {
-        memoryId = memory.id;
-        break;
-      }
-    }
-
-    await delegate.deleteAttachment(attachmentId);
-    if (memoryId != null) {
-      await cloudSyncRepository.enqueueMemory(memoryId);
-    }
-  }
+  Future<void> deleteAttachment(String attachmentId) =>
+      delegate.deleteAttachment(attachmentId);
 }
