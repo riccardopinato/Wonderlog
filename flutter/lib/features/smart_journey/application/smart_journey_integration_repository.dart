@@ -218,4 +218,13 @@ final class SmartJourneyIntegrationRepository {
       memoryDraftCount: memoryCount,
     );
   }
+
+  int _requestedMemoryCount(SmartJourneyDraft draft) {
+    if (!draft.createMemoryDrafts) return 0;
+    return draft.days.fold<int>(
+      0,
+      (total, day) =>
+          total + day.stops.where((stop) => stop.createMemory).length,
+    );
+  }
 }
