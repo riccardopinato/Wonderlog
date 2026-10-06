@@ -112,6 +112,23 @@ The Shared Ecosystem Core v1 contract is CERTIFIED GOLDEN for the physically
 tested Android Wonderlog ↔ Anna's Diary scope. The historical contract filename
 still contains `DRAFT`, but the status inside the contract is authoritative.
 
+## Step 23 parity / dead-code checkpoint
+
+The post-E2 parity audit uses Flutter as the only active runtime baseline and
+keeps the Kotlin/Compose ZIP strictly as donor/reference evidence until cutover.
+
+One implementation was proven redundant and removed:
+`DriftJourneyRepository`. Its tests now target the canonical
+`DriftWonderlogRepository`, which already implements the Journey contract.
+
+Cloud, offline-map, legacy-database and ecosystem modules are not classified as
+dead merely because their full production paths are unfinished. They remain
+approved migration/cutover dependencies and must be completed or explicitly
+retired by their owning roadmap steps.
+
+See `STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md` for the parity matrix and
+evidence limits.
+
 ## Migration gates
 
 The Flutter build cannot become the main Wonderlog release until:

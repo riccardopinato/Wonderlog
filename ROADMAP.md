@@ -89,6 +89,21 @@ PR gate:
 - Android APK PASS;
 - Android AAB PASS.
 
+## DONE — MAXI STEP 23 Flutter Parity & Dead-Code Audit
+
+Completed on the Flutter baseline after E2.
+
+Outcome:
+- current Flutter runtime/parity inventory documented;
+- true dead code separated from planned-but-unwired infrastructure;
+- duplicate `DriftJourneyRepository` removed;
+- repository tests now exercise canonical `DriftWonderlogRepository`;
+- Kotlin donor ZIP intentionally retained until production cutover parity and Room -> Drift evidence close;
+- no claim of full product parity or production certification.
+
+Evidence:
+- `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`.
+
 ## NEXT — MAXI STEP 23A E2 Hardening
 
 Deep audit 2026-10-06 identified these first repairs:
