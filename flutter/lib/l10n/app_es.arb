@@ -357,5 +357,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "cloudAccountMismatch": "Este archivo local de Wonderlog está vinculado a otra cuenta de nube. Inicia sesión con la cuenta original; la migración entre cuentas no es automática."
 }
