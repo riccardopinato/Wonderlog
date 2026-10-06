@@ -114,7 +114,7 @@ final class _JourneyMapPageState extends State<JourneyMapPage> {
                     target: LatLng(center.latitude, center.longitude),
                     zoom: 11,
                   ),
-                  styleString: AppConfig.current.mapStyleUrl,
+                  styleString: AppConfig.current.effectiveMapStyleUrl,
                   compassEnabled: true,
                   logoEnabled: false,
                   attributionButtonPosition:
