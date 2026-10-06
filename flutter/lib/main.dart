@@ -54,7 +54,7 @@ Future<void> main() async {
   await controller.initialize();
 
   CloudRuntimeController? cloudRuntime;
-  if (AppConfig.current.cloudConfigured &&
+  if (AppConfig.current.cloudDataConfigured &&
       controller.identity.status != IdentityStatus.error) {
     final cloudProvider = SupabaseCloudProvider();
     final queueStore = DriftSyncQueueStore(database);
