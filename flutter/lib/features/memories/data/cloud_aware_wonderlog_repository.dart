@@ -181,7 +181,9 @@ final class CloudAwareWonderlogRepository implements WonderlogRepository {
       displayOrder: displayOrder,
       isHero: isHero,
     );
-    await cloudSyncRepository.enqueueMemory(memoryId);
+    if (await _memoryIsCloudEligible(memoryId)) {
+      await cloudSyncRepository.enqueueMemory(memoryId);
+    }
   }
 
   @override
@@ -193,7 +195,9 @@ final class CloudAwareWonderlogRepository implements WonderlogRepository {
       memoryId: memoryId,
       photoIds: photoIds,
     );
-    await cloudSyncRepository.enqueueMemory(memoryId);
+    if (await _memoryIsCloudEligible(memoryId)) {
+      await cloudSyncRepository.enqueueMemory(memoryId);
+    }
   }
 
   @override
@@ -205,7 +209,9 @@ final class CloudAwareWonderlogRepository implements WonderlogRepository {
       memoryId: memoryId,
       photoId: photoId,
     );
-    await cloudSyncRepository.enqueueMemory(memoryId);
+    if (await _memoryIsCloudEligible(memoryId)) {
+      await cloudSyncRepository.enqueueMemory(memoryId);
+    }
   }
 
   @override
@@ -234,4 +240,9 @@ final class CloudAwareWonderlogRepository implements WonderlogRepository {
   @override
   Future<void> deleteAttachment(String attachmentId) =>
       delegate.deleteAttachment(attachmentId);
+
+  Future<bool> _memoryIsCloudEligible(String memoryId) async {
+    final value = await delegate.watchMemory(memoryId).first;
+    return value?.memory.journeyId != null;
+  }
 }
