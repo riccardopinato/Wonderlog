@@ -71,6 +71,12 @@ final class CloudRuntimeController extends ChangeNotifier {
 
   Future<void> initialize() async {
     _settings = await settingsRepository.getSettings();
+    if (_settings.automaticBackupEnabled) {
+      // Step 25 certifies manual sync/restore first. Keep legacy persisted
+      // automatic settings off until the background scheduler is certified.
+      await settingsRepository.setAutomaticBackupEnabled(false);
+      _settings = await settingsRepository.getSettings();
+    }
     _lastSuccessfulBackupAt =
         await settingsRepository.getLastSuccessfulBackupAt();
     _pendingCount = await syncRepository.pendingCount();
