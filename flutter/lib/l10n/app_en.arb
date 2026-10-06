@@ -270,5 +270,67 @@
   "ecosystemCapabilityPhoto": "Photos",
   "ecosystemCapabilityPlace": "Places",
   "ecosystemCapabilityJourney": "Journeys",
-  "ecosystemCapabilityRoute": "Routes"
+  "ecosystemCapabilityRoute": "Routes",
+  "navMemories": "Memories",
+  "memoriesTitle": "Memories",
+  "memoriesAll": "All",
+  "memoriesUnassigned": "Unassigned",
+  "memoryUnassigned": "Unassigned Memory",
+  "memoryAssignJourney": "Move to Journey",
+  "memoryMakeUnassigned": "Remove from Journey",
+  "memoryMoveTitle": "Choose destination",
+  "memoryMoved": "Memory moved.",
+  "memoryDeleteTitle": "Delete Memory?",
+  "memoryDeleteDescription": "The Memory and its Keepsakes will be deleted. Album photos are kept unless deleted separately.",
+  "memoryDeleted": "Memory deleted.",
+  "journeyEdit": "Edit Journey",
+  "journeyArchive": "Archive Journey",
+  "journeyRestore": "Restore Journey",
+  "journeysActive": "Active",
+  "journeysArchived": "Archived",
+  "journeyDeleteTitle": "Delete Journey?",
+  "journeyDeleteDescription": "This permanently deletes the Journey and its local child data.",
+  "journeyDeleteImpact": "{memories} Memories, {photos} photos and {attachments} Keepsakes will be removed.",
+  "@journeyDeleteImpact": {
+    "placeholders": {
+      "memories": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "attachments": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyArchived": "Journey archived.",
+  "journeyRestored": "Journey restored.",
+  "delete": "Delete",
+  "archive": "Archive",
+  "restore": "Restore",
+  "rename": "Rename",
+  "share": "Share",
+  "export": "Export",
+  "photoAddFavorite": "Add to favorites",
+  "photoRemoveFavorite": "Remove from favorites",
+  "photoSetCover": "Set as Journey cover",
+  "photoClearCover": "Clear Journey cover",
+  "photoCover": "Cover photo",
+  "photoUnlinkMemory": "Remove from this Memory",
+  "photoDeleteTitle": "Delete photo?",
+  "photoDeleteDescription": "The photo will be removed from the Journey and every Memory that links to it.",
+  "keepsakeAdd": "Add Keepsake",
+  "keepsakeOpen": "Open",
+  "keepsakeShare": "Share",
+  "keepsakeExport": "Export",
+  "keepsakeRename": "Rename",
+  "keepsakeDeleteTitle": "Delete Keepsake?",
+  "keepsakeDeleteDescription": "The attachment will be removed from this Memory and from local storage when no other record uses the same file.",
+  "keepsakeUnavailable": "The local file is unavailable.",
+  "keepsakeImportFailed": "Unable to import this Keepsake.",
+  "keepsakeActionFailed": "Unable to complete the file action.",
+  "keepsakeRenamed": "Keepsake renamed.",
+  "keepsakeExported": "Keepsake exported.",
+  "mediaUnavailable": "Media unavailable"
 }
