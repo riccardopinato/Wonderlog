@@ -315,7 +315,7 @@ Future<void> showEditJourneyDialog(
                     minLines: 2,
                     maxLines: 5,
                     decoration:
-                        InputDecoration(labelText: strings.description),
+                        InputDecoration(labelText: strings.journeyDescription),
                   ),
                   const SizedBox(height: WonderlogSpacing.medium),
                   ListTile(
