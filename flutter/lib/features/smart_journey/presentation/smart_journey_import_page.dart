@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme/wonderlog_tokens.dart';
 import '../../../core/picker/device_content_picker.dart';
+import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../premium/presentation/premium_page.dart';
 import '../../location/domain/location_repository.dart';
 import '../application/smart_journey_integration_repository.dart';
 import '../domain/smart_journey_models.dart';
@@ -102,6 +104,18 @@ final class _SmartJourneyImportPageState extends State<SmartJourneyImportPage> {
                 ),
               ),
             ],
+            if (_allowance?.hasBlockedMemories == true) ...[
+              const SizedBox(height: WonderlogSpacing.medium),
+              Text(strings.ecosystemPremiumLimit),
+            ],
+            if (_allowance?.requiresUpgrade == true) ...[
+              const SizedBox(height: WonderlogSpacing.small),
+              OutlinedButton.icon(
+                onPressed: _busy ? null : _openPremium,
+                icon: const Icon(Icons.star_outline),
+                label: Text(strings.premiumTitle),
+              ),
+            ],
             const SizedBox(height: WonderlogSpacing.medium),
             ...draft.days.map(
               (day) => Card(
@@ -129,7 +143,8 @@ final class _SmartJourneyImportPageState extends State<SmartJourneyImportPage> {
               onPressed: _busy ||
                       _allowance == null ||
                       !_allowance!.journeyCreationAllowed ||
-                      _allowance!.allowedPhotoCount <= 0
+                      _allowance!.allowedPhotoCount <= 0 ||
+                      _allowance!.hasBlockedMemories
                   ? null
                   : _createJourney,
               icon: const Icon(Icons.auto_awesome_motion_outlined),
@@ -187,6 +202,22 @@ final class _SmartJourneyImportPageState extends State<SmartJourneyImportPage> {
         _error = error.toString();
       });
     }
+  }
+
+  Future<void> _openPremium() async {
+    final services = WonderlogServicesScope.of(context);
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => PremiumPage(
+          service: services.controller.premiumService,
+        ),
+      ),
+    );
+    if (!mounted || _draft == null) return;
+    final allowance =
+        await widget.integration.evaluateCreationAllowance(_draft!);
+    if (mounted) setState(() => _allowance = allowance);
   }
 
   Future<void> _createJourney() async {
