@@ -303,7 +303,7 @@
   "cloudSyncNow": "Sincronizza ora",
   "cloudRestoreNow": "Ripristina dal cloud",
   "cloudBackupScopeTitle": "Ambito cloud attuale",
-  "cloudBackupScopeDescription": "Vengono sincronizzati Viaggi, Ricordi, foto degli album e collegamenti Ricordo–Foto. I Keepsake restano locali per ora.",
+  "cloudBackupScopeDescription": "Vengono sincronizzati Viaggi, Ricordi assegnati a un Viaggio, foto degli album e collegamenti Ricordo–Foto. I Ricordi non assegnati e i Keepsake restano locali per ora.",
   "cloudLastSyncSummary": "Ultima sincronizzazione",
   "cloudSyncSummary": "Caricati {uploaded}, eliminati {deleted}, errori {failures}.",
   "cloudLastRestoreSummary": "Ultimo ripristino",
