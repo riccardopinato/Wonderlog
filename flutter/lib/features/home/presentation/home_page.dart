@@ -47,12 +47,14 @@ final class HomePage extends StatelessWidget {
           IconButton(
             tooltip: strings.smartJourneyTitle,
             onPressed: () {
+              final services = WonderlogServicesScope.of(context);
               final integration = SmartJourneyIntegrationRepository(
                 repository: repository,
                 photoImporter: PhotoImportServiceSmartJourneyAdapter(
                   photoImportService,
                 ),
                 isPremium: isPremium,
+                premiumAccessPolicy: services.premiumAccessPolicy,
               );
               Navigator.push(
                 context,
@@ -69,12 +71,14 @@ final class HomePage extends StatelessWidget {
           IconButton(
             tooltip: strings.captureTitle,
             onPressed: () {
+              final services = WonderlogServicesScope.of(context);
               final captureRepository = WonderlogCaptureRepository(
                 repository: repository,
                 mediaPort: PhotoCaptureMediaPort(
                   photoImportService: photoImportService,
                 ),
                 isPremium: isPremium,
+                premiumAccessPolicy: services.premiumAccessPolicy,
               );
               Navigator.push(
                 context,
