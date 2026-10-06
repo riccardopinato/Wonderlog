@@ -175,6 +175,57 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
   }
 
   @override
+  Future<T> materializeInboxExactlyOnce<T>(
+    String id, {
+    required Future<EcosystemInboxMaterializationCommit<T>> Function()
+        materialize,
+  }) {
+    return database.transaction(() async {
+      final current = await (database.select(database.ecosystemInbox)
+            ..where((row) => row.id.equals(id)))
+          .getSingleOrNull();
+      if (current == null ||
+          current.consumedAt != null ||
+          EcosystemInboxDisposition.fromWire(
+                current.disposition,
+                consumed: current.consumedAt != null,
+              ) !=
+              EcosystemInboxDisposition.pending) {
+        throw EcosystemInboxAlreadyResolvedException(id);
+      }
+
+      final commit = await materialize();
+      if (commit.disposition == EcosystemInboxDisposition.pending) {
+        throw ArgumentError.value(commit.disposition, 'disposition');
+      }
+
+      final changed = await (database.update(database.ecosystemInbox)
+            ..where(
+              (row) =>
+                  row.id.equals(id) &
+                  row.consumedAt.isNull() &
+                  row.disposition.equals(
+                    EcosystemInboxDisposition.pending.name,
+                  ),
+            ))
+          .write(
+        db.EcosystemInboxCompanion(
+          consumedAt: Value(
+            DateTime.now().toUtc().millisecondsSinceEpoch,
+          ),
+          disposition: Value(commit.disposition.name),
+          materializedJourneyId: Value(commit.materializedJourneyId),
+          materializedMemoryId: Value(commit.materializedMemoryId),
+        ),
+      );
+      if (changed != 1) {
+        throw EcosystemInboxAlreadyResolvedException(id);
+      }
+      return commit.value;
+    });
+  }
+
+  @override
   Future<void> resolveInbox(
     String id, {
     required EcosystemInboxDisposition disposition,
@@ -185,8 +236,15 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
     if (disposition == EcosystemInboxDisposition.pending) {
       throw ArgumentError.value(disposition, 'disposition');
     }
-    await (database.update(database.ecosystemInbox)
-          ..where((row) => row.id.equals(id)))
+    final changed = await (database.update(database.ecosystemInbox)
+          ..where(
+            (row) =>
+                row.id.equals(id) &
+                row.consumedAt.isNull() &
+                row.disposition.equals(
+                  EcosystemInboxDisposition.pending.name,
+                ),
+          ))
         .write(
       db.EcosystemInboxCompanion(
         consumedAt: Value(resolvedAt.toUtc().millisecondsSinceEpoch),
@@ -195,6 +253,9 @@ final class DriftEcosystemTransferStore implements EcosystemTransferStore {
         materializedMemoryId: Value(materializedMemoryId),
       ),
     );
+    if (changed != 1) {
+      throw EcosystemInboxAlreadyResolvedException(id);
+    }
   }
 
   @override

@@ -124,7 +124,7 @@ final class _InboxList extends StatelessWidget {
   }
 }
 
-final class _InboxItemCard extends StatelessWidget {
+final class _InboxItemCard extends StatefulWidget {
   const _InboxItemCard({
     required this.item,
     required this.pending,
@@ -134,6 +134,17 @@ final class _InboxItemCard extends StatelessWidget {
   final EcosystemInboxItem item;
   final bool pending;
   final EcosystemInboxMaterializationService materializer;
+
+  @override
+  State<_InboxItemCard> createState() => _InboxItemCardState();
+}
+
+final class _InboxItemCardState extends State<_InboxItemCard> {
+  bool _busy = false;
+
+  EcosystemInboxItem get item => widget.item;
+  bool get pending => widget.pending;
+  EcosystemInboxMaterializationService get materializer => widget.materializer;
 
   @override
   Widget build(BuildContext context) {
@@ -233,22 +244,22 @@ final class _InboxItemCard extends StatelessWidget {
                 runSpacing: WonderlogSpacing.small,
                 children: [
                   FilledButton.tonalIcon(
-                    onPressed: () => _addToJourney(context),
+                    onPressed: _busy ? null : () => _addToJourney(context),
                     icon: const Icon(Icons.luggage_outlined),
                     label: Text(strings.ecosystemAddExistingJourney),
                   ),
                   FilledButton.tonalIcon(
-                    onPressed: () => _createJourney(context),
+                    onPressed: _busy ? null : () => _createJourney(context),
                     icon: const Icon(Icons.add_location_alt_outlined),
                     label: Text(strings.ecosystemCreateJourney),
                   ),
                   FilledButton.tonalIcon(
-                    onPressed: () => _saveFreeMemory(context),
+                    onPressed: _busy ? null : () => _saveFreeMemory(context),
                     icon: const Icon(Icons.auto_stories_outlined),
                     label: Text(strings.ecosystemSaveFreeMemory),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () => _ignore(context),
+                    onPressed: _busy ? null : () => _ignore(context),
                     icon: const Icon(Icons.archive_outlined),
                     label: Text(strings.ecosystemIgnoreArchive),
                   ),
@@ -275,7 +286,7 @@ final class _InboxItemCard extends StatelessWidget {
             if (isLink) ...[
               const SizedBox(height: WonderlogSpacing.xSmall),
               TextButton.icon(
-                onPressed: () => _openSource(context),
+                onPressed: _busy ? null : () => _openSource(context),
                 icon: const Icon(Icons.link),
                 label: Text(strings.ecosystemOpenSource),
               ),
@@ -420,7 +431,9 @@ final class _InboxItemCard extends StatelessWidget {
     BuildContext context,
     Future<EcosystemInboxMaterializationResult> Function() operation,
   ) async {
+    if (_busy) return;
     final strings = AppLocalizations.of(context);
+    setState(() => _busy = true);
     try {
       await operation();
       if (!context.mounted) return;
@@ -428,9 +441,14 @@ final class _InboxItemCard extends StatelessWidget {
     } on EcosystemInboxLimitException {
       if (!context.mounted) return;
       _message(context, strings.ecosystemPremiumLimit);
+    } on EcosystemInboxAlreadyResolvedException {
+      if (!context.mounted) return;
+      _message(context, strings.ecosystemActionDone);
     } catch (_) {
       if (!context.mounted) return;
       _message(context, strings.ecosystemActionError);
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 

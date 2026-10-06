@@ -43,32 +43,31 @@ final class EcosystemInboxMaterializationService {
   Future<EcosystemInboxMaterializationResult> addToJourney(
     EcosystemInboxItem item,
     String journeyId,
-  ) async {
+  ) {
     _ensurePending(item);
-    final journey = await repository.watchJourney(journeyId).first;
-    if (journey == null) {
-      throw StateError('Journey not found.');
-    }
-    await _ensureMemoryAllowance();
-    final memory = _memoryFrom(item, journeyId: journeyId);
-    await repository.saveMemory(memory);
-    final resolvedAt = DateTime.now().toUtc();
-    try {
-      await store.resolveInbox(
-        item.id,
-        disposition: EcosystemInboxDisposition.addedToJourney,
-        resolvedAt: resolvedAt,
-        materializedJourneyId: journeyId,
-        materializedMemoryId: memory.id,
-      );
-    } catch (_) {
-      await repository.deleteMemory(memory.id);
-      rethrow;
-    }
-    return EcosystemInboxMaterializationResult(
-      disposition: EcosystemInboxDisposition.addedToJourney,
-      journeyId: journeyId,
-      memoryId: memory.id,
+    return store.materializeInboxExactlyOnce(
+      item.id,
+      materialize: () async {
+        final journey = await repository.watchJourney(journeyId).first;
+        if (journey == null) {
+          throw StateError('Journey not found.');
+        }
+        await _ensureMemoryAllowanceForJourney(journeyId);
+
+        final memory = _memoryFrom(item, journeyId: journeyId);
+        await repository.saveMemory(memory);
+        final result = EcosystemInboxMaterializationResult(
+          disposition: EcosystemInboxDisposition.addedToJourney,
+          journeyId: journeyId,
+          memoryId: memory.id,
+        );
+        return EcosystemInboxMaterializationCommit(
+          value: result,
+          disposition: result.disposition,
+          materializedJourneyId: journeyId,
+          materializedMemoryId: memory.id,
+        );
+      },
     );
   }
 
@@ -78,88 +77,105 @@ final class EcosystemInboxMaterializationService {
     required String destination,
     required DateTime startDate,
     required DateTime endDate,
-  }) async {
+  }) {
     _ensurePending(item);
-    final premium = isPremium();
-    final journeys = await repository.watchJourneys().first;
-    final journeyCheck =
-        premiumGate.canCreateJourney(journeys.length, premium);
-    if (journeyCheck is PremiumLimitReached) {
-      throw EcosystemInboxLimitException(journeyCheck);
-    }
-    await _ensureMemoryAllowance();
+    return store.materializeInboxExactlyOnce(
+      item.id,
+      materialize: () async {
+        final premium = isPremium();
+        final journeys = await repository.watchJourneys().first;
+        final journeyCheck =
+            premiumGate.canCreateJourney(journeys.length, premium);
+        if (journeyCheck is PremiumLimitReached) {
+          throw EcosystemInboxLimitException(journeyCheck);
+        }
 
-    final journey = await repository.createJourney(
-      title: title,
-      destination: destination,
-      startDate: startDate,
-      endDate: endDate,
-      description: _description(item),
-    );
-    final memory = _memoryFrom(item, journeyId: journey.id);
-    try {
-      await repository.saveMemory(memory);
-      await store.resolveInbox(
-        item.id,
-        disposition: EcosystemInboxDisposition.createdJourney,
-        resolvedAt: DateTime.now().toUtc(),
-        materializedJourneyId: journey.id,
-        materializedMemoryId: memory.id,
-      );
-    } catch (_) {
-      await repository.deleteJourney(journey.id);
-      rethrow;
-    }
+        final memoryCheck = premiumGate.canCreateMemory(0, premium);
+        if (memoryCheck is PremiumLimitReached) {
+          throw EcosystemInboxLimitException(memoryCheck);
+        }
 
-    return EcosystemInboxMaterializationResult(
-      disposition: EcosystemInboxDisposition.createdJourney,
-      journeyId: journey.id,
-      memoryId: memory.id,
+        final journey = await repository.createJourney(
+          title: title,
+          destination: destination,
+          startDate: startDate,
+          endDate: endDate,
+          description: _description(item),
+        );
+        final memory = _memoryFrom(item, journeyId: journey.id);
+        await repository.saveMemory(memory);
+
+        final result = EcosystemInboxMaterializationResult(
+          disposition: EcosystemInboxDisposition.createdJourney,
+          journeyId: journey.id,
+          memoryId: memory.id,
+        );
+        return EcosystemInboxMaterializationCommit(
+          value: result,
+          disposition: result.disposition,
+          materializedJourneyId: journey.id,
+          materializedMemoryId: memory.id,
+        );
+      },
     );
   }
 
   Future<EcosystemInboxMaterializationResult> saveFreeMemory(
     EcosystemInboxItem item,
-  ) async {
+  ) {
     _ensurePending(item);
-    await _ensureMemoryAllowance();
-    final memory = _memoryFrom(item, journeyId: null);
-    await repository.saveMemory(memory);
-    try {
-      await store.resolveInbox(
-        item.id,
-        disposition: EcosystemInboxDisposition.savedFreeMemory,
-        resolvedAt: DateTime.now().toUtc(),
-        materializedMemoryId: memory.id,
-      );
-    } catch (_) {
-      await repository.deleteMemory(memory.id);
-      rethrow;
-    }
-    return EcosystemInboxMaterializationResult(
-      disposition: EcosystemInboxDisposition.savedFreeMemory,
-      memoryId: memory.id,
+    return store.materializeInboxExactlyOnce(
+      item.id,
+      materialize: () async {
+        await _ensureUnassignedMemoryAllowance();
+        final memory = _memoryFrom(item, journeyId: null);
+        await repository.saveMemory(memory);
+
+        final result = EcosystemInboxMaterializationResult(
+          disposition: EcosystemInboxDisposition.savedFreeMemory,
+          memoryId: memory.id,
+        );
+        return EcosystemInboxMaterializationCommit(
+          value: result,
+          disposition: result.disposition,
+          materializedMemoryId: memory.id,
+        );
+      },
     );
   }
 
   Future<EcosystemInboxMaterializationResult> ignore(
     EcosystemInboxItem item,
-  ) async {
+  ) {
     _ensurePending(item);
-    await store.resolveInbox(
+    return store.materializeInboxExactlyOnce(
       item.id,
-      disposition: EcosystemInboxDisposition.ignored,
-      resolvedAt: DateTime.now().toUtc(),
-    );
-    return const EcosystemInboxMaterializationResult(
-      disposition: EcosystemInboxDisposition.ignored,
+      materialize: () async {
+        const result = EcosystemInboxMaterializationResult(
+          disposition: EcosystemInboxDisposition.ignored,
+        );
+        return const EcosystemInboxMaterializationCommit(
+          value: result,
+          disposition: EcosystemInboxDisposition.ignored,
+        );
+      },
     );
   }
 
-  Future<void> _ensureMemoryAllowance() async {
-    final memories = await repository.watchAllMemories().first;
+  Future<void> _ensureMemoryAllowanceForJourney(String journeyId) async {
+    final memories = await repository.watchMemories(journeyId).first;
     final check =
         premiumGate.canCreateMemory(memories.length, isPremium());
+    if (check is PremiumLimitReached) {
+      throw EcosystemInboxLimitException(check);
+    }
+  }
+
+  Future<void> _ensureUnassignedMemoryAllowance() async {
+    final memories = await repository.watchAllMemories().first;
+    final unassigned =
+        memories.where((memory) => memory.journeyId == null).length;
+    final check = premiumGate.canCreateMemory(unassigned, isPremium());
     if (check is PremiumLimitReached) {
       throw EcosystemInboxLimitException(check);
     }
@@ -221,7 +237,7 @@ final class EcosystemInboxMaterializationService {
 
   void _ensurePending(EcosystemInboxItem item) {
     if (!item.isPending) {
-      throw StateError('Ecosystem inbox item has already been resolved.');
+      throw EcosystemInboxAlreadyResolvedException(item.id);
     }
   }
 }

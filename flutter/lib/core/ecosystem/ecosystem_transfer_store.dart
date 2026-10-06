@@ -47,6 +47,29 @@ enum EcosystemInboxDisposition {
   }
 }
 
+final class EcosystemInboxAlreadyResolvedException implements Exception {
+  const EcosystemInboxAlreadyResolvedException(this.id);
+
+  final String id;
+
+  @override
+  String toString() => 'EcosystemInboxAlreadyResolvedException($id)';
+}
+
+final class EcosystemInboxMaterializationCommit<T> {
+  const EcosystemInboxMaterializationCommit({
+    required this.value,
+    required this.disposition,
+    this.materializedJourneyId,
+    this.materializedMemoryId,
+  });
+
+  final T value;
+  final EcosystemInboxDisposition disposition;
+  final String? materializedJourneyId;
+  final String? materializedMemoryId;
+}
+
 final class EcosystemInboxItem {
   const EcosystemInboxItem({
     required this.id,
@@ -97,6 +120,12 @@ abstract interface class EcosystemTransferStore {
   Stream<List<EcosystemInboxItem>> watchPendingInbox();
 
   Stream<List<EcosystemInboxItem>> watchInboxHistory();
+
+  Future<T> materializeInboxExactlyOnce<T>(
+    String id, {
+    required Future<EcosystemInboxMaterializationCommit<T>> Function()
+        materialize,
+  });
 
   Future<void> resolveInbox(
     String id, {
