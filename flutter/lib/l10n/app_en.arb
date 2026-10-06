@@ -332,5 +332,6 @@
   "keepsakeActionFailed": "Unable to complete the file action.",
   "keepsakeRenamed": "Keepsake renamed.",
   "keepsakeExported": "Keepsake exported.",
-  "mediaUnavailable": "Media unavailable"
+  "mediaUnavailable": "Media unavailable",
+  "journeyDescription": "Description"
 }
