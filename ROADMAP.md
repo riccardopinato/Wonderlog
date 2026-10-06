@@ -134,7 +134,8 @@ Evidence:
 
 ## DONE — MAXI STEP 23B Core Functional Repair
 
-Completed in PR #14.
+Completed in PR #14 and squash-merged to `main` as
+`5b3a253d7355f1af92fbd691663efa0e20fdbbbb`.
 
 Completed:
 - real private-media rendering in Journey Album, Memory and Rediscover surfaces;
@@ -148,6 +149,14 @@ Completed:
 - Rediscover and Replay now consume explicit Memory ↔ Photo links.
 
 Deterministic gate on head `8b40b92cdf182bed50f4cd4d873855d64e4787aa`:
+- analyze PASS;
+- 91 tests PASS;
+- Web release PASS;
+- Android APK PASS;
+- Android AAB PASS.
+
+Post-merge integration gate:
+- main run `37485260181`: PASS;
 - analyze PASS;
 - 91 tests PASS;
 - Web release PASS;
