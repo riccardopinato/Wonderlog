@@ -20,15 +20,15 @@ abstract final class SubscriptionConfig {
   static const premiumMemoriesPerJourney = 0x7fffffff;
 
   static const freeCloudBackup = false;
-  static const premiumCloudBackup = true;
+  static const premiumCloudBackup = false;
   static const freePdfExport = false;
   static const premiumPdfExport = true;
   static const freeOfflineMaps = false;
-  static const premiumOfflineMaps = true;
+  static const premiumOfflineMaps = false;
   static const freePremiumThemes = false;
-  static const premiumPremiumThemes = true;
+  static const premiumPremiumThemes = false;
   static const freeAdvancedStats = false;
-  static const premiumAdvancedStats = true;
+  static const premiumAdvancedStats = false;
 
   static const premiumEntitlementId = 'premium';
 
