@@ -239,10 +239,6 @@ final class _InboxItemCardState extends State<_InboxItemCard> {
             ),
             if (pending) ...[
               const SizedBox(height: WonderlogSpacing.medium),
-              if (_busy) ...[
-                const LinearProgressIndicator(),
-                const SizedBox(height: WonderlogSpacing.small),
-              ],
               Wrap(
                 spacing: WonderlogSpacing.small,
                 runSpacing: WonderlogSpacing.small,
