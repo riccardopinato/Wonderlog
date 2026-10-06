@@ -8,6 +8,7 @@ import '../../location/domain/location_repository.dart';
 import '../../journeys/presentation/journeys_page.dart';
 import '../../memories/data/photo_import_service.dart';
 import '../../memories/domain/wonderlog_repository.dart';
+import '../../memories/presentation/memories_page.dart';
 import '../../profile/presentation/profile_page.dart';
 
 final class WonderlogShell extends StatefulWidget {
@@ -42,6 +43,7 @@ final class _WonderlogShellState extends State<WonderlogShell> {
         photoImportService: widget.photoImportService,
       ),
       JourneysPage(repository: widget.repository),
+      MemoriesPage(repository: widget.repository),
       ProfilePage(controller: widget.controller),
     ];
 
@@ -55,6 +57,11 @@ final class _WonderlogShellState extends State<WonderlogShell> {
         icon: const Icon(Icons.luggage_outlined),
         selectedIcon: const Icon(Icons.luggage),
         label: strings.navJourneys,
+      ),
+      NavigationDestination(
+        icon: const Icon(Icons.auto_stories_outlined),
+        selectedIcon: const Icon(Icons.auto_stories),
+        label: strings.navMemories,
       ),
       NavigationDestination(
         icon: const Icon(Icons.person_outline),
