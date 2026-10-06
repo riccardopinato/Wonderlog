@@ -1,15 +1,15 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wonderlog/core/database/wonderlog_database.dart';
-import 'package:wonderlog/features/journeys/data/drift_journey_repository.dart';
+import 'package:wonderlog/features/memories/data/drift_wonderlog_repository.dart';
 
 void main() {
   late WonderlogDatabase database;
-  late DriftJourneyRepository repository;
+  late DriftWonderlogRepository repository;
 
   setUp(() {
     database = WonderlogDatabase(NativeDatabase.memory());
-    repository = DriftJourneyRepository(database);
+    repository = DriftWonderlogRepository(database);
   });
 
   tearDown(() async {
