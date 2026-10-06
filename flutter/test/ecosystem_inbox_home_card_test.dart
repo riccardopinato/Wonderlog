@@ -67,6 +67,13 @@ final class _FakeEcosystemTransferStore implements EcosystemTransferStore {
       Stream<List<EcosystemInboxItem>>.value(pending);
 
   @override
+  Future<T?> runInboxMaterialization<T>(
+    String id,
+    Future<T> Function() materialize,
+  ) =>
+      materialize();
+
+  @override
   Future<void> resolveInbox(
     String id, {
     required EcosystemInboxDisposition disposition,
