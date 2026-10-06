@@ -15,6 +15,7 @@ abstract final class SubscriptionConfig {
   static const freeAlbumPhotosPerJourney = 5;
   static const premiumAlbumPhotosPerJourney = 100;
   static const freeMemoriesPerJourney = 5;
+  static const freeUnassignedMemories = freeMemoriesPerJourney;
   static const premiumJourneysLimit = 0x7fffffff;
   static const premiumMemoriesPerJourney = 0x7fffffff;
 
@@ -30,9 +31,6 @@ abstract final class SubscriptionConfig {
   static const premiumAdvancedStats = true;
 
   static const premiumEntitlementId = 'premium';
-  static const monthlyProductId = 'wonderlog_premium_monthly';
-  static const yearlyProductId = 'wonderlog_premium_yearly';
-  static const lifetimeProductId = 'wonderlog_premium_lifetime';
 
   static const freeLimits = SubscriptionLimits(
     albumPhotosLimit: freeAlbumPhotosPerJourney,
