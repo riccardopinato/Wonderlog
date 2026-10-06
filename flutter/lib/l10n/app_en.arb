@@ -271,6 +271,6 @@
   "ecosystemCapabilityPlace": "Places",
   "ecosystemCapabilityJourney": "Journeys",
   "ecosystemCapabilityRoute": "Routes",
-  "premiumJourneyLimitReached": "You reached the Journey limit for the current plan.",
+  "premiumJourneyLimitReached": "You reached the Journey limit of the current plan.",
   "premiumMemoryLimitReached": "You reached the Memory limit for this destination."
 }
