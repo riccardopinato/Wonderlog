@@ -29,3 +29,16 @@ final class Journey {
   final DateTime createdAt;
   final DateTime updatedAt;
 }
+
+
+final class JourneyDeletionImpact {
+  const JourneyDeletionImpact({
+    required this.memoryCount,
+    required this.photoCount,
+    required this.attachmentCount,
+  });
+
+  final int memoryCount;
+  final int photoCount;
+  final int attachmentCount;
+}
