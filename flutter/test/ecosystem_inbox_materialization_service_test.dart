@@ -111,6 +111,43 @@ void main() {
     expect(history.single.materializedJourneyId, isNull);
     expect(history.single.materializedMemoryId, isNull);
   });
+
+  test('concurrent E2 materialization is exactly once', () async {
+    final item = await _receive(store, 'note-concurrent');
+
+    final results = await Future.wait<Object>(
+      [
+        service.saveFreeMemory(item),
+        service.saveFreeMemory(item),
+      ].map(
+        (future) async {
+          try {
+            return await future;
+          } catch (error) {
+            return error;
+          }
+        },
+      ),
+    );
+
+    final successes =
+        results.whereType<EcosystemInboxMaterializationResult>().toList();
+    final rejected =
+        results.whereType<EcosystemInboxAlreadyResolvedException>().toList();
+
+    expect(successes, hasLength(1));
+    expect(rejected, hasLength(1));
+    expect(await repository.countUnassignedMemories(), 1);
+
+    final history = await store.watchInboxHistory().first;
+    expect(history, hasLength(1));
+    expect(
+      history.single.disposition,
+      EcosystemInboxDisposition.savedFreeMemory,
+    );
+    expect(history.single.materializedMemoryId, isNotNull);
+  });
+
 }
 
 Future<EcosystemInboxItem> _receive(
