@@ -12,6 +12,11 @@ sync, delete and restore.
 
 The client uses a publishable key only. Never ship a secret/service-role key.
 
+Activation also requires the Flutter dart-define
+`WONDERLOG_CLOUD_DATA_ENABLED=true`. `SUPABASE_URL` and
+`SUPABASE_PUBLISHABLE_KEY` alone enable identity but do not opt the same
+backend into Wonderlog data storage.
+
 Current Step 25 cloud scope:
 - Journeys;
 - Memories assigned to a Journey;
