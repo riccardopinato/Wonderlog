@@ -69,12 +69,40 @@ void main() {
     await tester.pump();
 
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
-    final buttons = tester.widgetList<ButtonStyleButton>(
-      find.byType(ButtonStyleButton),
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.widgetWithText(
+              FilledButton,
+              'Aggiungi a un viaggio esistente',
+            ),
+          )
+          .onPressed,
+      isNull,
     );
     expect(
-      buttons.where((button) => button.onPressed == null).length,
-      4,
+      tester
+          .widget<FilledButton>(
+            find.widgetWithText(FilledButton, 'Crea nuovo viaggio'),
+          )
+          .onPressed,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.widgetWithText(FilledButton, 'Salva come ricordo libero'),
+          )
+          .onPressed,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<OutlinedButton>(
+            find.widgetWithText(OutlinedButton, 'Ignora e archivia'),
+          )
+          .onPressed,
+      isNull,
     );
 
     completer.complete();
