@@ -26,4 +26,24 @@ void main() {
       isA<PremiumRequired>(),
     );
   });
+
+  test('Journey and unassigned Memory buckets are explicit and independent', () {
+    expect(gate.canCreateJourneyMemory(4, false), isA<PremiumAllowed>());
+    expect(gate.canCreateJourneyMemory(5, false), isA<PremiumLimitReached>());
+    expect(gate.canCreateUnassignedMemory(4, false), isA<PremiumAllowed>());
+    expect(
+      gate.canCreateUnassignedMemory(5, false),
+      isA<PremiumLimitReached>(),
+    );
+
+    final allowance = gate.calculateMemoryCreationAllowance(
+      current: 3,
+      requested: 4,
+      premium: false,
+      unassigned: true,
+    );
+    expect(allowance.allowedCount, 2);
+    expect(allowance.blockedCount, 2);
+  });
+
 }
