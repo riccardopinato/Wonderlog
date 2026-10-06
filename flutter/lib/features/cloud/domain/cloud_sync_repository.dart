@@ -45,22 +45,27 @@ final class CloudSyncRepository {
   Future<void> enqueueDelete(
     SyncEntityType entityType,
     String localId,
-  ) =>
-      _enqueue(
-        entityType,
-        localId,
-        operation: SyncOperation.delete,
-      );
+  ) async {
+    await localDataSource.markPendingDelete(entityType, localId);
+    await _enqueue(
+      entityType,
+      localId,
+      operation: SyncOperation.delete,
+    );
+  }
 
   Future<int> pendingCount() => queueStore.watchPendingCount().first;
 
-  Future<SyncSummary> syncNow() async {
+  Future<SyncSummary> syncNow({
+    bool includePhotoUploads = true,
+  }) async {
     if (!await cloudProvider.isAuthenticated()) {
       throw StateError('Cloud backup requires an authenticated account.');
     }
 
     final items = await queueStore.nextBatch(
       limit: CloudBackupConfig.syncBatchSize,
+      includePhotoUploads: includePhotoUploads,
     );
     var uploaded = 0;
     var deleted = 0;
@@ -100,7 +105,9 @@ final class CloudSyncRepository {
       await enqueueJourney(id);
     }
 
-    final journeys = await _drainQueue();
+    final journeys = await _drainQueue(
+      includePhotoUploads: includePhotos,
+    );
 
     for (final id in await localDataSource.getPendingMemoryIds()) {
       await enqueueMemory(id);
@@ -111,10 +118,12 @@ final class CloudSyncRepository {
       }
     }
 
-    final content = await _drainQueue();
+    final content = await _drainQueue(
+      includePhotoUploads: includePhotos,
+    );
 
     var relationshipFailures = 0;
-    if (includePhotos && relationshipReader != null) {
+    if (relationshipReader != null) {
       try {
         final links = await relationshipReader!();
         await cloudProvider.uploadMemoryPhotoLinks(links);
@@ -133,26 +142,30 @@ final class CloudSyncRepository {
     );
   }
 
-  Future<SyncSummary> _drainQueue() async {
+  Future<SyncSummary> _drainQueue({
+    required bool includePhotoUploads,
+  }) async {
     var uploaded = 0;
     var deleted = 0;
     var failures = 0;
 
     while (true) {
-      final before = await pendingCount();
-      if (before == 0) break;
+      final eligible = await queueStore.nextBatch(
+        limit: CloudBackupConfig.syncBatchSize,
+        includePhotoUploads: includePhotoUploads,
+      );
+      if (eligible.isEmpty) break;
 
-      final batch = await syncNow();
+      final batch = await syncNow(
+        includePhotoUploads: includePhotoUploads,
+      );
       uploaded += batch.uploaded;
       deleted += batch.deleted;
       failures += batch.failures;
 
-      final after = await pendingCount();
-      if (after == 0) break;
-
-      // Failed rows remain queued for an explicit later retry. Stop when this
-      // pass made no forward progress instead of hammering the same failures.
-      if (after >= before) break;
+      // A batch made only of failures remains queued for an explicit later
+      // retry. Stop here instead of hammering the same remote operation.
+      if (batch.uploaded == 0 && batch.deleted == 0) break;
     }
 
     return SyncSummary(
