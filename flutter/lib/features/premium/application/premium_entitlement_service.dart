@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart' as rc;
 
+import '../domain/subscription_config.dart';
+
 enum PremiumStoreState {
   unconfigured,
   initializing,
@@ -47,7 +49,7 @@ final class PremiumEntitlementService extends ChangeNotifier {
 
   static const entitlementId = String.fromEnvironment(
     'REVENUECAT_PREMIUM_ENTITLEMENT',
-    defaultValue: 'premium',
+    defaultValue: SubscriptionConfig.premiumEntitlementId,
   );
 
   static const _androidApiKey = String.fromEnvironment(
