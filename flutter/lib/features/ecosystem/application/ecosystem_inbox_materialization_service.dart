@@ -31,12 +31,13 @@ final class EcosystemInboxMaterializationService {
   EcosystemInboxMaterializationService({
     required this.repository,
     required this.store,
-    required bool Function() isPremium,
     PremiumAccessPolicy? premiumAccessPolicy,
-  }) : premiumAccessPolicy = premiumAccessPolicy ??
+    bool Function()? isPremium,
+  })  : assert(premiumAccessPolicy != null || isPremium != null),
+        premiumAccessPolicy = premiumAccessPolicy ??
             PremiumAccessPolicy(
               repository: repository,
-              isPremium: isPremium,
+              isPremium: isPremium!,
             );
 
   final WonderlogRepository repository;
