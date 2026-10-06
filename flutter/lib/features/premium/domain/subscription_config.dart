@@ -24,7 +24,7 @@ abstract final class SubscriptionConfig {
   static const freePdfExport = false;
   static const premiumPdfExport = true;
   static const freeOfflineMaps = false;
-  static const premiumOfflineMaps = false;
+  static const premiumOfflineMaps = true;
   static const freePremiumThemes = false;
   static const premiumPremiumThemes = false;
   static const freeAdvancedStats = false;
