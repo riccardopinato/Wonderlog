@@ -380,9 +380,15 @@ final class DriftWonderlogRepository implements WonderlogRepository {
 
   @override
   Future<void> deletePhoto(String photoId) async {
+    final links = await (database.select(database.memoryPhotos)
+          ..where((row) => row.albumPhotoId.equals(photoId)))
+        .get();
     await (database.delete(database.albumPhotos)
           ..where((row) => row.id.equals(photoId)))
         .go();
+    for (final memoryId in links.map((link) => link.memoryId).toSet()) {
+      await _touchMemory(memoryId);
+    }
   }
 
   @override
@@ -391,15 +397,17 @@ final class DriftWonderlogRepository implements WonderlogRepository {
     required String photoId,
     required int displayOrder,
     required bool isHero,
-  }) =>
-      database.into(database.memoryPhotos).insertOnConflictUpdate(
-        db.MemoryPhotosCompanion.insert(
-          memoryId: memoryId,
-          albumPhotoId: photoId,
-          displayOrder: Value(displayOrder),
-          isHeroPhoto: Value(isHero),
-        ),
-      );
+  }) async {
+    await database.into(database.memoryPhotos).insertOnConflictUpdate(
+          db.MemoryPhotosCompanion.insert(
+            memoryId: memoryId,
+            albumPhotoId: photoId,
+            displayOrder: Value(displayOrder),
+            isHeroPhoto: Value(isHero),
+          ),
+        );
+    await _touchMemory(memoryId);
+  }
 
   @override
   Future<void> replaceMemoryPhotoLinks({
@@ -411,13 +419,16 @@ final class DriftWonderlogRepository implements WonderlogRepository {
             ..where((row) => row.memoryId.equals(memoryId)))
           .go();
       for (var index = 0; index < photoIds.length; index++) {
-        await linkPhotoToMemory(
-          memoryId: memoryId,
-          photoId: photoIds[index],
-          displayOrder: index,
-          isHero: index == 0,
-        );
+        await database.into(database.memoryPhotos).insertOnConflictUpdate(
+              db.MemoryPhotosCompanion.insert(
+                memoryId: memoryId,
+                albumPhotoId: photoIds[index],
+                displayOrder: Value(index),
+                isHeroPhoto: Value(index == 0),
+              ),
+            );
       }
+      await _touchMemory(memoryId);
     });
   }
 
@@ -433,6 +444,7 @@ final class DriftWonderlogRepository implements WonderlogRepository {
                 row.albumPhotoId.equals(photoId),
           ))
         .go();
+    await _touchMemory(memoryId);
   }
 
   @override
@@ -480,25 +492,43 @@ final class DriftWonderlogRepository implements WonderlogRepository {
   }
 
   @override
-  Future<void> saveAttachment(MemoryAttachment attachment) =>
-      database.into(database.memoryAttachments).insertOnConflictUpdate(
-        db.MemoryAttachmentsCompanion.insert(
-          id: attachment.id,
-          memoryId: attachment.memoryId,
-          localUri: attachment.localUri,
-          originalName: Value(attachment.originalName),
-          mimeType: attachment.mimeType,
-          attachmentType: attachment.attachmentType,
-          createdAt: attachment.createdAt.toUtc().millisecondsSinceEpoch,
-          syncStatus: Value(attachment.syncStatus),
-        ),
-      );
+  Future<void> saveAttachment(MemoryAttachment attachment) async {
+    await database.into(database.memoryAttachments).insertOnConflictUpdate(
+          db.MemoryAttachmentsCompanion.insert(
+            id: attachment.id,
+            memoryId: attachment.memoryId,
+            localUri: attachment.localUri,
+            originalName: Value(attachment.originalName),
+            mimeType: attachment.mimeType,
+            attachmentType: attachment.attachmentType,
+            createdAt: attachment.createdAt.toUtc().millisecondsSinceEpoch,
+            syncStatus: Value(attachment.syncStatus),
+          ),
+        );
+    await _touchMemory(attachment.memoryId);
+  }
 
   @override
   Future<void> deleteAttachment(String attachmentId) async {
+    final attachment = await (database.select(database.memoryAttachments)
+          ..where((row) => row.id.equals(attachmentId)))
+        .getSingleOrNull();
     await (database.delete(database.memoryAttachments)
           ..where((row) => row.id.equals(attachmentId)))
         .go();
+    if (attachment != null) {
+      await _touchMemory(attachment.memoryId);
+    }
+  }
+
+  Future<void> _touchMemory(String memoryId) async {
+    await (database.update(database.memories)
+          ..where((row) => row.id.equals(memoryId)))
+        .write(
+      db.MemoriesCompanion(
+        updatedAt: Value(DateTime.now().toUtc().millisecondsSinceEpoch),
+      ),
+    );
   }
 
   Future<List<MemoryWithPhotos>> _memoryBundles(
