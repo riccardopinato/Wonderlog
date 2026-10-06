@@ -22,7 +22,6 @@ final class EcosystemInboxPage extends StatelessWidget {
     final materializer = EcosystemInboxMaterializationService(
       repository: services.repository,
       store: services.ecosystemTransferStore,
-      isPremium: () => services.controller.isPremium,
       premiumAccessPolicy: services.premiumAccessPolicy,
     );
 
