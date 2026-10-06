@@ -1,5 +1,3 @@
-import 'package:uuid/uuid.dart';
-
 import '../../memories/data/photo_import_service.dart';
 import '../../memories/domain/memory_models.dart';
 import '../domain/capture_media_port.dart';
@@ -11,8 +9,6 @@ final class PhotoCaptureMediaPort implements CaptureMediaPort {
   });
 
   final PhotoImportService photoImportService;
-  final Uuid _uuid = const Uuid();
-
   @override
   Future<AlbumPhotoEntry?> importPhoto({
     required String journeyId,
@@ -42,22 +38,12 @@ final class PhotoCaptureMediaPort implements CaptureMediaPort {
   }) async {
     final uri = item.uri?.trim();
     if (uri == null || uri.isEmpty) return null;
-    return MemoryAttachment(
-      id: 'attachment_' + _uuid.v4(),
+    return photoImportService.importKeepsake(
       memoryId: memoryId,
-      localUri: uri,
-      originalName: item.title,
-      mimeType: item.mimeType ?? 'application/octet-stream',
-      attachmentType: _attachmentType(item),
-      createdAt: DateTime.now().toUtc(),
-      syncStatus: 'LOCAL_ONLY',
+      sourceUri: uri,
+      existingAttachments: const [],
+      fileName: item.title,
+      mimeType: item.mimeType,
     );
-  }
-
-  String _attachmentType(CaptureIncomingItem item) {
-    final mime = item.mimeType?.toLowerCase() ?? '';
-    if (mime == 'application/pdf') return 'DOCUMENT';
-    if (mime.startsWith('image/')) return 'SCREENSHOT';
-    return 'OTHER';
   }
 }
