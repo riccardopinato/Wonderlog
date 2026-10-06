@@ -10,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../journeys/presentation/journey_detail_page.dart';
 import '../../memories/presentation/memory_detail_page.dart';
 import '../application/ecosystem_inbox_materialization_service.dart';
+import 'ecosystem_inbox_action_panel.dart';
 
 final class EcosystemInboxPage extends StatelessWidget {
   const EcosystemInboxPage({super.key});
@@ -228,31 +229,11 @@ final class _InboxItemCard extends StatelessWidget {
             ),
             if (pending) ...[
               const SizedBox(height: WonderlogSpacing.medium),
-              Wrap(
-                spacing: WonderlogSpacing.small,
-                runSpacing: WonderlogSpacing.small,
-                children: [
-                  FilledButton.tonalIcon(
-                    onPressed: () => _addToJourney(context),
-                    icon: const Icon(Icons.luggage_outlined),
-                    label: Text(strings.ecosystemAddExistingJourney),
-                  ),
-                  FilledButton.tonalIcon(
-                    onPressed: () => _createJourney(context),
-                    icon: const Icon(Icons.add_location_alt_outlined),
-                    label: Text(strings.ecosystemCreateJourney),
-                  ),
-                  FilledButton.tonalIcon(
-                    onPressed: () => _saveFreeMemory(context),
-                    icon: const Icon(Icons.auto_stories_outlined),
-                    label: Text(strings.ecosystemSaveFreeMemory),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () => _ignore(context),
-                    icon: const Icon(Icons.archive_outlined),
-                    label: Text(strings.ecosystemIgnoreArchive),
-                  ),
-                ],
+              EcosystemInboxActionPanel(
+                onAddToJourney: () => _addToJourney(context),
+                onCreateJourney: () => _createJourney(context),
+                onSaveFreeMemory: () => _saveFreeMemory(context),
+                onIgnore: () => _ignore(context),
               ),
             ] else ...[
               const SizedBox(height: WonderlogSpacing.medium),
