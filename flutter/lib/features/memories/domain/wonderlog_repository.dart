@@ -7,6 +7,10 @@ abstract interface class WonderlogRepository implements JourneyRepository {
   Stream<List<Journey>> watchJourneys();
 
   Stream<Journey?> watchJourney(String id);
+  Future<Journey?> getJourney(String id);
+  Future<int> countJourneys();
+  Future<int> countMemoriesForJourney(String journeyId);
+  Future<int> countUnassignedMemories();
   Stream<List<MemoryEntry>> watchMemories(String journeyId);
   Stream<List<MemoryEntry>> watchAllMemories();
   Stream<List<MemoryWithPhotos>> watchMemoriesWithPhotos(String journeyId);
