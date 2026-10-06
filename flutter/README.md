@@ -63,6 +63,21 @@ Supabase identity and Wonderlog cloud data are deliberately separate switches:
 a shared identity backend must not automatically become the Wonderlog backup
 database.
 
+Map runtime configuration:
+
+- `WONDERLOG_MAP_STYLE_URL` — online MapLibre style. The default is an
+  OpenFreeMap style for normal interactive rendering.
+- `WONDERLOG_OFFLINE_MAP_STYLE_URL` — optional MapLibre style whose provider
+  explicitly permits the intended offline-region download/caching. When set,
+  this style is also used for map rendering so downloaded resources match the
+  visible map.
+- `WONDERLOG_ROUTING_URL` — optional OSRM-compatible routing base URL. When
+  absent, Wonderlog exposes only the truthful chronological Replay path.
+
+Do not point `WONDERLOG_OFFLINE_MAP_STYLE_URL` at the standard
+`tile.openstreetmap.org` service or any other provider that forbids bulk/offline
+download. Offline region download is Android/iOS native; Web remains online-only.
+
 No secret belongs in the repository.
 
 ## CI gate
