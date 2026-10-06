@@ -106,16 +106,33 @@ Outcome:
 Evidence:
 - `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`.
 
-## NEXT — MAXI STEP 23A E2 Hardening
+## DONE — MAXI STEP 23A E2 Hardening
 
-Deep audit 2026-10-06 identified these first repairs:
-- atomic exactly-once inbox materialization;
-- canonical Premium gate across every creation path;
-- correct per-Journey vs unassigned Memory limit policy;
-- deterministic v8 -> v9 migration fixture;
-- full UI tests for all four E2 actions.
+Completed in PR #12 and squash-merged to `main` as
+`1e04bde60a81c9c58ad8b96d693d0cdac5d9a0e0`.
 
-See `docs/AUDIT_2026-10-06.md`.
+Completed:
+- atomic exactly-once Ecosystem Inbox materialization inside a Drift transaction;
+- rollback-safe domain writes and stale/concurrent action rejection;
+- per-item UI busy lock;
+- correct E2 Memory counting per Journey plus a separate unassigned bucket;
+- Journey free-limit enforcement inside the atomic E2 create flow;
+- deterministic v8 -> v9 existing-data migration fixture;
+- UI tests for all four E2 Inbox actions;
+- concurrency and rollback regression tests.
+
+Final PR head `8ce2a2214afa8f68c45448f7d7bf95ada161ef48`
+passed analyze, tests, Web release, Android release APK and Android AAB.
+CodeRabbit advisory status was green.
+
+The wider product-wide Premium creation policy is intentionally deferred to
+MAXI STEP 24. Physical Room v6 -> Drift v9 migration certification is also
+still required later.
+
+Evidence:
+- `docs/STEP_23A_E2_HARDENING.md`.
+
+## NEXT — MAXI STEP 23B Core Functional Repair
 
 ## LATER — Wonderlog production cutover
 
