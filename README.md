@@ -43,9 +43,16 @@ The post-E2 Flutter parity audit is complete. It removed one proven duplicate
 runtime implementation (`DriftJourneyRepository`) and explicitly keeps cloud,
 offline-map, migration and ecosystem modules that are incomplete or unwired but
 still part of the approved cutover architecture. Full Kotlin -> Flutter product
-parity is **not** claimed; the next repair gate is MAXI STEP 23A E2 Hardening.
+parity is **not** claimed.
 
-See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`.
+MAXI STEP 23A E2 Hardening is also complete: E2 materialization is
+transactional/exactly-once, E2 Premium counting is scoped correctly,
+the deterministic Drift v8 -> v9 fixture is in CI and all four Inbox actions
+have widget coverage. The next repair gate is **MAXI STEP 23B Core Functional
+Repair**.
+
+See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md` and
+`docs/STEP_23A_E2_HARDENING.md`.
 
 See:
 
