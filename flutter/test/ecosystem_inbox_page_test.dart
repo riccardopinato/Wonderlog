@@ -376,6 +376,13 @@ final class _MemoryWonderlogRepository implements WonderlogRepository {
       Stream.value(_journeys[id]);
 
   @override
+  Stream<List<Journey>> watchArchivedJourneys() => Stream.value(
+        _journeys.values
+            .where((journey) => journey.archived)
+            .toList(growable: false),
+      );
+
+  @override
   Stream<List<MemoryEntry>> watchMemories(String journeyId) => Stream.value(
         _memories.values
             .where((memory) => memory.journeyId == journeyId)
@@ -385,6 +392,26 @@ final class _MemoryWonderlogRepository implements WonderlogRepository {
   @override
   Stream<List<MemoryEntry>> watchAllMemories() =>
       Stream.value(_memories.values.toList(growable: false));
+
+  @override
+  Stream<List<MemoryEntry>> watchUnassignedMemories() => Stream.value(
+        _memories.values
+            .where((memory) => memory.journeyId == null)
+            .toList(growable: false),
+      );
+
+  @override
+  Stream<List<MemoryWithPhotos>> watchAllMemoriesWithPhotos() =>
+      Stream.value(
+        _memories.values
+            .map(
+              (memory) => MemoryWithPhotos(
+                memory: memory,
+                photos: const [],
+              ),
+            )
+            .toList(growable: false),
+      );
 
   @override
   Future<Journey> createJourney({
@@ -421,6 +448,38 @@ final class _MemoryWonderlogRepository implements WonderlogRepository {
   }
 
   @override
+  Future<void> setJourneyArchived(String journeyId, bool archived) async {
+    final journey = _journeys[journeyId];
+    if (journey == null) return;
+    _journeys[journeyId] = Journey(
+      id: journey.id,
+      title: journey.title,
+      destination: journey.destination,
+      country: journey.country,
+      startDate: journey.startDate,
+      endDate: journey.endDate,
+      description: journey.description,
+      latitude: journey.latitude,
+      longitude: journey.longitude,
+      favorite: journey.favorite,
+      archived: archived,
+      createdAt: journey.createdAt,
+      updatedAt: DateTime.now().toUtc(),
+    );
+  }
+
+  @override
+  Future<JourneyDeletionImpact> getJourneyDeletionImpact(
+    String journeyId,
+  ) async => JourneyDeletionImpact(
+        memoryCount: _memories.values
+            .where((memory) => memory.journeyId == journeyId)
+            .length,
+        photoCount: 0,
+        attachmentCount: 0,
+      );
+
+  @override
   Future<void> deleteJourney(String journeyId) async {
     _journeys.remove(journeyId);
     _memories.removeWhere((_, memory) => memory.journeyId == journeyId);
@@ -429,6 +488,33 @@ final class _MemoryWonderlogRepository implements WonderlogRepository {
   @override
   Future<void> saveMemory(MemoryEntry memory) async {
     _memories[memory.id] = memory;
+  }
+
+  @override
+  Future<void> moveMemoryToJourney(
+    String memoryId,
+    String? journeyId,
+  ) async {
+    final memory = _memories[memoryId];
+    if (memory == null) return;
+    _memories[memoryId] = MemoryEntry(
+      id: memory.id,
+      journeyId: journeyId,
+      title: memory.title,
+      journalText: memory.journalText,
+      locationName: memory.locationName,
+      date: memory.date,
+      mood: memory.mood,
+      tags: memory.tags,
+      latitude: memory.latitude,
+      longitude: memory.longitude,
+      favorite: memory.favorite,
+      createdAt: memory.createdAt,
+      updatedAt: DateTime.now().toUtc(),
+      displayOrder: memory.displayOrder,
+      syncStatus: memory.syncStatus,
+      futureCloudId: memory.futureCloudId,
+    );
   }
 
   @override
@@ -495,6 +581,21 @@ final class _MemoryWonderlogRepository implements WonderlogRepository {
     required List<String> photoIds,
   }) async =>
       throw UnimplementedError();
+
+  @override
+  Future<void> unlinkPhotoFromMemory({
+    required String memoryId,
+    required String photoId,
+  }) async {}
+
+  @override
+  Future<void> setJourneyCoverPhoto({
+    required String journeyId,
+    String? photoId,
+  }) async {}
+
+  @override
+  Future<Set<String>> referencedMediaUris() async => <String>{};
 
   @override
   Future<void> saveAttachment(MemoryAttachment attachment) async =>
