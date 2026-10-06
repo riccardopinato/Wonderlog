@@ -67,16 +67,12 @@ final class PremiumPage extends StatelessWidget {
                         title: strings.premiumUnlimited,
                       ),
                       _Benefit(
-                        icon: Icons.cloud_upload_outlined,
-                        title: strings.premiumCloud,
+                        icon: Icons.photo_library_outlined,
+                        title: strings.premiumExtendedAlbum,
                       ),
                       _Benefit(
                         icon: Icons.picture_as_pdf_outlined,
                         title: strings.premiumPdf,
-                      ),
-                      _Benefit(
-                        icon: Icons.map_outlined,
-                        title: strings.premiumOfflineMaps,
                       ),
                     ],
                   ),
