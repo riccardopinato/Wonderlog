@@ -8,7 +8,8 @@ import '../../../core/ecosystem/wonderlog_ecosystem_adapter.dart';
 import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/journey.dart';
-import '../domain/journey_repository.dart';
+import '../../memories/domain/wonderlog_repository.dart';
+import '../../premium/domain/premium_creation_guard.dart';
 
 final class JourneyCard extends StatelessWidget {
   const JourneyCard({
@@ -128,8 +129,9 @@ final class JourneyCard extends StatelessWidget {
 
 Future<void> showCreateJourneyDialog(
   BuildContext context,
-  JourneyRepository repository,
-) async {
+  WonderlogRepository repository, {
+  required bool Function() isPremium,
+}) async {
   final strings = AppLocalizations.of(context);
   final titleController = TextEditingController();
   final destinationController = TextEditingController();
@@ -215,6 +217,25 @@ Future<void> showCreateJourneyDialog(
                   final title = titleController.text.trim();
                   final destination = destinationController.text.trim();
                   if (title.isEmpty || destination.isEmpty) return;
+
+                  try {
+                    await PremiumCreationGuard(
+                      repository: repository,
+                      isPremium: isPremium,
+                    ).ensureJourneyAllowed();
+                  } on PremiumCreationLimitException {
+                    if (dialogContext.mounted) {
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(dialogContext)
+                                .premiumJourneyLimitReached,
+                          ),
+                        ),
+                      );
+                    }
+                    return;
+                  }
 
                   await repository.createJourney(
                     title: title,
