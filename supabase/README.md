@@ -1,21 +1,41 @@
-# Wonderlog Supabase backend contract
+# Wonderlog Supabase backend
 
-Step 25 wires the Flutter runtime to Supabase, but the connected Supabase account
-currently exposes only a project named `agenda-per-anna`. The Wonderlog schema
-must not be applied there by assumption.
+MAXI STEP 25 provisions Wonderlog cloud data on the shared Supabase project
+`agenda-per-anna` while keeping Anna's existing tables untouched.
 
-`WONDERLOG_CLOUD_SCHEMA.sql` is therefore a reviewed bootstrap contract, not a
-recorded Supabase migration. Apply it only after identifying the intended
-Wonderlog backend project. Then run Supabase security/performance advisors and
-a signed-in smoke test for Journey, Memory, photo upload/download, relationship
-sync, delete and restore.
+Deployed migrations:
+- `wonderlog_cloud_runtime_v1`;
+- `wonderlog_cloud_fk_indexes_v1`.
 
-The client uses a publishable key only. Never ship a secret/service-role key.
+Wonderlog owns these isolated resources:
+- `public.journeys`;
+- `public.memories`;
+- `public.album_photos`;
+- `public.memory_photos`;
+- private Storage bucket `wonderlog-photos`.
 
-Activation also requires the Flutter dart-define
-`WONDERLOG_CLOUD_DATA_ENABLED=true`. `SUPABASE_URL` and
-`SUPABASE_PUBLISHABLE_KEY` alone enable identity but do not opt the same
-backend into Wonderlog data storage.
+All four public tables have RLS enabled. Authenticated CRUD policies bind every
+row to `auth.uid() = owner_id`. Storage policies restrict private objects to
+the owning authenticated user and the first path segment is the user id.
+
+A two-user RLS smoke drill was executed after provisioning:
+- owner A inserted and updated a synthetic Journey;
+- owner B could not see the row;
+- owner A deleted the row;
+- cleanup verification returned zero smoke rows.
+
+Supabase advisors after the FK-index follow-up show no Wonderlog-specific
+missing-FK-index warning. Remaining security warnings are project-wide and
+pre-existing: `pg_net` is installed in `public`, and leaked-password
+protection is disabled.
+
+The client uses only the Supabase URL plus a publishable key. Never ship a
+secret/service-role key.
+
+When `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` are configured,
+Wonderlog cloud data is enabled by default. A special build can disable it with:
+
+`--dart-define=WONDERLOG_CLOUD_DATA_ENABLED=false`
 
 Current Step 25 cloud scope:
 - Journeys;
