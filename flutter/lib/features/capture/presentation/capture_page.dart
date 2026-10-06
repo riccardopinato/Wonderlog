@@ -291,7 +291,20 @@ final class _CapturePageState extends State<CapturePage> {
         currentCount: currentPhotos.length,
         selectedCount: selectedPhotos,
       );
-      upgradeRequired = upgradeRequired || allowance.blockedCount > 0;
+      if (allowance.allowedCount <= 0) {
+        upgradeRequired = true;
+      } else if (allowance.blockedCount > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context).albumPartialImport(
+                allowance.allowedCount,
+                allowance.blockedCount,
+              ),
+            ),
+          ),
+        );
+      }
     }
 
     if (!mounted) return;
