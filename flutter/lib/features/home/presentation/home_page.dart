@@ -118,6 +118,7 @@ final class HomePage extends StatelessWidget {
                 onAdd: () => showCreateJourneyDialog(
                   context,
                   repository,
+                  isPremium: isPremium,
                 ),
               ),
               if (ecosystemStore != null)
