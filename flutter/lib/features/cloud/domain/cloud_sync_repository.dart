@@ -46,8 +46,7 @@ final class CloudSyncRepository {
         operation: SyncOperation.delete,
       );
 
-  Future<int> pendingCount() async =>
-      (await queueStore.nextBatch(limit: 5000)).length;
+  Future<int> pendingCount() => queueStore.watchPendingCount().first;
 
   Future<SyncSummary> syncNow() async {
     if (!await cloudProvider.isAuthenticated()) {
@@ -95,7 +94,7 @@ final class CloudSyncRepository {
       await enqueueJourney(id);
     }
 
-    final journeys = await syncNow();
+    final journeys = await _drainQueue();
 
     for (final id in await localDataSource.getPendingMemoryIds()) {
       await enqueueMemory(id);
@@ -106,7 +105,7 @@ final class CloudSyncRepository {
       }
     }
 
-    final content = await syncNow();
+    final content = await _drainQueue();
 
     var relationshipFailures = 0;
     if (includePhotos && relationshipReader != null) {
@@ -125,6 +124,35 @@ final class CloudSyncRepository {
       conflicts: journeys.conflicts + content.conflicts,
       failures:
           journeys.failures + content.failures + relationshipFailures,
+    );
+  }
+
+  Future<SyncSummary> _drainQueue() async {
+    var uploaded = 0;
+    var deleted = 0;
+    var failures = 0;
+
+    while (true) {
+      final before = await pendingCount();
+      if (before == 0) break;
+
+      final batch = await syncNow();
+      uploaded += batch.uploaded;
+      deleted += batch.deleted;
+      failures += batch.failures;
+
+      final after = await pendingCount();
+      if (after == 0) break;
+
+      // Failed rows remain queued for an explicit later retry. Stop when this
+      // pass made no forward progress instead of hammering the same failures.
+      if (after >= before) break;
+    }
+
+    return SyncSummary(
+      uploaded: uploaded,
+      deleted: deleted,
+      failures: failures,
     );
   }
 
