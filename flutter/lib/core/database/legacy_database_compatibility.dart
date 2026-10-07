@@ -4,7 +4,11 @@ abstract final class LegacyDatabaseCompatibility {
   static const flutterSchemaVersion = 9;
 
   static bool requiresPreMigrationSnapshot(int schemaVersion) =>
-      schemaVersion >= 0 && schemaVersion < flutterSchemaVersion;
+      schemaVersion == roomSchemaVersion;
+
+  static bool canOpenLegacyDatabase(int schemaVersion) =>
+      schemaVersion == roomSchemaVersion ||
+      schemaVersion == flutterSchemaVersion;
 
   static bool isFutureSchema(int schemaVersion) =>
       schemaVersion > flutterSchemaVersion;
