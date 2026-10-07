@@ -79,7 +79,7 @@ void main() {
           await repository.watchMemory('room-v6-memory').first;
       expect(restored, isNotNull);
       expect(restored!.memory.journeyId, 'room-v6-trip');
-      expect(restored.memory.tags, ['torino', 'viaggio']);
+      expect(restored.memory.tags, ['torino']);
       expect(restored.photos.single.id, 'room-v6-photo');
       expect(restored.attachments.single.id, 'room-v6-attachment');
 
@@ -336,7 +336,7 @@ void _createCanonicalRoomV6(sqlite.Database db) {
     ) VALUES (
       'room-v6-memory', 'room-v6-trip', 'room-v6-trip', 'Mole Antonelliana',
       'Legacy note', 'Legacy Room data', '', 'Torino', 45.0690, 7.6930,
-      '2026-10-16', 'HAPPY', 'torino||viaggio', 1, 1792148400000,
+      '2026-10-16', 'HAPPY', 'torino', 1, 1792148400000,
       1792148400000, 0, 'LOCAL_ONLY', NULL
     )
   ''');
