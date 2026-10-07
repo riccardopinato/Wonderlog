@@ -116,20 +116,31 @@ The donor ZIP is now an executable CI contract. It proves:
 Before Wonderlog opens the detected legacy database through Drift:
 1. its `PRAGMA user_version` is read;
 2. future schemas fail closed;
-3. only schemas older than Drift v9 enter the safety-snapshot path;
-4. DB + present WAL/SHM sidecars are copied into private migration backup
+3. v4/v5/v7/v8 and any other uncertified pre-v9 baselines fail closed;
+4. only the canonical Room v6 baseline enters the safety-snapshot and
+   normalization path;
+5. DB + present WAL/SHM sidecars are copied into private migration backup
    storage;
-5. SHA-256 + size metadata is recorded and re-verified;
-6. source mutation during snapshot creation fails closed;
-7. an existing/tampered snapshot fails verification;
-8. schema v9 does not create another full migration snapshot on later starts.
+6. SHA-256 + size metadata is recorded and re-verified;
+7. source mutation during snapshot creation fails closed;
+8. an existing/tampered snapshot fails verification;
+9. Room v6 column normalization runs transactionally and is retry-safe;
+10. schema v9 does not create another migration snapshot or normalization on
+    later starts.
 
-The Drift tables explicitly preserve Room's camelCase SQL column names for the
-legacy tables. The deterministic migration fixture is created directly from the
-canonical Room v6 Kotlin entity contract rather than by downgrading a Drift v9
-database. It covers all nine legacy tables, `tripId`/other camelCase columns,
-the `||` tag converter, relationships, foreign keys and post-v9 unassigned
-Memories.
+Wonderlog keeps the established Flutter/Drift v9 physical schema in snake_case,
+so existing Flutter v9 databases remain reopenable. Only the certified Room v6
+cutover path runs `LegacyRoomSchemaNormalizer`: after the verified safety
+snapshot it transactionally and idempotently renames the canonical Room
+camelCase columns to their Drift snake_case equivalents while leaving
+`user_version = 6`. Drift then performs the existing v6 -> v9 migration.
+
+The deterministic migration fixture is created directly from the canonical
+Room v6 Kotlin entity contract rather than by downgrading a Drift v9 database.
+It covers all nine legacy tables, camelCase-to-snake_case normalization, the
+`||` tag converter, relationships, foreign keys and post-v9 unassigned
+Memories. A separate regression test reopens an existing Flutter v9 snake_case
+database to prevent the Room compatibility bridge from changing that contract.
 
 `tool/legacy_room_v6_drill.dart`:
 - accepts only a v6 input;
