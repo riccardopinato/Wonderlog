@@ -45,6 +45,12 @@ The AAB remains the Play-oriented packaging format. The ordinary CI artifacts
 are explicitly labelled verification artifacts and are not claimed as
 store-signed production releases.
 
+Each uploaded package is independently verifiable:
+- Android artifact: APK/AAB files + Android-only SHA-256 and size manifests;
+- Web artifact: Web tarball + Web-only SHA-256 and size manifests.
+
+No checksum manifest references a file that is absent from its artifact.
+
 ### Production Android signing lane
 Added `.github/workflows/android-production-release.yml`.
 
@@ -104,7 +110,9 @@ This proves Apple compilation, not App Store signing/distribution.
 ### Room v6 -> Drift v9 hardening
 Added a pre-open migration safety snapshot for the real Android legacy DB path.
 
-The donor ZIP is now an executable CI contract. It proves:
+The donor ZIP is now an executable CI contract and is included in both PR and
+main-push workflow path filters, so a donor-only change cannot bypass the gate.
+It proves:
 - legacy applicationId: `com.aistudio.wanderlogmemories.pqrzmx`;
 - legacy versionCode: `1`;
 - database name: `wanderlog-memories-db`;
@@ -137,9 +145,9 @@ camelCase columns to their Drift snake_case equivalents while leaving
 
 The deterministic migration fixture is created directly from the canonical
 Room v6 Kotlin entity contract rather than by downgrading a Drift v9 database.
-It covers all nine legacy tables, camelCase-to-snake_case normalization, the
-`||` tag converter, relationships, foreign keys and post-v9 unassigned
-Memories. A separate regression test reopens an existing Flutter v9 snake_case
+It covers all nine legacy tables, camelCase-to-snake_case normalization, both
+multi-tag `||` values and the donor converter's single-tag representation,
+relationships, foreign keys and post-v9 unassigned Memories. A separate regression test reopens an existing Flutter v9 snake_case
 database to prevent the Room compatibility bridge from changing that contract.
 
 `tool/legacy_room_v6_drill.dart`:
