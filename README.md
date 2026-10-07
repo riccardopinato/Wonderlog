@@ -86,7 +86,10 @@ all six locales now have a zero-untranslated gate, release metadata is
 `0.9.0+27`, Android verification artifacts are split per ABI, a secret-backed
 production-signing lane exists, GitHub Pages deployment is defined, iOS/macOS
 compile gates are real, and legacy Room cutover now requires a verified
-pre-migration safety snapshot. The Room-v6-shaped -> Drift-v9 fixture passes.
+pre-migration safety snapshot. The Android cutover preserves the canonical
+legacy applicationId, requires signer continuity and checks build-number
+continuity. The migration fixture is built from the actual Room v6 donor
+contract, including its camelCase SQL column names and all nine legacy tables.
 
 The full product remains **NOT CERTIFIED** until the remaining physical,
 distribution and production-configuration evidence is completed.
