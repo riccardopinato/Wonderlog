@@ -1,6 +1,6 @@
 # Wonderlog Roadmap
 
-Execution truth as of 2026-10-06.
+Execution truth as of 2026-10-07.
 
 ## DONE — Flutter foundation
 
@@ -262,19 +262,51 @@ External release prerequisites:
 Evidence:
 - `docs/STEP_26_MAPS_OFFLINE_COMPLETION.md`.
 
-## NEXT — MAXI STEP 27 Release Hardening
+## DONE — MAXI STEP 27 Release Hardening
 
-## LATER — Wonderlog production cutover
+Implemented in PR #19.
+
+Completed:
+- zero-untranslated deterministic gate across EN/IT/ES/FR/DE/PT;
+- release version moved to `0.9.0+27` with CI metadata guard;
+- Android verification APKs split per ABI;
+- manual `main`-only production Android signing workflow with secret-only
+  keystore materialization and signature evidence;
+- stable GitHub Pages deployment workflow;
+- macOS-hosted iOS release no-codesign and macOS compile gates;
+- verified safety snapshot before opening a detected production Room database;
+- deterministic Room-v6-shaped -> Drift-v9 migration fixture;
+- real legacy DB copy drill harness with pre/post table parity checks.
+
+Validated PR head:
+- `d56b121fe8328d1859a9d1d03321ddb8f3b23a5d`;
+- Flutter Foundation run `37586623025`: PASS;
+- 112 tests: PASS;
+- Web / split APK / AAB: PASS;
+- Apple Build Gate run `37586623232`: PASS;
+- iOS no-codesign / macOS release compile: PASS.
+
+Not promoted to production certification by this step:
+- real Room-v6 user database + physical Android cutover drill;
+- persistent production-signing run from `main`;
+- stable Pages deployment run from `main`;
+- store/internal distribution;
+- remaining provider/device validation.
+
+Evidence:
+- `docs/STEP_27_RELEASE_HARDENING.md`.
+
+## NEXT — Wonderlog production cutover evidence
+
 
 Still separate from E1 handoff readiness:
 
-- remaining Journey/Memory/Album parity;
-- Capture/Keepsakes parity;
-- Smart Journey parity;
-- Map Memories parity;
-- Rediscover/Replay parity;
-- production RevenueCat/store configuration;
-- cloud backup/sync parity;
-- real-device legacy Room -> Drift migration validation;
-- macOS/iOS build gate;
+- production RevenueCat/store configuration and purchase distribution drill;
+- real-user-copy Room v6 -> Drift v9 migration + physical Android update drill;
+- run and verify persistent Android production signing on `main`;
+- verify stable GitHub Pages deployment on `main`;
+- provider-configured offline-map airplane-mode drill;
+- Play Internal Testing / Apple distribution evidence;
+- resolve remaining performance hardening (N+1 Memory/media reads and global
+  search scaling) when dataset thresholds justify it;
 - final Android/iOS/Web production certification.
