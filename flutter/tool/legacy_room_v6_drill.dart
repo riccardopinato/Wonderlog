@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:drift/native.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:wonderlog/core/database/legacy_migration_safety_snapshot.dart';
+import 'package:wonderlog/core/database/legacy_room_schema_normalizer.dart';
 import 'package:wonderlog/core/database/wonderlog_database.dart';
 
 const _preservedTables = <String>[
@@ -73,20 +74,40 @@ Future<void> main(List<String> args) async {
       '${source.path.split(Platform.pathSeparator).last}',
     );
 
-    final beforeRaw = sqlite.sqlite3.open(workingDatabase.path);
+    final sourceRaw = sqlite.sqlite3.open(workingDatabase.path);
     late final int beforeVersion;
-    late final Map<String, Map<String, Object?>> before;
     try {
       beforeVersion =
-          beforeRaw.select('PRAGMA user_version').single.values.single as int;
+          sourceRaw.select('PRAGMA user_version').single.values.single as int;
       if (beforeVersion != 6) {
         throw StateError(
           'Expected Room schema v6, found user_version=$beforeVersion.',
         );
       }
-      before = _capture(beforeRaw);
+      // Fail closed before any schema mutation when the supplied copy is not
+      // the complete canonical Room v6 database.
+      _capture(sourceRaw);
     } finally {
-      beforeRaw.dispose();
+      sourceRaw.dispose();
+    }
+
+    const LegacyRoomSchemaNormalizer().normalize(workingDatabase);
+
+    final normalizedRaw = sqlite.sqlite3.open(workingDatabase.path);
+    late final Map<String, Map<String, Object?>> before;
+    try {
+      final normalizedVersion =
+          normalizedRaw.select('PRAGMA user_version').single.values.single
+              as int;
+      if (normalizedVersion != 6) {
+        throw StateError(
+          'Room normalization unexpectedly changed user_version to '
+          '$normalizedVersion.',
+        );
+      }
+      before = _capture(normalizedRaw);
+    } finally {
+      normalizedRaw.dispose();
     }
 
     final migrated = WonderlogDatabase(NativeDatabase(workingDatabase));
@@ -127,6 +148,7 @@ Future<void> main(List<String> args) async {
       'inputKind': 'user-supplied legacy database copy',
       'sourceSha256': sourceHash,
       'sourceUserVersion': beforeVersion,
+      'roomSchemaNormalizedOnWorkingCopy': true,
       'targetUserVersion': afterVersion,
       'foreignKeyViolationCount': fkRows.length,
       'sourceFileUnchanged': originalStillUnchanged,
@@ -136,8 +158,9 @@ Future<void> main(List<String> args) async {
       'result': pass ? 'PASS' : 'FAIL',
       'executedAt': DateTime.now().toUtc().toIso8601String(),
       'note':
-          'The input file is never opened through Drift; migration runs on '
-          'the verified safety-snapshot working copy.',
+          'The input file is never opened through Drift or normalized; '
+          'Room column normalization and migration run only on the verified '
+          'safety-snapshot working copy.',
     };
 
     final encoded = const JsonEncoder.withIndent(' ').convert(report);
