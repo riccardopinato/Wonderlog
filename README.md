@@ -90,6 +90,9 @@ pre-migration safety snapshot. The Android cutover preserves the canonical
 legacy applicationId, requires signer continuity and checks build-number
 continuity. The migration fixture is built from the actual Room v6 donor
 contract, including its camelCase SQL column names and all nine legacy tables.
+The normal Flutter v9 snake_case schema is unchanged; only the certified Room
+v6 cutover path is normalized before Drift opens it, while v4/v5 and other
+uncertified pre-v9 baselines fail closed.
 
 The full product remains **NOT CERTIFIED** until the remaining physical,
 distribution and production-configuration evidence is completed.
