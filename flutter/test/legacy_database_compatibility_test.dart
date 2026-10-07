@@ -15,4 +15,24 @@ void main() {
     expect(LegacyDatabaseCompatibility.roomSchemaVersion, 6);
     expect(LegacyDatabaseCompatibility.flutterSchemaVersion, 9);
   });
+
+  test('safety snapshot is required only before the current schema', () {
+    expect(
+      LegacyDatabaseCompatibility.requiresPreMigrationSnapshot(6),
+      isTrue,
+    );
+    expect(
+      LegacyDatabaseCompatibility.requiresPreMigrationSnapshot(8),
+      isTrue,
+    );
+    expect(
+      LegacyDatabaseCompatibility.requiresPreMigrationSnapshot(9),
+      isFalse,
+    );
+    expect(
+      LegacyDatabaseCompatibility.requiresPreMigrationSnapshot(10),
+      isFalse,
+    );
+    expect(LegacyDatabaseCompatibility.isFutureSchema(10), isTrue);
+  });
 }
