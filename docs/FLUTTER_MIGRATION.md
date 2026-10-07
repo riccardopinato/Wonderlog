@@ -46,8 +46,16 @@ Drift using schema-compatible table/column mappings, including the Room v6
 tag converter format. E1 introduced schema v8 with ecosystem inbox/outbox.
 E2 advances the current Flutter schema to v9, making the Memory-to-Journey
 relationship optional for true unassigned Memories and adding durable inbox
-resolution metadata. The v9 migration still requires legacy-data certification. Fresh installs and
-non-Android platforms use the Flutter database path.
+resolution metadata.
+
+Step 27 adds a fail-closed pre-open safety snapshot for the detected production
+Room database. DB + present WAL/SHM sidecars are copied into private migration
+backup storage and SHA-256 verified before Drift may open the legacy file.
+A Room-v6-shaped -> Drift-v9 fixture is CI-green, and a separate drill harness
+migrates only a working copy of an actual legacy DB. Real-user-copy and
+physical-device migration evidence is still required before production cutover.
+
+Fresh installs and non-Android platforms use the Flutter database path.
 
 ## Ecosystem direction
 
@@ -141,8 +149,12 @@ The Flutter build cannot become the main Wonderlog release until:
 - Premium/RevenueCat parity is complete;
 - cloud backup/sync parity is complete;
 - legacy Android Room v6 -> Flutter Drift v9 cutover is verified on a real device;
-- Android release and Web release builds pass;
-- iOS build passes on macOS;
+- Android split release APK and AAB builds pass;
+- stable Web deploy is verified after merge;
+- iOS release no-codesign build passes on macOS;
+- production Android signing is verified with the persistent release identity;
+- a copy of a real Room v6 user database passes the migration drill;
+- physical Android update confirms the legacy cutover with no data loss;
 - no destructive migration or silent data loss is possible.
 
 ## Current certification snapshot
@@ -157,5 +169,7 @@ production certification remains separate and is tracked in
 `docs/AUDIT_2026-10-06.md`.
 
 The remaining full-production cutover evidence is separate from E1 handoff
-readiness and is primarily real-device validation of the existing Room database
-migration, remaining feature parity, and a macOS/iOS build gate.
+readiness. Step 27 has closed the deterministic localization/version/ABI/Apple
+compile gates; the remaining blockers are primarily a real Room-v6
+copy/device cutover drill, production signing/distribution evidence, store
+configuration and the remaining provider/device validation.
