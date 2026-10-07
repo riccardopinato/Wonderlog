@@ -6,7 +6,7 @@ Baseline:
 - `main @ 8f2fbd0181dbf42b88c9a402ede5768e0abb7de2`
 - branch: `maxi-27-release-hardening`
 - PR: #19
-- validated PR head: `d56b121fe8328d1859a9d1d03321ddb8f3b23a5d`
+- final PR head: validated by the PR checks attached to the exact merged candidate SHA
 
 Governance:
 - Master Prompt v21 SLIM;
@@ -24,10 +24,13 @@ Governance:
 - declared ICU placeholders must remain present;
 - Flutter `gen-l10n` remains the syntax authority.
 
-### Release version
+### Release version and Android update continuity
 - moved from bootstrap `0.1.0+1` to `0.9.0+27`;
 - added `tool/check_release_version.py`;
-- CI rejects malformed/zero build numbers and the stale bootstrap version.
+- CI rejects malformed/zero build numbers and the stale bootstrap version;
+- the canonical donor contract proves legacy Android `versionCode = 1`;
+- the Flutter build number `27` must remain strictly greater than the donor
+  versionCode before a cutover artifact can be accepted.
 
 ### Android artifact size / ABI split
 The verification lane now builds split release APKs instead of a universal APK.
@@ -48,10 +51,16 @@ Added `.github/workflows/android-production-release.yml`.
 Contract:
 - manual dispatch only;
 - `main` only;
-- requires the four signing secrets;
+- preserves the legacy Android applicationId
+  `com.aistudio.wanderlogmemories.pqrzmx` so an installed legacy app can be
+  updated in place;
+- requires keystore/password/alias secrets plus
+  `ANDROID_EXPECTED_SIGNER_SHA256`;
 - materializes keystore/key.properties only inside the runner;
 - builds split APKs + AAB;
-- verifies APK certificate and AAB signature;
+- verifies the APK certificate and requires its SHA-256 fingerprint to equal
+  the trusted legacy signer fingerprint;
+- rejects an unsigned AAB rather than trusting jarsigner exit status alone;
 - records source SHA, version, package ID, workflow run, hashes and signing
   evidence;
 - deletes materialized signing files in an always-run cleanup step.
@@ -95,25 +104,41 @@ This proves Apple compilation, not App Store signing/distribution.
 ### Room v6 -> Drift v9 hardening
 Added a pre-open migration safety snapshot for the real Android legacy DB path.
 
-Before Wonderlog opens `wanderlog-memories-db` through Drift:
-1. the DB is detected;
-2. DB + present WAL/SHM sidecars are copied into private migration backup
-   storage;
-3. SHA-256 + size metadata is recorded in a manifest;
-4. copied bytes are re-verified;
-5. a source that changes during snapshot creation fails closed;
-6. an existing/tampered snapshot fails verification;
-7. only after verified snapshot completion may Drift open the original legacy
-   database.
+The donor ZIP is now an executable CI contract. It proves:
+- legacy applicationId: `com.aistudio.wanderlogmemories.pqrzmx`;
+- legacy versionCode: `1`;
+- database name: `wanderlog-memories-db`;
+- Room schema version: `6`;
+- Room `exportSchema = false`;
+- the exact nine v6 table names;
+- legacy tags converter separator: `||`.
 
-Also added:
-- deterministic Room-v6-shaped -> Drift-v9 fixture;
-- legacy Room tag converter coverage;
-- FK integrity check;
-- post-v9 unassigned Memory acceptance;
-- `tool/legacy_room_v6_drill.dart`, which migrates only a working copy derived
-  from the verified snapshot and compares preserved table row counts/content
-  hashes.
+Before Wonderlog opens the detected legacy database through Drift:
+1. its `PRAGMA user_version` is read;
+2. future schemas fail closed;
+3. only schemas older than Drift v9 enter the safety-snapshot path;
+4. DB + present WAL/SHM sidecars are copied into private migration backup
+   storage;
+5. SHA-256 + size metadata is recorded and re-verified;
+6. source mutation during snapshot creation fails closed;
+7. an existing/tampered snapshot fails verification;
+8. schema v9 does not create another full migration snapshot on later starts.
+
+The Drift tables explicitly preserve Room's camelCase SQL column names for the
+legacy tables. The deterministic migration fixture is created directly from the
+canonical Room v6 Kotlin entity contract rather than by downgrading a Drift v9
+database. It covers all nine legacy tables, `tripId`/other camelCase columns,
+the `||` tag converter, relationships, foreign keys and post-v9 unassigned
+Memories.
+
+`tool/legacy_room_v6_drill.dart`:
+- accepts only a v6 input;
+- requires all nine canonical tables;
+- creates a verified safety snapshot;
+- migrates only a working copy;
+- compares deterministic pre/post row counts and content hashes;
+- verifies FK integrity;
+- leaves the supplied source file unchanged.
 
 PR CI:
 - Room-v6-shaped fixture: PASS;
@@ -125,33 +150,39 @@ Release boundary:
 
 ## Deterministic evidence
 
-Flutter Foundation run `37586623025` on
-`d56b121fe8328d1859a9d1d03321ddb8f3b23a5d`:
-- release-version gate: PASS;
-- zero-untranslated localization gate: PASS;
-- Flutter localization generation: PASS;
-- Drift generation: PASS;
-- Flutter analyze: PASS;
-- 112 tests: PASS;
-- Web release build: PASS;
-- Android split release APKs: PASS;
-- Android AAB: PASS;
-- artifact preparation/upload: PASS.
+The final PR gate must be read from the GitHub checks attached to the exact PR
+head; the workflow evidence itself records `GITHUB_SHA` in each artifact.
 
-Apple Build Gate run `37586623232` on the same source SHA:
-- generated Apple platforms: PASS;
-- iOS release no-codesign build: PASS;
-- macOS release build: PASS;
-- evidence packaging/upload: PASS.
+Required green evidence:
+- canonical donor-contract gate;
+- release-version gate;
+- zero-untranslated localization gate;
+- Flutter localization generation;
+- Drift generation;
+- Flutter analyze;
+- full Flutter test suite, including canonical Room v6 -> Drift v9 migration;
+- Web release build;
+- Android split release APKs;
+- Android AAB;
+- Android/Web evidence artifact upload;
+- iOS release `--no-codesign` build;
+- macOS release compile;
+- Apple evidence upload.
+
+Earlier validated Step 27 builds demonstrated approximate artifact sizes of
+33.0 MB (armeabi-v7a), 37.8 MB (arm64-v8a), 39.7 MB (x86_64), 82.7 MB (AAB),
+52.8 MB (unsigned iOS Runner.app) and 92.0 MB (macOS app). Final artifact
+identity is determined by the exact final PR/main SHA, not by those historical
+size observations.
 
 ## Evidence ladder status
 
 - IMPLEMENTED: PASS for Step 27 code/process scope.
 - STATICALLY CHECKED: PASS.
 - TESTED: PASS for deterministic test scope.
-- CI GREEN: PASS on the validated PR head.
-- ARTIFACT BUILT: PASS for Web, split Android, AAB, unsigned iOS and macOS
-  compile artifacts.
+- CI GREEN: PASS only when all final PR checks are green on the exact final SHA.
+- ARTIFACT BUILT: PASS only for artifacts emitted by that exact successful
+  final SHA.
 - TRUSTED RUNTIME VERIFIED: NOT VERIFIED for this Step 27 artifact set.
 - PHYSICAL DEVICE VERIFIED: NOT VERIFIED for real Room-v6 cutover and the new
   release artifact set.
