@@ -30,12 +30,17 @@ with zipfile.ZipFile(DONOR) as archive:
     names = archive.namelist()
 
     application_ids = []
+    legacy_version_codes = []
     source_files = {}
     for name in names:
         if name.endswith("/app/build.gradle.kts") or name == "app/build.gradle.kts":
             text = archive.read(name).decode("utf-8", errors="replace")
             application_ids.extend(
                 re.findall(r'applicationId\s*=\s*"([^"]+)"', text)
+            )
+            legacy_version_codes.extend(
+                int(value)
+                for value in re.findall(r"versionCode\s*=\s*(\d+)", text)
             )
 
         if name.endswith(".kt"):
@@ -50,10 +55,32 @@ with zipfile.ZipFile(DONOR) as archive:
                 source_files[name] = text
 
     ids = sorted(set(application_ids))
+    version_codes = sorted(set(legacy_version_codes))
     if ids != [EXPECTED_APPLICATION_ID]:
         raise SystemExit(
             "Legacy donor applicationId mismatch: "
             f"expected {EXPECTED_APPLICATION_ID}, found {ids}"
+        )
+
+    if len(version_codes) != 1:
+        raise SystemExit(
+            f"Expected one legacy versionCode, found {version_codes}"
+        )
+    legacy_version_code = version_codes[0]
+
+    pubspec = (ROOT / "pubspec.yaml").read_text(encoding="utf-8")
+    version_match = re.search(
+        r"^version:\s*\d+\.\d+\.\d+\+(\d+)\s*$",
+        pubspec,
+        flags=re.MULTILINE,
+    )
+    if version_match is None:
+        raise SystemExit("Current Flutter build number not found in pubspec.yaml.")
+    current_build_number = int(version_match.group(1))
+    if current_build_number <= legacy_version_code:
+        raise SystemExit(
+            "Flutter build number must exceed legacy Android versionCode: "
+            f"current={current_build_number}, legacy={legacy_version_code}"
         )
 
     joined = "\n".join(source_files.values())
@@ -98,6 +125,8 @@ with zipfile.ZipFile(DONOR) as archive:
 
 contract = {
     "applicationId": EXPECTED_APPLICATION_ID,
+    "legacyVersionCode": legacy_version_code,
+    "currentFlutterBuildNumber": current_build_number,
     "databaseName": EXPECTED_DATABASE_NAME,
     "databaseVersion": database_version,
     "exportSchema": export_schema,
