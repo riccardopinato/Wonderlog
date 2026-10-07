@@ -26,6 +26,6 @@ abstract final class LegacyDatabaseCompatibility {
           .toList(growable: false);
     }
 
-    return const [];
+    return [value];
   }
 }
