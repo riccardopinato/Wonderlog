@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
+import 'package:wonderlog/core/database/legacy_room_schema_normalizer.dart';
 import 'package:wonderlog/core/database/wonderlog_database.dart'
     hide MemoryAttachment;
 import 'package:wonderlog/features/memories/data/drift_wonderlog_repository.dart';
@@ -41,6 +42,25 @@ void main() {
         }
       } finally {
         raw.dispose();
+      }
+
+      const normalizer = LegacyRoomSchemaNormalizer();
+      normalizer.normalize(file);
+      // A crash between normalization and Drift open must be retry-safe.
+      normalizer.normalize(file);
+
+      final normalized = sqlite.sqlite3.open(file.path);
+      try {
+        expect(_userVersion(normalized), 6);
+        final tripColumns = _columnNames(normalized, 'trips');
+        expect(tripColumns, contains('destination_name'));
+        expect(tripColumns, isNot(contains('destinationName')));
+        final memoryColumns = _columnNames(normalized, 'memories');
+        expect(memoryColumns, contains('trip_id'));
+        expect(memoryColumns, isNot(contains('tripId')));
+        expect(normalized.select('PRAGMA foreign_key_check'), isEmpty);
+      } finally {
+        normalized.dispose();
       }
 
       final migrated = WonderlogDatabase(NativeDatabase(file));
@@ -407,3 +427,8 @@ int _rowCount(sqlite.Database db, String table) =>
 
 int _userVersion(sqlite.Database db) =>
     db.select('PRAGMA user_version').single.values.single as int;
+
+Set<String> _columnNames(sqlite.Database db, String table) => db
+    .select('PRAGMA table_info("$table")')
+    .map((row) => row['name'] as String)
+    .toSet();
