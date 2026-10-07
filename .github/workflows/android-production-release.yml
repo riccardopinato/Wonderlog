@@ -124,7 +124,7 @@ jobs:
             echo "sourceRef=${GITHUB_REF}"
             echo "sourceSha=${GITHUB_SHA}"
             echo "variant=release"
-            echo "packageId=com.riccardopinato.wonderlog"
+            echo "packageId=com.aistudio.wanderlogmemories.pqrzmx"
             echo "workflowRun=${GITHUB_RUN_ID}"
             echo "distributionChannel=GitHub Actions production artifact"
             echo "validationLevel=ARTIFACT_BUILT"
