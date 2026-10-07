@@ -149,6 +149,16 @@ def patch_android() -> bool:
         raise SystemExit("Android build.gradle.kts not found after platform generation.")
 
     gradle = gradle_path.read_text(encoding="utf-8")
+    legacy_application_id = "com.aistudio.wanderlogmemories.pqrzmx"
+    generated_application_id = "com.riccardopinato.wonderlog"
+    if generated_application_id in gradle:
+        gradle = gradle.replace(
+            f'applicationId = "{generated_application_id}"',
+            f'applicationId = "{legacy_application_id}"',
+            1,
+        )
+    if f'applicationId = "{legacy_application_id}"' not in gradle:
+        raise SystemExit("Unable to preserve legacy Android applicationId.")
     if "val wonderlogKeystoreProperties" not in gradle:
         gradle = (
             "import java.io.FileInputStream\n"
