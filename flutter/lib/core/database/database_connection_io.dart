@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'legacy_migration_safety_snapshot.dart';
+
 const _legacyRoomDatabaseName = 'wanderlog-memories-db';
 
 QueryExecutor driftDatabase({required String name}) {
@@ -26,7 +28,18 @@ QueryExecutor driftDatabase({required String name}) {
             'databases',
             _legacyRoomDatabaseName,
           );
-          if (await File(legacyPath).exists()) {
+          final legacyDatabase = File(legacyPath);
+          if (await legacyDatabase.exists()) {
+            final backupRoot = Directory(
+              p.join(
+                documents.path,
+                'wonderlog_migration_backups',
+              ),
+            );
+            await const LegacyMigrationSafetySnapshot().ensure(
+              databaseFile: legacyDatabase,
+              backupRoot: backupRoot,
+            );
             return legacyPath;
           }
         }
