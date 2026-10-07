@@ -279,7 +279,10 @@ Completed:
 - macOS-hosted iOS release no-codesign and macOS compile gates;
 - verified safety snapshot only before an actual pre-v9 database migration;
 - canonical donor CI contract for Room v6 identity/schema/table invariants;
-- explicit Drift mapping to Room v6 camelCase SQL column names;
+- existing Flutter v9 snake_case schema preserved and covered by reopen
+  regression test;
+- isolated, transactional Room v6 camelCase -> Drift snake_case normalizer;
+- uncertified Room v4/v5/v7/v8 baselines rejected fail-closed;
 - deterministic canonical Room-v6 -> Drift-v9 migration fixture covering all
   nine legacy tables;
 - real legacy DB copy drill harness that rejects incomplete v6 inputs and
