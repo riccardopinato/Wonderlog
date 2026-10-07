@@ -8,7 +8,9 @@ on:
     paths:
       - "flutter/**"
       - ".github/workflows/flutter-foundation.yml"
+      - "wanderlog-memories (2).zip"
       - "docs/FLUTTER_MIGRATION.md"
+      - "wanderlog-memories (2).zip"
   push:
     branches:
       - main
