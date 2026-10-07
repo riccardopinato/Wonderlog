@@ -270,21 +270,25 @@ Completed:
 - zero-untranslated deterministic gate across EN/IT/ES/FR/DE/PT;
 - release version moved to `0.9.0+27` with CI metadata guard;
 - Android verification APKs split per ABI;
+- canonical legacy Android applicationId retained for in-place update;
+- legacy versionCode continuity gate (donor 1 < Flutter build 27);
 - manual `main`-only production Android signing workflow with secret-only
-  keystore materialization and signature evidence;
+  keystore materialization, legacy signer SHA-256 continuity and signature
+  evidence;
 - stable GitHub Pages deployment workflow;
 - macOS-hosted iOS release no-codesign and macOS compile gates;
-- verified safety snapshot before opening a detected production Room database;
-- deterministic Room-v6-shaped -> Drift-v9 migration fixture;
-- real legacy DB copy drill harness with pre/post table parity checks.
+- verified safety snapshot only before an actual pre-v9 database migration;
+- canonical donor CI contract for Room v6 identity/schema/table invariants;
+- explicit Drift mapping to Room v6 camelCase SQL column names;
+- deterministic canonical Room-v6 -> Drift-v9 migration fixture covering all
+  nine legacy tables;
+- real legacy DB copy drill harness that rejects incomplete v6 inputs and
+  compares pre/post table parity.
 
-Validated PR head:
-- `d56b121fe8328d1859a9d1d03321ddb8f3b23a5d`;
-- Flutter Foundation run `37586623025`: PASS;
-- 112 tests: PASS;
-- Web / split APK / AAB: PASS;
-- Apple Build Gate run `37586623232`: PASS;
-- iOS no-codesign / macOS release compile: PASS.
+Validation rule:
+- Step 27 closes only when donor-contract / Flutter Foundation / Apple Build
+  checks are green on the exact final PR head;
+- each emitted evidence bundle records its source SHA.
 
 Not promoted to production certification by this step:
 - real Room-v6 user database + physical Android cutover drill;
