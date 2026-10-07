@@ -4,7 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
-import 'package:wonderlog/core/database/wonderlog_database.dart';
+import 'package:wonderlog/core/database/wonderlog_database.dart' hide MemoryAttachment;
 import 'package:wonderlog/features/memories/data/drift_wonderlog_repository.dart';
 import 'package:wonderlog/features/memories/domain/memory_models.dart';
 
