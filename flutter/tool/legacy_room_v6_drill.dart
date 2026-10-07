@@ -168,14 +168,24 @@ Map<String, Map<String, Object?>> _capture(sqlite.Database database) {
       .map((row) => row['name'] as String)
       .toSet();
 
+  final missing = _preservedTables
+      .where((table) => !existing.contains(table))
+      .toList(growable: false);
+  if (missing.isNotEmpty) {
+    throw StateError(
+      'Legacy Room v6 database missing required tables: '
+      '${missing.join(', ')}',
+    );
+  }
+
   final result = <String, Map<String, Object?>>{};
   for (final table in _preservedTables) {
-    if (!existing.contains(table)) continue;
     final rows = database.select('SELECT * FROM "$table"');
+    final columns = rows.columnNames.toList(growable: false)..sort();
     final canonicalRows = <String>[];
     for (final row in rows) {
       final record = <String, Object?>{};
-      for (final column in rows.columnNames) {
+      for (final column in columns) {
         record[column] = row[column];
       }
       canonicalRows.add(jsonEncode(record));
