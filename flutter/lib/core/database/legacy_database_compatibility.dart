@@ -3,6 +3,12 @@ abstract final class LegacyDatabaseCompatibility {
   static const roomSchemaVersion = 6;
   static const flutterSchemaVersion = 9;
 
+  static bool requiresPreMigrationSnapshot(int schemaVersion) =>
+      schemaVersion >= 0 && schemaVersion < flutterSchemaVersion;
+
+  static bool isFutureSchema(int schemaVersion) =>
+      schemaVersion > flutterSchemaVersion;
+
   static List<String> decodeLegacyTags(String raw) {
     final value = raw.trim();
     if (value.isEmpty) return const [];
