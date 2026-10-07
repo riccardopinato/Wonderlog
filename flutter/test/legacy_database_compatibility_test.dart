@@ -11,6 +11,13 @@ void main() {
     );
   });
 
+  test('single legacy Room tag is preserved', () {
+    expect(
+      LegacyDatabaseCompatibility.decodeLegacyTags('torino'),
+      ['torino'],
+    );
+  });
+
   test('production Room v6 advances to Flutter schema v9', () {
     expect(LegacyDatabaseCompatibility.roomSchemaVersion, 6);
     expect(LegacyDatabaseCompatibility.flutterSchemaVersion, 9);
