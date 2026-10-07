@@ -24,7 +24,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  legacy-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inspect canonical legacy donor
+        run: |
+          set -euo pipefail
+          python3 flutter/tool/inspect_legacy_donor.py | tee legacy-donor-contract.json
+
+      - name: Upload legacy donor contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlog-legacy-donor-contract
+          path: legacy-donor-contract.json
+          if-no-files-found: error
+          retention-days: 30
+
   verify:
+    needs: legacy-contract
     runs-on: ubuntu-latest
     timeout-minutes: 40
     defaults:
@@ -34,9 +56,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Inspect legacy donor contract
-        run: python3 tool/inspect_legacy_donor.py
 
       - name: Setup Java 21
         uses: actions/setup-java@v4
