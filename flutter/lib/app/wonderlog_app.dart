@@ -8,6 +8,8 @@ import '../core/ecosystem/ecosystem_transfer_store.dart';
 import '../core/runtime/wonderlog_services_scope.dart';
 import '../features/cloud/application/cloud_runtime_controller.dart';
 import '../features/location/domain/location_repository.dart';
+import '../features/location/domain/offline_map_service.dart';
+import '../features/map_memories/domain/road_routing_service.dart';
 import '../features/memories/data/photo_import_service.dart';
 import '../features/memories/domain/wonderlog_repository.dart';
 import '../features/onboarding/presentation/onboarding_gate.dart';
@@ -21,6 +23,8 @@ final class WonderlogApp extends StatelessWidget {
     required this.controller,
     required this.repository,
     required this.locationRepository,
+    required this.offlineMapService,
+    required this.roadRoutingService,
     required this.photoImportService,
     required this.ecosystemTransferStore,
     required this.ecosystemTransferService,
@@ -31,6 +35,8 @@ final class WonderlogApp extends StatelessWidget {
   final AppController controller;
   final WonderlogRepository repository;
   final LocationRepository locationRepository;
+  final OfflineMapService offlineMapService;
+  final RoadRoutingService roadRoutingService;
   final PhotoImportService photoImportService;
   final EcosystemTransferStore ecosystemTransferStore;
   final EcosystemTransferService ecosystemTransferService;
@@ -43,6 +49,8 @@ final class WonderlogApp extends StatelessWidget {
       controller: controller,
       repository: repository,
       locationRepository: locationRepository,
+      offlineMapService: offlineMapService,
+      roadRoutingService: roadRoutingService,
       photoImportService: photoImportService,
       ecosystemTransferStore: ecosystemTransferStore,
       ecosystemTransferService: ecosystemTransferService,

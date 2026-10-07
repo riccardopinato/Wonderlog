@@ -35,6 +35,10 @@ void main() {
     );
     expect(
       gate.canUseFeature(PremiumFeature.offlineMaps, true),
+      isA<PremiumAllowed>(),
+    );
+    expect(
+      gate.canUseFeature(PremiumFeature.offlineMaps, false),
       isA<PremiumRequired>(),
     );
   });

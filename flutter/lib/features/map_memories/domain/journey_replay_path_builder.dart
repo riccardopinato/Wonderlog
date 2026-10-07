@@ -1,8 +1,12 @@
 import '../../smart_journey/domain/geo_math.dart';
 import 'map_memory_models.dart';
 
-final class JourneyRouteBuilder {
-  const JourneyRouteBuilder({
+/// Builds a chronological replay trace from geotagged Journey content.
+///
+/// This is deliberately not a road/trail routing engine: consecutive points
+/// are connected in timestamp order and nearby duplicates are collapsed.
+final class JourneyReplayPathBuilder {
+  const JourneyReplayPathBuilder({
     this.minimumPointDistanceMeters = 50,
   });
 

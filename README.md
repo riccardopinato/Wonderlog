@@ -70,13 +70,25 @@ bucket. Cloud Backup is again a truthful shipped Premium capability; automatic
 background scheduling remains deliberately disabled until its own
 certification.
 
-The next repair gate is **MAXI STEP 26 Maps / Offline Completion**.
+MAXI STEP 26 Maps / Offline Completion is implemented at runtime level:
+Journey maps use MapLibre, the chronological Replay trace is no longer
+misrepresented as routing, optional OSRM-compatible road routing is isolated
+behind explicit configuration, Nominatim follows the selected/device locale,
+and Android/iOS have a real provider-gated MapLibre offline-region engine.
+Web remains explicitly online-only.
+
+Production offline downloads still require an offline-authorized style/provider
+and a physical native drill; Wonderlog does not bulk-download the standard OSM
+tile service.
+
+The next repair gate is **MAXI STEP 27 Release Hardening**.
 
 See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`,
 `docs/STEP_23A_E2_HARDENING.md`,
 `docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md`,
-`docs/STEP_24_PREMIUM_TRUTH.md` and
-`docs/STEP_25_CLOUD_RUNTIME_COMPLETION.md`.
+`docs/STEP_24_PREMIUM_TRUTH.md`,
+`docs/STEP_25_CLOUD_RUNTIME_COMPLETION.md` and
+`docs/STEP_26_MAPS_OFFLINE_COMPLETION.md`.
 
 See:
 

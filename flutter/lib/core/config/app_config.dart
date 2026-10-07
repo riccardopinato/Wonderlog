@@ -7,6 +7,9 @@ final class AppConfig {
     required this.mobileAuthRedirect,
     required this.webAuthRedirect,
     required this.cloudDataEnabled,
+    required this.mapStyleUrl,
+    required this.offlineMapStyleUrl,
+    required this.routingBaseUrl,
   });
 
   static const current = AppConfig(
@@ -23,6 +26,16 @@ final class AppConfig {
       'WONDERLOG_CLOUD_DATA_ENABLED',
       defaultValue: true,
     ),
+    mapStyleUrl: String.fromEnvironment(
+      'WONDERLOG_MAP_STYLE_URL',
+      defaultValue: 'https://tiles.openfreemap.org/styles/liberty',
+    ),
+    offlineMapStyleUrl: String.fromEnvironment(
+      'WONDERLOG_OFFLINE_MAP_STYLE_URL',
+    ),
+    routingBaseUrl: String.fromEnvironment(
+      'WONDERLOG_ROUTING_URL',
+    ),
   );
 
   final String supabaseUrl;
@@ -30,6 +43,16 @@ final class AppConfig {
   final String mobileAuthRedirect;
   final String webAuthRedirect;
   final bool cloudDataEnabled;
+  final String mapStyleUrl;
+  final String offlineMapStyleUrl;
+  final String routingBaseUrl;
+
+  bool get offlineMapsConfigured => offlineMapStyleUrl.trim().isNotEmpty;
+  bool get roadRoutingConfigured => routingBaseUrl.trim().isNotEmpty;
+
+  String get effectiveMapStyleUrl => offlineMapsConfigured
+      ? offlineMapStyleUrl.trim()
+      : mapStyleUrl.trim();
 
   bool get cloudConfigured =>
       supabaseUrl.trim().isNotEmpty &&

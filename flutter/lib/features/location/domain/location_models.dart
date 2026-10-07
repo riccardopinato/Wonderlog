@@ -46,6 +46,31 @@ final class OfflineMapRegion {
   final bool isDownloaded;
   final double downloadProgress;
   final DateTime createdAt;
+
+  OfflineMapRegion copyWith({
+    String? name,
+    double? centerLatitude,
+    double? centerLongitude,
+    double? radiusKm,
+    int? zoomMin,
+    int? zoomMax,
+    int? sizeBytes,
+    bool? isDownloaded,
+    double? downloadProgress,
+  }) =>
+      OfflineMapRegion(
+        id: id,
+        name: name ?? this.name,
+        centerLatitude: centerLatitude ?? this.centerLatitude,
+        centerLongitude: centerLongitude ?? this.centerLongitude,
+        radiusKm: radiusKm ?? this.radiusKm,
+        zoomMin: zoomMin ?? this.zoomMin,
+        zoomMax: zoomMax ?? this.zoomMax,
+        sizeBytes: sizeBytes ?? this.sizeBytes,
+        isDownloaded: isDownloaded ?? this.isDownloaded,
+        downloadProgress: downloadProgress ?? this.downloadProgress,
+        createdAt: createdAt,
+      );
 }
 
 enum TileCachePolicy {

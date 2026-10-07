@@ -406,5 +406,34 @@
       }
     }
   },
-  "cloudAccountMismatch": "This local Wonderlog dataset is linked to a different cloud account. Sign back in with the original account; account migration is not automatic."
+  "cloudAccountMismatch": "This local Wonderlog dataset is linked to a different cloud account. Sign back in with the original account; account migration is not automatic.",
+  "mapReplayPathShort": "Replay",
+  "mapRoadRouteShort": "Roads",
+  "mapReplayPathTruth": "Replay path: connects geotagged memories in time order. It is not road navigation.",
+  "mapRoadRouteTruth": "Road route: calculated by the configured routing provider.",
+  "mapRoadRouteFailed": "Road routing is unavailable right now. Showing the chronological replay path instead.",
+  "offlineMapsTitle": "Offline maps",
+  "offlineMapsNativeOnly": "Offline region downloads are available on Android and iOS. Web remains online-only.",
+  "offlineMapsProviderUnavailable": "Offline downloads are disabled until an authorized offline map provider is configured.",
+  "offlineMapsRegionDescription": "Save about {radius} km around this Journey, zoom {minZoom}–{maxZoom}.",
+  "offlineMapsReady": "This Journey region is available offline.",
+  "offlineMapsDelete": "Delete offline region",
+  "offlineMapsDownload": "Download region",
+  "offlineMapsDownloaded": "Offline map region downloaded.",
+  "offlineMapsDownloadFailed": "Offline map download failed. No online-only map is being presented as offline.",
+  "offlineMapsDeleted": "Offline map region deleted.",
+  "offlineMapsDeleteFailed": "Could not delete the offline map region.",
+  "@offlineMapsRegionDescription": {
+    "placeholders": {
+      "radius": {
+        "type": "String"
+      },
+      "minZoom": {
+        "type": "int"
+      },
+      "maxZoom": {
+        "type": "int"
+      }
+    }
+  }
 }

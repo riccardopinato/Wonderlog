@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -12,36 +13,33 @@ final class OpenStreetMapRepository implements LocationRepository {
   OpenStreetMapRepository(
     this.database, {
     http.Client? client,
-  }) : client = client ?? http.Client();
+    String Function()? localeTag,
+  })  : client = client ?? http.Client(),
+        localeTag = localeTag ?? (() => 'en');
 
-  static const userAgent = 'Wonderlog/1.0';
-  static const acceptLanguage = 'en';
+  static const userAgent =
+      'Wonderlog/1.0 (com.riccardopinato.wonderlog)';
 
   final db.WonderlogDatabase database;
   final http.Client client;
+  final String Function() localeTag;
   final Uuid _uuid = const Uuid();
+
+  Future<void> _requestGate = Future<void>.value();
+  DateTime? _lastNetworkRequestAt;
 
   @override
   Future<List<LocationPlace>> searchPlaces(String query) async {
     final normalized = query.trim();
     if (normalized.isEmpty) return const [];
 
+    final locale = _normalizedLocale();
+    final cacheKey = _cacheKey('search', locale, normalized);
     final cached = await (database.select(database.geocodingCache)
-          ..where((row) => row.query.equals(normalized)))
+          ..where((row) => row.query.equals(cacheKey)))
         .getSingleOrNull();
     if (cached != null) {
-      return [
-        LocationPlace(
-          id: _uuid.v4(),
-          displayName: cached.displayName,
-          country: cached.country,
-          city: cached.city,
-          region: cached.region,
-          latitude: cached.latitude,
-          longitude: cached.longitude,
-          source: 'CACHED',
-        ),
-      ];
+      return [_placeFromCache(cached)];
     }
 
     final uri = Uri.https(
@@ -52,17 +50,18 @@ final class OpenStreetMapRepository implements LocationRepository {
         'format': 'json',
         'limit': '5',
         'addressdetails': '1',
-        'accept-language': acceptLanguage,
+        'accept-language': locale,
       },
     );
 
     try {
+      await _waitForNominatimSlot();
       final response = await client
           .get(
             uri,
-            headers: const {
+            headers: {
               'User-Agent': userAgent,
-              'Accept-Language': acceptLanguage,
+              'Accept-Language': locale,
             },
           )
           .timeout(const Duration(seconds: 15));
@@ -116,15 +115,14 @@ final class OpenStreetMapRepository implements LocationRepository {
         if (result.length == 1) {
           await database.into(database.geocodingCache).insertOnConflictUpdate(
                 db.GeocodingCacheCompanion.insert(
-                  query: normalized,
+                  query: cacheKey,
                   displayName: displayName,
                   country: Value(country),
                   city: Value(city),
                   region: Value(region),
                   latitude: latitude,
                   longitude: longitude,
-                  cachedAt:
-                      DateTime.now().toUtc().millisecondsSinceEpoch,
+                  cachedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
                 ),
               );
         }
@@ -140,26 +138,16 @@ final class OpenStreetMapRepository implements LocationRepository {
     double latitude,
     double longitude,
   ) async {
-    final queryKey = 'lat=' +
-        latitude.toString() +
-        '&lon=' +
-        longitude.toString();
+    final locale = _normalizedLocale();
+    final coordinateKey = latitude.toStringAsFixed(6) +
+        ',' +
+        longitude.toStringAsFixed(6);
+    final cacheKey = _cacheKey('reverse', locale, coordinateKey);
 
     final cached = await (database.select(database.geocodingCache)
-          ..where((row) => row.query.equals(queryKey)))
+          ..where((row) => row.query.equals(cacheKey)))
         .getSingleOrNull();
-    if (cached != null) {
-      return LocationPlace(
-        id: _uuid.v4(),
-        displayName: cached.displayName,
-        country: cached.country,
-        city: cached.city,
-        region: cached.region,
-        latitude: cached.latitude,
-        longitude: cached.longitude,
-        source: 'CACHED',
-      );
-    }
+    if (cached != null) return _placeFromCache(cached);
 
     final uri = Uri.https(
       'nominatim.openstreetmap.org',
@@ -168,17 +156,19 @@ final class OpenStreetMapRepository implements LocationRepository {
         'lat': latitude.toString(),
         'lon': longitude.toString(),
         'format': 'json',
-        'accept-language': acceptLanguage,
+        'addressdetails': '1',
+        'accept-language': locale,
       },
     );
 
     try {
+      await _waitForNominatimSlot();
       final response = await client
           .get(
             uri,
-            headers: const {
+            headers: {
               'User-Agent': userAgent,
-              'Accept-Language': acceptLanguage,
+              'Accept-Language': locale,
             },
           )
           .timeout(const Duration(seconds: 10));
@@ -204,19 +194,19 @@ final class OpenStreetMapRepository implements LocationRepository {
       final region = _firstNonBlank([
         address['state'],
         address['county'],
+        address['region'],
       ]);
 
       await database.into(database.geocodingCache).insertOnConflictUpdate(
             db.GeocodingCacheCompanion.insert(
-              query: queryKey,
+              query: cacheKey,
               displayName: displayName,
               country: Value(country),
               city: Value(city),
               region: Value(region),
               latitude: latitude,
               longitude: longitude,
-              cachedAt:
-                  DateTime.now().toUtc().millisecondsSinceEpoch,
+              cachedAt: DateTime.now().toUtc().millisecondsSinceEpoch,
             ),
           );
 
@@ -330,6 +320,44 @@ final class OpenStreetMapRepository implements LocationRepository {
     await (database.delete(database.offlineMapRegions)
           ..where((row) => row.id.equals(id)))
         .go();
+  }
+
+  LocationPlace _placeFromCache(db.GeocodingCacheData cached) =>
+      LocationPlace(
+        id: _uuid.v4(),
+        displayName: cached.displayName,
+        country: cached.country,
+        city: cached.city,
+        region: cached.region,
+        latitude: cached.latitude,
+        longitude: cached.longitude,
+        source: 'CACHED',
+      );
+
+  String _normalizedLocale() {
+    final raw = localeTag().trim();
+    if (raw.isEmpty) return 'en';
+    return raw.replaceAll('_', '-');
+  }
+
+  String _cacheKey(String kind, String locale, String value) =>
+      'v2|$kind|${locale.toLowerCase()}|${value.toLowerCase()}';
+
+  Future<void> _waitForNominatimSlot() {
+    final completer = Completer<void>();
+    _requestGate = _requestGate.then((_) async {
+      final last = _lastNetworkRequestAt;
+      if (last != null) {
+        final elapsed = DateTime.now().difference(last);
+        const minimum = Duration(seconds: 1);
+        if (elapsed < minimum) {
+          await Future<void>.delayed(minimum - elapsed);
+        }
+      }
+      _lastNetworkRequestAt = DateTime.now();
+      completer.complete();
+    });
+    return completer.future;
   }
 
   String _firstNonBlank(List<Object?> values) {

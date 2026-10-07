@@ -358,5 +358,34 @@
       }
     }
   },
-  "cloudAccountMismatch": "Dieser lokale Wonderlog-Datensatz ist mit einem anderen Cloud-Konto verknüpft. Melde dich mit dem ursprünglichen Konto an; eine Kontomigration erfolgt nicht automatisch."
+  "cloudAccountMismatch": "Dieser lokale Wonderlog-Datensatz ist mit einem anderen Cloud-Konto verknüpft. Melde dich mit dem ursprünglichen Konto an; eine Kontomigration erfolgt nicht automatisch.",
+  "mapReplayPathShort": "Replay",
+  "mapRoadRouteShort": "Straßen",
+  "mapReplayPathTruth": "Replay-Pfad: verbindet geolokalisierte Erinnerungen in zeitlicher Reihenfolge. Das ist keine Straßennavigation.",
+  "mapRoadRouteTruth": "Straßenroute: vom konfigurierten Routing-Anbieter berechnet.",
+  "mapRoadRouteFailed": "Straßenrouting ist derzeit nicht verfügbar. Stattdessen wird der chronologische Replay-Pfad angezeigt.",
+  "offlineMapsTitle": "Offline-Karten",
+  "offlineMapsNativeOnly": "Offline-Regionen können auf Android und iOS heruntergeladen werden. Web bleibt nur online.",
+  "offlineMapsProviderUnavailable": "Offline-Downloads bleiben deaktiviert, bis ein Anbieter konfiguriert ist, der die Offline-Nutzung ausdrücklich erlaubt.",
+  "offlineMapsRegionDescription": "Etwa {radius} km um diese Reise speichern, Zoom {minZoom}–{maxZoom}.",
+  "offlineMapsReady": "Diese Reiseregion ist offline verfügbar.",
+  "offlineMapsDelete": "Offline-Region löschen",
+  "offlineMapsDownload": "Region herunterladen",
+  "offlineMapsDownloaded": "Offline-Kartenregion heruntergeladen.",
+  "offlineMapsDownloadFailed": "Offline-Download fehlgeschlagen. Die Online-Karte wird nicht als offline dargestellt.",
+  "offlineMapsDeleted": "Offline-Region gelöscht.",
+  "offlineMapsDeleteFailed": "Offline-Region konnte nicht gelöscht werden.",
+  "@offlineMapsRegionDescription": {
+    "placeholders": {
+      "radius": {
+        "type": "String"
+      },
+      "minZoom": {
+        "type": "int"
+      },
+      "maxZoom": {
+        "type": "int"
+      }
+    }
+  }
 }

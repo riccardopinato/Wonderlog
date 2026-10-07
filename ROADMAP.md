@@ -226,7 +226,43 @@ Live backend migrations:
 Evidence:
 - `docs/STEP_25_CLOUD_RUNTIME_COMPLETION.md`.
 
-## NEXT — MAXI STEP 26 Maps / Offline Completion
+## DONE — MAXI STEP 26 Maps / Offline Completion
+
+Implemented in PR #18.
+
+Completed:
+- Journey map renderer migrated to MapLibre;
+- old chronological `JourneyRouteBuilder` renamed/reframed as truthful
+  `JourneyReplayPathBuilder`;
+- Replay UI explicitly states that it is not road navigation;
+- optional OSRM-compatible road routing added behind
+  `WONDERLOG_ROUTING_URL`, with no public demo fallback;
+- real MapLibre native offline regions added for Android/iOS;
+- offline region progress, persisted Drift metadata, native-state
+  reconciliation and delete lifecycle added;
+- offline rendering/download uses the same explicitly authorized style when
+  `WONDERLOG_OFFLINE_MAP_STYLE_URL` is configured;
+- Web boundary is explicit: rendering supported, native offline download not
+  claimed;
+- standard OSM raster service removed from Journey map rendering/offline path;
+- Nominatim search/reverse geocoding now use effective app/device locale,
+  locale-scoped cache keys, app User-Agent and serialized one-request-per-second
+  network starts;
+- Java 21 added to CI for the current MapLibre Android plugin;
+- Offline Maps product capability enabled for Premium, with runtime provider and
+  platform checks.
+
+External release prerequisites:
+- configure an offline-authorized/self-controlled MapLibre style before
+  advertising downloadable offline maps;
+- configure an OSRM-compatible endpoint before offering road routing;
+- physical Android/iOS airplane-mode download/relaunch/delete evidence remains
+  required for native CERTIFIED status.
+
+Evidence:
+- `docs/STEP_26_MAPS_OFFLINE_COMPLETION.md`.
+
+## NEXT — MAXI STEP 27 Release Hardening
 
 ## LATER — Wonderlog production cutover
 

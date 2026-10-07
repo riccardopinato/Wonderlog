@@ -23,6 +23,8 @@ import 'package:wonderlog/features/ecosystem/presentation/ecosystem_inbox_page.d
 import 'package:wonderlog/features/journeys/domain/journey.dart';
 import 'package:wonderlog/features/location/domain/location_models.dart';
 import 'package:wonderlog/features/location/domain/location_repository.dart';
+import 'package:wonderlog/features/location/domain/offline_map_service.dart';
+import 'package:wonderlog/features/map_memories/domain/road_routing_service.dart';
 import 'package:wonderlog/features/memories/data/photo_import_service.dart';
 import 'package:wonderlog/features/memories/domain/memory_models.dart';
 import 'package:wonderlog/features/memories/domain/wonderlog_repository.dart';
@@ -174,6 +176,8 @@ final class _Harness {
         controller: controller,
         repository: repository,
         locationRepository: _TestLocationRepository(),
+        offlineMapService: _TestOfflineMapService(),
+        roadRoutingService: RoadRoutingService(baseUrl: ''),
         photoImportService: photoImportService,
         ecosystemTransferStore: store,
         ecosystemTransferService: transferService,
@@ -696,4 +700,24 @@ final class _TestTransportPort implements EcosystemLocalTransportPort {
 
   @override
   Future<bool> tryOpen(Uri targetUri) async => false;
+}
+
+
+final class _TestOfflineMapService implements OfflineMapService {
+  @override
+  OfflineMapAvailability get availability =>
+      OfflineMapAvailability.unsupportedPlatform;
+
+  @override
+  Future<OfflineMapRegion> download(
+    OfflineMapRegion region, {
+    required void Function(OfflineMapDownloadProgress progress) onProgress,
+  }) async =>
+      region;
+
+  @override
+  Future<void> delete(OfflineMapRegion region) async {}
+
+  @override
+  Future<bool> isDownloaded(String wonderlogRegionId) async => false;
 }

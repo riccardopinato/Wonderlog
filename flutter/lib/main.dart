@@ -22,7 +22,9 @@ import 'features/cloud/data/media_asset_restored_photo_storage.dart';
 import 'features/cloud/data/shared_preferences_cloud_backup_settings_repository.dart';
 import 'features/cloud/data/supabase_cloud_provider.dart';
 import 'features/cloud/domain/cloud_sync_repository.dart';
+import 'features/location/data/maplibre_offline_map_service.dart';
 import 'features/location/data/open_street_map_repository.dart';
+import 'features/map_memories/domain/road_routing_service.dart';
 import 'features/memories/data/cloud_aware_wonderlog_repository.dart';
 import 'features/memories/data/drift_wonderlog_repository.dart';
 import 'features/memories/data/photo_import_service.dart';
@@ -36,7 +38,6 @@ Future<void> main() async {
   final baseRepository = DriftWonderlogRepository(database);
   WonderlogRepository repository = baseRepository;
 
-  final locationRepository = OpenStreetMapRepository(database);
   final ecosystemTransferStore = DriftEcosystemTransferStore(database);
   final ecosystemTransferService = EcosystemTransferService(
     store: ecosystemTransferStore,
@@ -53,6 +54,17 @@ Future<void> main() async {
     premiumService: PremiumEntitlementService(),
   );
   await controller.initialize();
+
+  final locationRepository = OpenStreetMapRepository(
+    database,
+    localeTag: () => controller.effectiveLocaleTag,
+  );
+  final offlineMapService = MapLibreOfflineMapService(
+    styleUrl: AppConfig.current.offlineMapStyleUrl,
+  );
+  final roadRoutingService = RoadRoutingService(
+    baseUrl: AppConfig.current.routingBaseUrl,
+  );
 
   CloudRuntimeController? cloudRuntime;
   if (AppConfig.current.cloudDataConfigured &&
@@ -109,6 +121,8 @@ Future<void> main() async {
       controller: controller,
       repository: repository,
       locationRepository: locationRepository,
+      offlineMapService: offlineMapService,
+      roadRoutingService: roadRoutingService,
       photoImportService: photoImportService,
       ecosystemTransferStore: ecosystemTransferStore,
       ecosystemTransferService: ecosystemTransferService,
