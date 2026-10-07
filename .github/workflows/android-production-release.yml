@@ -23,6 +23,7 @@ jobs:
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
       ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_EXPECTED_SIGNER_SHA256: ${{ secrets.ANDROID_EXPECTED_SIGNER_SHA256 }}
 
     steps:
       - name: Checkout exact source
@@ -48,6 +49,7 @@ jobs:
           test -n "$ANDROID_KEYSTORE_PASSWORD"
           test -n "$ANDROID_KEY_ALIAS"
           test -n "$ANDROID_KEY_PASSWORD"
+          test -n "$ANDROID_EXPECTED_SIGNER_SHA256"
 
       - name: Generate Android platform
         run: |
@@ -114,8 +116,53 @@ jobs:
 
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           test -x "$APKSIGNER"
-          "$APKSIGNER" verify --verbose --print-certs build/production-artifacts/wonderlog-arm64-v8a-signed.apk             | tee build/production-artifacts/SIGNING_CERTIFICATE.txt
-          jarsigner -verify build/production-artifacts/wonderlog-signed.aab             > build/production-artifacts/AAB_SIGNATURE_VERIFY.txt
+
+          "$APKSIGNER" verify --verbose --print-certs \
+            build/production-artifacts/wonderlog-arm64-v8a-signed.apk \
+            | tee build/production-artifacts/SIGNING_CERTIFICATE.txt
+
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          text = Path(
+              "build/production-artifacts/SIGNING_CERTIFICATE.txt"
+          ).read_text(encoding="utf-8")
+          match = re.search(
+              r"Signer #1 certificate SHA-256 digest:\s*([0-9A-Fa-f:]+)",
+              text,
+          )
+          if match is None:
+              raise SystemExit("Unable to read APK signer SHA-256 fingerprint.")
+
+          def normalize(value: str) -> str:
+              return re.sub(r"[^0-9a-f]", "", value.lower())
+
+          actual = normalize(match.group(1))
+          expected = normalize(os.environ["ANDROID_EXPECTED_SIGNER_SHA256"])
+          if len(expected) != 64:
+              raise SystemExit(
+                  "ANDROID_EXPECTED_SIGNER_SHA256 must contain one SHA-256 "
+                  "certificate fingerprint."
+              )
+          if actual != expected:
+              raise SystemExit(
+                  "Android signer continuity check failed: production artifact "
+                  "does not match the trusted legacy signing certificate."
+              )
+          print("ANDROID SIGNER CONTINUITY: PASS")
+          PY
+
+          AAB_VERIFY_OUTPUT="$(jarsigner -verify -verbose -certs \
+            build/production-artifacts/wonderlog-signed.aab 2>&1)"
+          printf '%s\n' "$AAB_VERIFY_OUTPUT" \
+            | tee build/production-artifacts/AAB_SIGNATURE_VERIFY.txt
+          printf '%s\n' "$AAB_VERIFY_OUTPUT" | grep -q "jar verified."
+          if printf '%s\n' "$AAB_VERIFY_OUTPUT" | grep -qi "jar is unsigned"; then
+            echo "AAB verification failed: bundle is unsigned." >&2
+            exit 1
+          fi
 
           VERSION="$(awk '/^version:/ {print $2; exit}' pubspec.yaml)"
           {
@@ -128,7 +175,8 @@ jobs:
             echo "workflowRun=${GITHUB_RUN_ID}"
             echo "distributionChannel=GitHub Actions production artifact"
             echo "validationLevel=ARTIFACT_BUILT"
-            echo "signingMode=PERSISTENT_UPLOAD_KEY"
+            echo "signingMode=PERSISTENT_LEGACY_COMPATIBLE_KEY"
+            echo "signerContinuity=VERIFIED_AGAINST_EXPECTED_SHA256"
           } > build/production-artifacts/RELEASE_EVIDENCE.txt
 
           cd build/production-artifacts
