@@ -1,0 +1,96 @@
+name: Wonderlog Apple Build Gate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "flutter/**"
+      - ".github/workflows/apple-build.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "flutter/**"
+      - ".github/workflows/apple-build.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wonderlog-apple-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apple-build:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: flutter
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.5"
+          channel: stable
+          cache: true
+
+      - name: Generate Apple platforms
+        run: |
+          set -euo pipefail
+          rm -rf ios macos /tmp/wonderlog_apple
+          flutter create --project-name wonderlog --org com.riccardopinato --platforms=ios,macos /tmp/wonderlog_apple
+          cp -R /tmp/wonderlog_apple/ios .
+          cp -R /tmp/wonderlog_apple/macos .
+          python3 tool/prepare_generated_platforms.py
+
+      - name: Install and generate
+        run: |
+          set -euo pipefail
+          flutter pub get
+          python3 tool/check_release_version.py
+          python3 tool/check_localizations.py
+          flutter gen-l10n
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build iOS release without distribution signing
+        run: flutter build ios --release --no-codesign
+
+      - name: Build macOS release compile gate
+        run: flutter build macos --release
+
+      - name: Package Apple build evidence
+        run: |
+          set -euo pipefail
+          mkdir -p build/apple-artifacts
+          tar -czf build/apple-artifacts/wonderlog-ios-unsigned.tar.gz -C build/ios/iphoneos Runner.app
+          MAC_APP="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$MAC_APP"
+          tar -czf build/apple-artifacts/wonderlog-macos-build.tar.gz -C "$(dirname "$MAC_APP")" "$(basename "$MAC_APP")"
+          VERSION="$(awk '/^version:/ {print $2; exit}' pubspec.yaml)"
+          {
+            echo "project=Wonderlog"
+            echo "version=$VERSION"
+            echo "sourceSha=${GITHUB_SHA}"
+            echo "workflowRun=${GITHUB_RUN_ID}"
+            echo "iosValidation=ARTIFACT_BUILT_NO_CODESIGN"
+            echo "macosValidation=COMPILE_ARTIFACT_BUILT"
+            echo "storeReady=false"
+          } > build/apple-artifacts/APPLE_BUILD_EVIDENCE.txt
+          cd build/apple-artifacts
+          shasum -a 256 *.tar.gz > SHA256SUMS.txt
+          du -h *.tar.gz > SIZES.txt
+
+      - name: Upload Apple build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlog-apple-build-${{ github.sha }}
+          path: flutter/build/apple-artifacts/*
+          if-no-files-found: error
+          retention-days: 30

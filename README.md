@@ -81,14 +81,29 @@ Production offline downloads still require an offline-authorized style/provider
 and a physical native drill; Wonderlog does not bulk-download the standard OSM
 tile service.
 
-The next repair gate is **MAXI STEP 27 Release Hardening**.
+MAXI STEP 27 Release Hardening is implemented at deterministic CI/build level:
+all six locales now have a zero-untranslated gate, release metadata is
+`0.9.0+27`, Android verification artifacts are split per ABI, a secret-backed
+production-signing lane exists, GitHub Pages deployment is defined, iOS/macOS
+compile gates are real, and legacy Room cutover now requires a verified
+pre-migration safety snapshot. The Android cutover preserves the canonical
+legacy applicationId, requires signer continuity and checks build-number
+continuity. The migration fixture is built from the actual Room v6 donor
+contract, including its camelCase SQL column names and all nine legacy tables.
+The normal Flutter v9 snake_case schema is unchanged; only the certified Room
+v6 cutover path is normalized before Drift opens it, while v4/v5 and other
+uncertified pre-v9 baselines fail closed.
+
+The full product remains **NOT CERTIFIED** until the remaining physical,
+distribution and production-configuration evidence is completed.
 
 See `docs/STEP_23_FLUTTER_PARITY_DEAD_CODE_AUDIT.md`,
 `docs/STEP_23A_E2_HARDENING.md`,
 `docs/STEP_23B_CORE_FUNCTIONAL_REPAIR.md`,
 `docs/STEP_24_PREMIUM_TRUTH.md`,
-`docs/STEP_25_CLOUD_RUNTIME_COMPLETION.md` and
-`docs/STEP_26_MAPS_OFFLINE_COMPLETION.md`.
+`docs/STEP_25_CLOUD_RUNTIME_COMPLETION.md`,
+`docs/STEP_26_MAPS_OFFLINE_COMPLETION.md` and
+`docs/STEP_27_RELEASE_HARDENING.md`.
 
 See:
 

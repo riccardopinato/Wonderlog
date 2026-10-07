@@ -8,6 +8,7 @@ on:
     paths:
       - "flutter/**"
       - ".github/workflows/flutter-foundation.yml"
+      - "wanderlog-memories (2).zip"
       - "docs/FLUTTER_MIGRATION.md"
   push:
     branches:
@@ -15,6 +16,7 @@ on:
     paths:
       - "flutter/**"
       - ".github/workflows/flutter-foundation.yml"
+      - "wanderlog-memories (2).zip"
 
 permissions:
   contents: read
@@ -24,9 +26,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  verify:
+  legacy-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inspect canonical legacy donor
+        run: |
+          set -euo pipefail
+          python3 flutter/tool/inspect_legacy_donor.py | tee legacy-donor-contract.json
+
+      - name: Upload legacy donor contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlog-legacy-donor-contract
+          path: legacy-donor-contract.json
+          if-no-files-found: error
+          retention-days: 30
+
+  verify:
+    needs: legacy-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: flutter
@@ -61,6 +85,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Validate release version
+        run: python3 tool/check_release_version.py
+
+      - name: Validate localization completeness
+        run: python3 tool/check_localizations.py
+
       - name: Generate localization
         run: flutter gen-l10n
 
@@ -76,37 +106,60 @@ jobs:
       - name: Build Web release
         run: flutter build web --release
 
-      - name: Build Android release APK
-        run: flutter build apk --release
+      - name: Build Android release APKs by ABI
+        run: flutter build apk --release --split-per-abi
 
       - name: Build Android AAB
         run: flutter build appbundle --release
 
-      - name: Prepare artifacts
+      - name: Prepare verification artifacts
         run: |
           set -euo pipefail
           mkdir -p build/foundation-artifacts
-          cp build/app/outputs/flutter-apk/app-release.apk build/foundation-artifacts/wonderlog-flutter-foundation.apk
-          cp build/app/outputs/bundle/release/app-release.aab build/foundation-artifacts/wonderlog-flutter-foundation.aab
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/foundation-artifacts/wonderlog-arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/foundation-artifacts/wonderlog-armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk build/foundation-artifacts/wonderlog-x86_64.apk
+          cp build/app/outputs/bundle/release/app-release.aab build/foundation-artifacts/wonderlog.aab
           tar -czf build/foundation-artifacts/wonderlog-web.tar.gz -C build/web .
+          VERSION="$(awk '/^version:/ {print $2; exit}' pubspec.yaml)"
+          {
+            echo "project=Wonderlog"
+            echo "version=$VERSION"
+            echo "sourceSha=${GITHUB_SHA}"
+            echo "variant=release"
+            echo "packageId=com.aistudio.wanderlogmemories.pqrzmx"
+            echo "workflowRun=${GITHUB_RUN_ID}"
+            echo "distributionChannel=GitHub Actions verification artifacts"
+            echo "validationLevel=ARTIFACT_BUILT"
+            echo "signingMode=CI_DEBUG_KEY_NOT_FOR_STORE"
+          } > build/foundation-artifacts/RELEASE_EVIDENCE.txt
           cd build/foundation-artifacts
-          sha256sum *.apk *.aab *.tar.gz > SHA256SUMS.txt
+          sha256sum *.apk *.aab > SHA256SUMS_ANDROID.txt
+          sha256sum wonderlog-web.tar.gz > SHA256SUMS_WEB.txt
+          du -h *.apk *.aab > SIZES_ANDROID.txt
+          du -h wonderlog-web.tar.gz > SIZES_WEB.txt
 
-      - name: Upload Android artifacts
+      - name: Upload Android verification artifacts
         uses: actions/upload-artifact@v4
         with:
           name: wonderlog-flutter-foundation-android
           path: |
             flutter/build/foundation-artifacts/*.apk
             flutter/build/foundation-artifacts/*.aab
-            flutter/build/foundation-artifacts/SHA256SUMS.txt
+            flutter/build/foundation-artifacts/SHA256SUMS_ANDROID.txt
+            flutter/build/foundation-artifacts/SIZES_ANDROID.txt
+            flutter/build/foundation-artifacts/RELEASE_EVIDENCE.txt
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload Web artifact
+      - name: Upload Web verification artifact
         uses: actions/upload-artifact@v4
         with:
           name: wonderlog-flutter-foundation-web
-          path: flutter/build/foundation-artifacts/wonderlog-web.tar.gz
+          path: |
+            flutter/build/foundation-artifacts/wonderlog-web.tar.gz
+            flutter/build/foundation-artifacts/SHA256SUMS_WEB.txt
+            flutter/build/foundation-artifacts/SIZES_WEB.txt
+            flutter/build/foundation-artifacts/RELEASE_EVIDENCE.txt
           if-no-files-found: error
           retention-days: 30

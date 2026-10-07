@@ -56,8 +56,9 @@ Cloud auth is optional. Configure it with dart-defines only when needed:
 - SUPABASE_PUBLISHABLE_KEY
 - WONDERLOG_AUTH_REDIRECT
 - WONDERLOG_WEB_AUTH_REDIRECT
-- WONDERLOG_CLOUD_DATA_ENABLED=true (only after the intended Wonderlog
-  Supabase schema/RLS/storage bucket has been provisioned and verified)
+- WONDERLOG_CLOUD_DATA_ENABLED=false only for a build that must explicitly
+  disable Wonderlog cloud data. After Step 25 provisioning, cloud data is
+  enabled by default when SUPABASE_URL + SUPABASE_PUBLISHABLE_KEY are present.
 
 Supabase identity and Wonderlog cloud data are deliberately separate switches:
 a shared identity backend must not automatically become the Wonderlog backup
@@ -82,9 +83,16 @@ No secret belongs in the repository.
 
 ## CI gate
 
-Every pull request touching the Flutter migration must pass localization/code
-generation, analyze, unit tests, Web release build, Android release APK and AAB
-build before it can be considered for merge.
+Every pull request touching the Flutter migration must pass release-version
+validation, zero-untranslated localization validation, localization/code
+generation, analyze, unit tests, Web release build, split Android release APKs
+and AAB build before it can be considered for merge.
+
+Step 27 adds separate release lanes:
+- standard CI artifacts are verification artifacts, not store-signed releases;
+- Android production signing is manual, `main`-only and secret-backed;
+- GitHub Pages is the stable Web-preview deployment lane;
+- iOS release no-codesign and macOS compile are verified on `macos-latest`.
 
 The E1 producer hardening passed the complete CI gate on PR #5 head
 `25578cade1f9dd32712d495b13caaf2ead9e8ea7` (workflow run
@@ -110,7 +118,22 @@ The first ecosystem integration layer is provider-independent.
 Wonderlog producer-side E1 is now the stable donor/handoff baseline for
 Anna's Diary.
 
-The candidate Golden contract is documented in
-`docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`.
-It remains CANDIDATE until Anna's Diary implements the consumer side and both
-apps pass the shared cross-app contract tests.
+The historical Golden contract filename remains
+`docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`, but Shared Ecosystem
+Core v1 is CERTIFIED GOLDEN for the physically tested Android Wonderlog ↔
+Anna's Diary scope. Full Wonderlog production certification remains separate.
+
+## Release hardening
+
+Step 27 adds a fail-closed legacy cutover guard. When the production Android
+Room file `wanderlog-memories-db` is detected, Wonderlog creates and verifies
+a private SHA-256 safety snapshot of the DB and any present WAL/SHM sidecars
+before Drift is allowed to open the legacy database.
+
+The deterministic Room-v6-shaped -> Drift-v9 fixture is CI-green. The tool
+`tool/legacy_room_v6_drill.dart` is reserved for a copy of an actual Room v6
+database and never migrates the supplied source file itself.
+
+Current app metadata: `0.9.0+27`.
+
+See `../docs/STEP_27_RELEASE_HARDENING.md`.

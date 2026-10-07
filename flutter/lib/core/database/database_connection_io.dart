@@ -5,6 +5,11 @@ import 'package:drift_flutter/drift_flutter.dart' as drift_flutter;
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:sqlite3/sqlite3.dart' as sqlite;
+
+import 'legacy_database_compatibility.dart';
+import 'legacy_migration_safety_snapshot.dart';
+import 'legacy_room_schema_normalizer.dart';
 
 const _legacyRoomDatabaseName = 'wanderlog-memories-db';
 
@@ -26,7 +31,43 @@ QueryExecutor driftDatabase({required String name}) {
             'databases',
             _legacyRoomDatabaseName,
           );
-          if (await File(legacyPath).exists()) {
+          final legacyDatabase = File(legacyPath);
+          if (await legacyDatabase.exists()) {
+            final schemaVersion = _readUserVersion(legacyDatabase);
+            if (LegacyDatabaseCompatibility.isFutureSchema(schemaVersion)) {
+              throw StateError(
+                'Legacy database schema v$schemaVersion is newer than '
+                'supported Drift schema v'
+                '${LegacyDatabaseCompatibility.flutterSchemaVersion}.',
+              );
+            }
+            if (!LegacyDatabaseCompatibility.canOpenLegacyDatabase(
+              schemaVersion,
+            )) {
+              throw StateError(
+                'Legacy database schema v$schemaVersion is not a certified '
+                'Wonderlog cutover baseline. Supported legacy Room baseline: '
+                'v${LegacyDatabaseCompatibility.roomSchemaVersion}; current '
+                'Flutter schema: '
+                'v${LegacyDatabaseCompatibility.flutterSchemaVersion}.',
+              );
+            }
+
+            if (LegacyDatabaseCompatibility.requiresPreMigrationSnapshot(
+              schemaVersion,
+            )) {
+              final backupRoot = Directory(
+                p.join(
+                  documents.path,
+                  'wonderlog_migration_backups',
+                ),
+              );
+              await const LegacyMigrationSafetySnapshot().ensure(
+                databaseFile: legacyDatabase,
+                backupRoot: backupRoot,
+              );
+              const LegacyRoomSchemaNormalizer().normalize(legacyDatabase);
+            }
             return legacyPath;
           }
         }
@@ -39,4 +80,17 @@ QueryExecutor driftDatabase({required String name}) {
       shareAcrossIsolates: true,
     ),
   );
+}
+
+int _readUserVersion(File databaseFile) {
+  final database = sqlite.sqlite3.open(
+    databaseFile.path,
+    mode: sqlite.OpenMode.readOnly,
+  );
+  try {
+    final row = database.select('PRAGMA user_version').single;
+    return row.values.single as int;
+  } finally {
+    database.dispose();
+  }
 }

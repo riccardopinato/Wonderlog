@@ -1,0 +1,86 @@
+name: Wonderlog Stable Web Preview
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "flutter/**"
+      - ".github/workflows/web-preview.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: wonderlog-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: flutter
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.5"
+          channel: stable
+          cache: true
+
+      - name: Generate Web platform
+        run: |
+          set -euo pipefail
+          rm -rf web /tmp/wonderlog_web
+          flutter create --project-name wonderlog --org com.riccardopinato --platforms=web /tmp/wonderlog_web
+          cp -R /tmp/wonderlog_web/web .
+
+      - name: Install and validate
+        run: |
+          set -euo pipefail
+          flutter pub get
+          python3 tool/check_release_version.py
+          python3 tool/check_localizations.py
+          flutter gen-l10n
+          dart run build_runner build --delete-conflicting-outputs
+          flutter analyze
+
+      - name: Build stable Web preview
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          set -euo pipefail
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          BASE_HREF="/${REPO_NAME}/"
+          WEB_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/"
+          flutter build web --release             --base-href "$BASE_HREF"             --dart-define="WONDERLOG_WEB_AUTH_REDIRECT=$WEB_URL"             --dart-define="SUPABASE_URL=$SUPABASE_URL"             --dart-define="SUPABASE_PUBLISHABLE_KEY=$SUPABASE_PUBLISHABLE_KEY"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: flutter/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy exact Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

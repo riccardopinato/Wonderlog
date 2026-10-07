@@ -13,3 +13,4 @@ windows/
 .idea/
 .flutter-plugins
 .flutter-plugins-dependencies
+android/key.properties\nandroid/app/*.jks\nandroid/app/*.keystore\n

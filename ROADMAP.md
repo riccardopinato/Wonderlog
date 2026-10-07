@@ -1,6 +1,6 @@
 # Wonderlog Roadmap
 
-Execution truth as of 2026-10-06.
+Execution truth as of 2026-10-07.
 
 ## DONE — Flutter foundation
 
@@ -262,19 +262,58 @@ External release prerequisites:
 Evidence:
 - `docs/STEP_26_MAPS_OFFLINE_COMPLETION.md`.
 
-## NEXT — MAXI STEP 27 Release Hardening
+## DONE — MAXI STEP 27 Release Hardening
 
-## LATER — Wonderlog production cutover
+Implemented in PR #19.
+
+Completed:
+- zero-untranslated deterministic gate across EN/IT/ES/FR/DE/PT;
+- release version moved to `0.9.0+27` with CI metadata guard;
+- Android verification APKs split per ABI;
+- canonical legacy Android applicationId retained for in-place update;
+- legacy versionCode continuity gate (donor 1 < Flutter build 27);
+- manual `main`-only production Android signing workflow with secret-only
+  keystore materialization, legacy signer SHA-256 continuity and signature
+  evidence;
+- stable GitHub Pages deployment workflow;
+- macOS-hosted iOS release no-codesign and macOS compile gates;
+- verified safety snapshot only before an actual pre-v9 database migration;
+- canonical donor CI contract for Room v6 identity/schema/table invariants;
+- existing Flutter v9 snake_case schema preserved and covered by reopen
+  regression test;
+- isolated, transactional Room v6 camelCase -> Drift snake_case normalizer;
+- uncertified Room v4/v5/v7/v8 baselines rejected fail-closed;
+- deterministic canonical Room-v6 -> Drift-v9 migration fixture covering all
+  nine legacy tables;
+- real legacy DB copy drill harness that rejects incomplete v6 inputs and
+  compares pre/post table parity.
+
+Validation rule:
+- Step 27 closes only when donor-contract / Flutter Foundation / Apple Build
+  checks are green on the exact final PR head;
+- each emitted evidence bundle records its source SHA.
+
+Not promoted to production certification by this step:
+- real Room-v6 user database + physical Android cutover drill;
+- persistent production-signing run from `main`;
+- stable Pages deployment run from `main`;
+- store/internal distribution;
+- remaining provider/device validation.
+
+Evidence:
+- `docs/STEP_27_RELEASE_HARDENING.md`.
+
+## NEXT — Wonderlog production cutover evidence
+
 
 Still separate from E1 handoff readiness:
 
-- remaining Journey/Memory/Album parity;
-- Capture/Keepsakes parity;
-- Smart Journey parity;
-- Map Memories parity;
-- Rediscover/Replay parity;
-- production RevenueCat/store configuration;
-- cloud backup/sync parity;
-- real-device legacy Room -> Drift migration validation;
-- macOS/iOS build gate;
+- production RevenueCat/store configuration and purchase distribution drill;
+- real-user-copy Room v6 -> Drift v9 migration + physical Android update drill;
+- run and verify persistent Android production signing on `main`;
+- verify stable GitHub Pages deployment on `main`;
+- provider-configured offline-map airplane-mode drill;
+- Play Internal Testing / Apple distribution evidence;
+- resolve remaining performance hardening (N+1 Memory/media reads and global
+  search scaling) when dataset thresholds justify it;
 - final Android/iOS/Web production certification.
