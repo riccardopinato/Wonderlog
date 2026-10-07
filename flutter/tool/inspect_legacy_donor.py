@@ -69,6 +69,7 @@ with zipfile.ZipFile(DONOR) as archive:
             or "@Database" in text
             or "class Converters" in text
             or "object Converters" in text
+            or "DatabaseMigrations" in text
         ):
             room_sources.append({
                 "path": name,
