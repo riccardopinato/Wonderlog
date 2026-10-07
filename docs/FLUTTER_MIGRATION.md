@@ -60,9 +60,12 @@ rejected until an explicit certified migration exists.
 
 The canonical Room-v6 -> Drift-v9 fixture is built from the donor Kotlin entity
 contract, and a separate drill harness normalizes/migrates only a working copy
-of an actual legacy DB. A regression test also reopens an existing Flutter v9
-snake_case database. Real-user-copy and physical-device migration evidence is
-still required before production cutover.
+of an actual legacy DB. The fixture covers both multi-tag values and the donor
+converter's single-tag representation. A regression test also reopens an
+existing Flutter v9 snake_case database. The donor ZIP itself is part of both PR
+and main-push CI path filters, so a donor-only change reruns the canonical
+contract gate. Real-user-copy and physical-device migration evidence is still
+required before production cutover.
 
 Fresh installs and non-Android platforms use the Flutter database path.
 
@@ -179,6 +182,8 @@ production certification remains separate and is tracked in
 
 The remaining full-production cutover evidence is separate from E1 handoff
 readiness. Step 27 has closed the deterministic localization/version/ABI/Apple
-compile gates; the remaining blockers are primarily a real Room-v6
-copy/device cutover drill, production signing/distribution evidence, store
-configuration and the remaining provider/device validation.
+compile gates. Android and Web CI packages now carry independent checksum/size
+manifests that reference only files actually shipped in that artifact. The
+remaining blockers are primarily a real Room-v6 copy/device cutover drill,
+production signing/distribution evidence, store configuration and the remaining
+provider/device validation.
