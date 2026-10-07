@@ -10,13 +10,13 @@ on:
       - ".github/workflows/flutter-foundation.yml"
       - "wanderlog-memories (2).zip"
       - "docs/FLUTTER_MIGRATION.md"
-      - "wanderlog-memories (2).zip"
   push:
     branches:
       - main
     paths:
       - "flutter/**"
       - ".github/workflows/flutter-foundation.yml"
+      - "wanderlog-memories (2).zip"
 
 permissions:
   contents: read
@@ -134,8 +134,10 @@ jobs:
             echo "signingMode=CI_DEBUG_KEY_NOT_FOR_STORE"
           } > build/foundation-artifacts/RELEASE_EVIDENCE.txt
           cd build/foundation-artifacts
-          sha256sum *.apk *.aab *.tar.gz > SHA256SUMS.txt
-          du -h *.apk *.aab *.tar.gz > SIZES.txt
+          sha256sum *.apk *.aab > SHA256SUMS_ANDROID.txt
+          sha256sum wonderlog-web.tar.gz > SHA256SUMS_WEB.txt
+          du -h *.apk *.aab > SIZES_ANDROID.txt
+          du -h wonderlog-web.tar.gz > SIZES_WEB.txt
 
       - name: Upload Android verification artifacts
         uses: actions/upload-artifact@v4
@@ -144,8 +146,8 @@ jobs:
           path: |
             flutter/build/foundation-artifacts/*.apk
             flutter/build/foundation-artifacts/*.aab
-            flutter/build/foundation-artifacts/SHA256SUMS.txt
-            flutter/build/foundation-artifacts/SIZES.txt
+            flutter/build/foundation-artifacts/SHA256SUMS_ANDROID.txt
+            flutter/build/foundation-artifacts/SIZES_ANDROID.txt
             flutter/build/foundation-artifacts/RELEASE_EVIDENCE.txt
           if-no-files-found: error
           retention-days: 30
@@ -156,6 +158,8 @@ jobs:
           name: wonderlog-flutter-foundation-web
           path: |
             flutter/build/foundation-artifacts/wonderlog-web.tar.gz
+            flutter/build/foundation-artifacts/SHA256SUMS_WEB.txt
+            flutter/build/foundation-artifacts/SIZES_WEB.txt
             flutter/build/foundation-artifacts/RELEASE_EVIDENCE.txt
           if-no-files-found: error
           retention-days: 30
