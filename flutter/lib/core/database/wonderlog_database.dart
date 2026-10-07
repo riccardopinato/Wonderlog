@@ -9,28 +9,28 @@ class Trips extends Table {
   String get tableName => 'trips';
 
   TextColumn get id => text()();
-  TextColumn get destinationName => text().named('destinationName')();
+  TextColumn get destinationName => text()();
   TextColumn get country => text().withDefault(const Constant(''))();
-  TextColumn get startDate => text().named('startDate')();
-  TextColumn get endDate => text().named('endDate')();
-  TextColumn get coverImage => text().named('coverImage').withDefault(const Constant(''))();
+  TextColumn get startDate => text()();
+  TextColumn get endDate => text()();
+  TextColumn get coverImage => text().withDefault(const Constant(''))();
   TextColumn get description => text().withDefault(const Constant(''))();
-  IntColumn get accentGradientIndex => integer().named('accentGradientIndex').withDefault(const Constant(0))();
+  IntColumn get accentGradientIndex => integer().withDefault(const Constant(0))();
   RealColumn get latitude => real().withDefault(const Constant(0))();
   RealColumn get longitude => real().withDefault(const Constant(0))();
   TextColumn get title => text()();
   TextColumn get destination => text()();
-  TextColumn get coverPhotoId => text().named('coverPhotoId').withDefault(const Constant(''))();
+  TextColumn get coverPhotoId => text().withDefault(const Constant(''))();
   TextColumn get accentTheme =>
-      text().named('accentTheme').withDefault(const Constant('Preset_0'))();
-  IntColumn get createdAt => integer().named('createdAt')();
-  IntColumn get updatedAt => integer().named('updatedAt')();
+      text().withDefault(const Constant('Preset_0'))();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
   BoolColumn get favorite => boolean().withDefault(const Constant(false))();
   BoolColumn get archived => boolean().withDefault(const Constant(false))();
   TextColumn get statistics => text().withDefault(const Constant(''))();
-  TextColumn get futureCloudId => text().named('futureCloudId').nullable()();
+  TextColumn get futureCloudId => text().nullable()();
   TextColumn get syncStatus =>
-      text().named('syncStatus').withDefault(const Constant('LOCAL_ONLY'))();
+      text().withDefault(const Constant('LOCAL_ONLY'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -42,13 +42,13 @@ class Memories extends Table {
 
   TextColumn get id => text()();
   TextColumn get tripId =>
-      text().named('tripId').nullable().references(Trips, #id, onDelete: KeyAction.cascade)();
-  TextColumn get journeyId => text().named('journeyId').nullable()();
+      text().nullable().references(Trips, #id, onDelete: KeyAction.cascade)();
+  TextColumn get journeyId => text().nullable()();
   TextColumn get title => text()();
   TextColumn get note => text().withDefault(const Constant(''))();
-  TextColumn get journalText => text().named('journalText').withDefault(const Constant(''))();
+  TextColumn get journalText => text().withDefault(const Constant(''))();
   TextColumn get image => text().withDefault(const Constant(''))();
-  TextColumn get locationName => text().named('locationName').withDefault(const Constant(''))();
+  TextColumn get locationName => text().withDefault(const Constant(''))();
   RealColumn get latitude => real().nullable()();
   RealColumn get longitude => real().nullable()();
   TextColumn get date => text()();
@@ -56,12 +56,12 @@ class Memories extends Table {
   TextColumn get tagsJson =>
       text().named('tags').withDefault(const Constant('[]'))();
   BoolColumn get favorite => boolean().withDefault(const Constant(false))();
-  IntColumn get createdAt => integer().named('createdAt')();
-  IntColumn get updatedAt => integer().named('updatedAt')();
-  IntColumn get displayOrder => integer().named('displayOrder').withDefault(const Constant(0))();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
+  IntColumn get displayOrder => integer().withDefault(const Constant(0))();
   TextColumn get syncStatus =>
-      text().named('syncStatus').withDefault(const Constant('LOCAL_ONLY'))();
-  TextColumn get futureCloudId => text().named('futureCloudId').nullable()();
+      text().withDefault(const Constant('LOCAL_ONLY'))();
+  TextColumn get futureCloudId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -73,27 +73,27 @@ class AlbumPhotos extends Table {
 
   TextColumn get id => text()();
   TextColumn get journeyId =>
-      text().named('journeyId').references(Trips, #id, onDelete: KeyAction.cascade)();
-  TextColumn get localUri => text().named('localUri')();
-  TextColumn get thumbnailUri => text().named('thumbnailUri').withDefault(const Constant(''))();
-  TextColumn get originalUri => text().named('originalUri').withDefault(const Constant(''))();
-  TextColumn get fileName => text().named('fileName').withDefault(const Constant(''))();
-  TextColumn get mimeType => text().named('mimeType').withDefault(const Constant('image/jpeg'))();
+      text().references(Trips, #id, onDelete: KeyAction.cascade)();
+  TextColumn get localUri => text()();
+  TextColumn get thumbnailUri => text().withDefault(const Constant(''))();
+  TextColumn get originalUri => text().withDefault(const Constant(''))();
+  TextColumn get fileName => text().withDefault(const Constant(''))();
+  TextColumn get mimeType => text().withDefault(const Constant('image/jpeg'))();
   IntColumn get width => integer().withDefault(const Constant(0))();
   IntColumn get height => integer().withDefault(const Constant(0))();
-  IntColumn get fileSize => integer().named('fileSize').withDefault(const Constant(0))();
-  IntColumn get createdAt => integer().named('createdAt')();
-  IntColumn get updatedAt => integer().named('updatedAt')();
-  IntColumn get capturedAt => integer().named('capturedAt').nullable()();
-  RealColumn get gpsLatitude => real().named('gpsLatitude').nullable()();
-  RealColumn get gpsLongitude => real().named('gpsLongitude').nullable()();
-  TextColumn get locationName => text().named('locationName').withDefault(const Constant(''))();
+  IntColumn get fileSize => integer().withDefault(const Constant(0))();
+  IntColumn get createdAt => integer()();
+  IntColumn get updatedAt => integer()();
+  IntColumn get capturedAt => integer().nullable()();
+  RealColumn get gpsLatitude => real().nullable()();
+  RealColumn get gpsLongitude => real().nullable()();
+  TextColumn get locationName => text().withDefault(const Constant(''))();
   BoolColumn get favorite => boolean().withDefault(const Constant(false))();
-  BoolColumn get isCoverPhoto => boolean().named('isCoverPhoto').withDefault(const Constant(false))();
-  IntColumn get displayOrder => integer().named('displayOrder').withDefault(const Constant(0))();
+  BoolColumn get isCoverPhoto => boolean().withDefault(const Constant(false))();
+  IntColumn get displayOrder => integer().withDefault(const Constant(0))();
   TextColumn get syncStatus =>
-      text().named('syncStatus').withDefault(const Constant('LOCAL_ONLY'))();
-  TextColumn get futureCloudId => text().named('futureCloudId').nullable()();
+      text().withDefault(const Constant('LOCAL_ONLY'))();
+  TextColumn get futureCloudId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -104,11 +104,11 @@ class MemoryPhotos extends Table {
   String get tableName => 'memory_photos';
 
   TextColumn get memoryId =>
-      text().named('memoryId').references(Memories, #id, onDelete: KeyAction.cascade)();
+      text().references(Memories, #id, onDelete: KeyAction.cascade)();
   TextColumn get albumPhotoId =>
-      text().named('albumPhotoId').references(AlbumPhotos, #id, onDelete: KeyAction.cascade)();
-  IntColumn get displayOrder => integer().named('displayOrder').withDefault(const Constant(0))();
-  BoolColumn get isHeroPhoto => boolean().named('isHeroPhoto').withDefault(const Constant(false))();
+      text().references(AlbumPhotos, #id, onDelete: KeyAction.cascade)();
+  IntColumn get displayOrder => integer().withDefault(const Constant(0))();
+  BoolColumn get isHeroPhoto => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {memoryId, albumPhotoId};
@@ -120,14 +120,14 @@ class MemoryAttachments extends Table {
 
   TextColumn get id => text()();
   TextColumn get memoryId =>
-      text().named('memoryId').references(Memories, #id, onDelete: KeyAction.cascade)();
-  TextColumn get localUri => text().named('localUri')();
-  TextColumn get originalName => text().named('originalName').nullable()();
-  TextColumn get mimeType => text().named('mimeType')();
-  TextColumn get attachmentType => text().named('attachmentType')();
-  IntColumn get createdAt => integer().named('createdAt')();
+      text().references(Memories, #id, onDelete: KeyAction.cascade)();
+  TextColumn get localUri => text()();
+  TextColumn get originalName => text().nullable()();
+  TextColumn get mimeType => text()();
+  TextColumn get attachmentType => text()();
+  IntColumn get createdAt => integer()();
   TextColumn get syncStatus =>
-      text().named('syncStatus').withDefault(const Constant('LOCAL_ONLY'))();
+      text().withDefault(const Constant('LOCAL_ONLY'))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -138,7 +138,7 @@ class LocationPlaces extends Table {
   String get tableName => 'location_places';
 
   TextColumn get id => text()();
-  TextColumn get displayName => text().named('displayName')();
+  TextColumn get displayName => text()();
   TextColumn get country => text().withDefault(const Constant(''))();
   TextColumn get city => text().withDefault(const Constant(''))();
   TextColumn get region => text().withDefault(const Constant(''))();
@@ -155,13 +155,13 @@ class GeocodingCache extends Table {
   String get tableName => 'geocoding_cache';
 
   TextColumn get query => text()();
-  TextColumn get displayName => text().named('displayName')();
+  TextColumn get displayName => text()();
   TextColumn get country => text().withDefault(const Constant(''))();
   TextColumn get city => text().withDefault(const Constant(''))();
   TextColumn get region => text().withDefault(const Constant(''))();
   RealColumn get latitude => real()();
   RealColumn get longitude => real()();
-  IntColumn get cachedAt => integer().named('cachedAt')();
+  IntColumn get cachedAt => integer()();
 
   @override
   Set<Column> get primaryKey => {query};
@@ -172,12 +172,12 @@ class CloudSyncQueue extends Table {
   String get tableName => 'cloud_sync_queue';
 
   TextColumn get id => text()();
-  TextColumn get entityType => text().named('entityType')();
-  TextColumn get localEntityId => text().named('localEntityId')();
+  TextColumn get entityType => text()();
+  TextColumn get localEntityId => text()();
   TextColumn get operation => text()();
-  IntColumn get createdAt => integer().named('createdAt')();
-  IntColumn get attemptCount => integer().named('attemptCount').withDefault(const Constant(0))();
-  TextColumn get lastError => text().named('lastError').nullable()();
+  IntColumn get createdAt => integer()();
+  IntColumn get attemptCount => integer().withDefault(const Constant(0))();
+  TextColumn get lastError => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -240,15 +240,15 @@ class OfflineMapRegions extends Table {
 
   TextColumn get id => text()();
   TextColumn get name => text()();
-  RealColumn get centerLatitude => real().named('centerLatitude')();
-  RealColumn get centerLongitude => real().named('centerLongitude')();
-  RealColumn get radiusKm => real().named('radiusKm')();
-  IntColumn get zoomMin => integer().named('zoomMin')();
-  IntColumn get zoomMax => integer().named('zoomMax')();
-  IntColumn get sizeBytes => integer().named('sizeBytes').withDefault(const Constant(0))();
-  BoolColumn get isDownloaded => boolean().named('isDownloaded').withDefault(const Constant(false))();
-  RealColumn get downloadProgress => real().named('downloadProgress').withDefault(const Constant(0))();
-  IntColumn get createdAt => integer().named('createdAt')();
+  RealColumn get centerLatitude => real()();
+  RealColumn get centerLongitude => real()();
+  RealColumn get radiusKm => real()();
+  IntColumn get zoomMin => integer()();
+  IntColumn get zoomMax => integer()();
+  IntColumn get sizeBytes => integer().withDefault(const Constant(0))();
+  BoolColumn get isDownloaded => boolean().withDefault(const Constant(false))();
+  RealColumn get downloadProgress => real().withDefault(const Constant(0))();
+  IntColumn get createdAt => integer()();
 
   @override
   Set<Column> get primaryKey => {id};
