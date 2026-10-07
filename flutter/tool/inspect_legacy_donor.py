@@ -59,7 +59,24 @@ with zipfile.ZipFile(DONOR) as archive:
             ],
         })
 
+    room_sources = []
+    for name in names:
+        if not name.endswith(".kt"):
+            continue
+        text = archive.read(name).decode("utf-8", errors="replace")
+        if (
+            "@Entity" in text
+            or "@Database" in text
+            or "class Converters" in text
+            or "object Converters" in text
+        ):
+            room_sources.append({
+                "path": name,
+                "content": text,
+            })
+
 print(json.dumps({
     "applicationIds": sorted(set(application_ids)),
     "roomV6Schemas": schemas,
+    "roomSourceFiles": room_sources,
 }, indent=2, ensure_ascii=False))
