@@ -9,6 +9,7 @@ import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 import 'legacy_database_compatibility.dart';
 import 'legacy_migration_safety_snapshot.dart';
+import 'legacy_room_schema_normalizer.dart';
 
 const _legacyRoomDatabaseName = 'wanderlog-memories-db';
 
@@ -40,6 +41,17 @@ QueryExecutor driftDatabase({required String name}) {
                 '${LegacyDatabaseCompatibility.flutterSchemaVersion}.',
               );
             }
+            if (!LegacyDatabaseCompatibility.canOpenLegacyDatabase(
+              schemaVersion,
+            )) {
+              throw StateError(
+                'Legacy database schema v$schemaVersion is not a certified '
+                'Wonderlog cutover baseline. Supported legacy Room baseline: '
+                'v${LegacyDatabaseCompatibility.roomSchemaVersion}; current '
+                'Flutter schema: '
+                'v${LegacyDatabaseCompatibility.flutterSchemaVersion}.',
+              );
+            }
 
             if (LegacyDatabaseCompatibility.requiresPreMigrationSnapshot(
               schemaVersion,
@@ -54,6 +66,7 @@ QueryExecutor driftDatabase({required String name}) {
                 databaseFile: legacyDatabase,
                 backupRoot: backupRoot,
               );
+              const LegacyRoomSchemaNormalizer().normalize(legacyDatabase);
             }
             return legacyPath;
           }
