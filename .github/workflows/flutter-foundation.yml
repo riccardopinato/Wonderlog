@@ -106,7 +106,7 @@ jobs:
             echo "version=$VERSION"
             echo "sourceSha=${GITHUB_SHA}"
             echo "variant=release"
-            echo "packageId=com.riccardopinato.wonderlog"
+            echo "packageId=com.aistudio.wanderlogmemories.pqrzmx"
             echo "workflowRun=${GITHUB_RUN_ID}"
             echo "distributionChannel=GitHub Actions verification artifacts"
             echo "validationLevel=ARTIFACT_BUILT"
