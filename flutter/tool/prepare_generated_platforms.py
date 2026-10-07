@@ -8,10 +8,10 @@ ANDROID_NS = "http://schemas.android.com/apk/res/android"
 ET.register_namespace("android", ANDROID_NS)
 
 
-def patch_android() -> None:
+def patch_android() -> bool:
     manifest_path = ROOT / "android" / "app" / "src" / "main" / "AndroidManifest.xml"
     if not manifest_path.exists():
-        raise SystemExit("AndroidManifest.xml not found. Generate Android platform first.")
+        return False
 
     tree = ET.parse(manifest_path)
     root = tree.getroot()
@@ -144,11 +144,77 @@ def patch_android() -> None:
 
     tree.write(manifest_path, encoding="utf-8", xml_declaration=True)
 
+    gradle_path = ROOT / "android" / "app" / "build.gradle.kts"
+    if not gradle_path.exists():
+        raise SystemExit("Android build.gradle.kts not found after platform generation.")
 
-def patch_ios() -> None:
+    gradle = gradle_path.read_text(encoding="utf-8")
+    if "val wonderlogKeystoreProperties" not in gradle:
+        gradle = (
+            "import java.io.FileInputStream\n"
+            "import java.util.Properties\n\n"
+            + gradle
+        )
+        android_marker = "\nandroid {\n"
+        if android_marker not in gradle:
+            raise SystemExit("Unable to locate Android Gradle android block.")
+        signing_bootstrap = """
+val wonderlogKeystoreProperties = Properties()
+val wonderlogKeystorePropertiesFile = rootProject.file("key.properties")
+if (wonderlogKeystorePropertiesFile.exists()) {
+    FileInputStream(wonderlogKeystorePropertiesFile).use {
+        wonderlogKeystoreProperties.load(it)
+    }
+}
+"""
+        gradle = gradle.replace(
+            android_marker,
+            "\n" + signing_bootstrap + "\nandroid {\n",
+            1,
+        )
+
+        build_types_marker = "    buildTypes {\n"
+        if build_types_marker not in gradle:
+            raise SystemExit("Unable to locate Android Gradle buildTypes block.")
+        signing_config = """    signingConfigs {
+        if (wonderlogKeystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = wonderlogKeystoreProperties.getProperty("keyAlias")
+                keyPassword = wonderlogKeystoreProperties.getProperty("keyPassword")
+                storeFile = wonderlogKeystoreProperties.getProperty("storeFile")?.let { file(it) }
+                storePassword = wonderlogKeystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
+
+"""
+        gradle = gradle.replace(
+            build_types_marker,
+            signing_config + build_types_marker,
+            1,
+        )
+
+        debug_signing = 'signingConfig = signingConfigs.getByName("debug")'
+        if debug_signing not in gradle:
+            raise SystemExit("Unable to locate Flutter default release signing config.")
+        gradle = gradle.replace(
+            debug_signing,
+            """signingConfig = if (wonderlogKeystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }""",
+            1,
+        )
+        gradle_path.write_text(gradle, encoding="utf-8")
+
+    return True
+
+
+def patch_ios() -> bool:
     plist_path = ROOT / "ios" / "Runner" / "Info.plist"
     if not plist_path.exists():
-        raise SystemExit("Info.plist not found. Generate iOS platform first.")
+        return False
 
     with plist_path.open("rb") as handle:
         data = plistlib.load(handle)
@@ -192,8 +258,15 @@ def patch_ios() -> None:
     with plist_path.open("wb") as handle:
         plistlib.dump(data, handle, sort_keys=False)
 
+    return True
+
 
 if __name__ == "__main__":
-    patch_android()
-    patch_ios()
-    print("Generated Android/iOS platform callbacks configured.")
+    patched = []
+    if patch_android():
+        patched.append("Android")
+    if patch_ios():
+        patched.append("iOS")
+    if not patched:
+        raise SystemExit("No generated Android/iOS platform found to patch.")
+    print("Generated platform callbacks/signing configured: " + ", ".join(patched))
