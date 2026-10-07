@@ -115,8 +115,8 @@ void main() {
       );
       await copiedDatabase.writeAsString('tampered');
 
-      expect(
-        () => service.ensure(
+      await expectLater(
+        service.ensure(
           databaseFile: database,
           backupRoot: backupRoot,
         ),
