@@ -19,9 +19,23 @@ def message_keys(data: dict) -> set[str]:
     return {key for key in data if not key.startswith("@")}
 
 
-def placeholder_names(message: str) -> set[str]:
-    # ARB placeholders always begin with an identifier inside an ICU brace.
-    return set(re.findall(r"\{([A-Za-z][A-Za-z0-9_]*)", message))
+def declared_placeholders(data: dict, key: str) -> set[str]:
+    metadata = data.get("@" + key, {})
+    if not isinstance(metadata, dict):
+        return set()
+    placeholders = metadata.get("placeholders", {})
+    if not isinstance(placeholders, dict):
+        return set()
+    return set(placeholders.keys())
+
+
+def present_declared_placeholders(message: str, expected: set[str]) -> set[str]:
+    present: set[str] = set()
+    for name in expected:
+        pattern = re.compile(r"\{\s*" + re.escape(name) + r"\s*[,}]")
+        if pattern.search(message):
+            present.add(name)
+    return present
 
 
 def main() -> int:
@@ -46,12 +60,12 @@ def main() -> int:
             if not isinstance(value, str) or not value.strip():
                 failures.append(f"{locale}:{key}: empty/non-string translation")
                 continue
-            expected = placeholder_names(str(template[key]))
-            actual = placeholder_names(value)
+            expected = declared_placeholders(template, key)
+            actual = present_declared_placeholders(value, expected)
             if expected != actual:
                 failures.append(
-                    f"{locale}:{key}: placeholders {sorted(actual)} != "
-                    f"template {sorted(expected)}"
+                    f"{locale}:{key}: declared placeholders present "
+                    f"{sorted(actual)} != template {sorted(expected)}"
                 )
 
     if failures:
