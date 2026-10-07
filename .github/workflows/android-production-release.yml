@@ -1,0 +1,150 @@
+name: Wonderlog Android Production Artifact
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wonderlog-android-production
+  cancel-in-progress: false
+
+jobs:
+  signed-production-artifact:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: flutter
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.5"
+          channel: stable
+          cache: true
+
+      - name: Require production signing secrets
+        run: |
+          set -euo pipefail
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+
+      - name: Generate Android platform
+        run: |
+          set -euo pipefail
+          rm -rf android /tmp/wonderlog_android
+          flutter create --project-name wonderlog --org com.riccardopinato --platforms=android /tmp/wonderlog_android
+          cp -R /tmp/wonderlog_android/android .
+          python3 tool/prepare_generated_platforms.py
+
+      - name: Materialize signing identity
+        run: |
+          set -euo pipefail
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/wonderlog-upload.jks
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          def escape(value: str) -> str:
+              return (
+                  value.replace("\\", "\\\\")
+                  .replace("\n", "\\n")
+                  .replace("\r", "\\r")
+                  .replace(" ", "\\ ")
+              )
+
+          values = {
+              "storePassword": os.environ["ANDROID_KEYSTORE_PASSWORD"],
+              "keyPassword": os.environ["ANDROID_KEY_PASSWORD"],
+              "keyAlias": os.environ["ANDROID_KEY_ALIAS"],
+              "storeFile": "wonderlog-upload.jks",
+          }
+          Path("android/key.properties").write_text(
+              "".join(f"{key}={escape(value)}\n" for key, value in values.items()),
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Validate release metadata
+        run: |
+          python3 tool/check_release_version.py
+          python3 tool/check_localizations.py
+          flutter gen-l10n
+          dart run build_runner build --delete-conflicting-outputs
+          flutter analyze
+          flutter test
+
+      - name: Build signed release artifacts
+        run: |
+          set -euo pipefail
+          flutter build apk --release --split-per-abi
+          flutter build appbundle --release
+
+      - name: Verify signing and prepare evidence
+        run: |
+          set -euo pipefail
+          mkdir -p build/production-artifacts
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/production-artifacts/wonderlog-arm64-v8a-signed.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/production-artifacts/wonderlog-armeabi-v7a-signed.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk build/production-artifacts/wonderlog-x86_64-signed.apk
+          cp build/app/outputs/bundle/release/app-release.aab build/production-artifacts/wonderlog-signed.aab
+
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          test -x "$APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs build/production-artifacts/wonderlog-arm64-v8a-signed.apk             | tee build/production-artifacts/SIGNING_CERTIFICATE.txt
+          jarsigner -verify build/production-artifacts/wonderlog-signed.aab             > build/production-artifacts/AAB_SIGNATURE_VERIFY.txt
+
+          VERSION="$(awk '/^version:/ {print $2; exit}' pubspec.yaml)"
+          {
+            echo "project=Wonderlog"
+            echo "version=$VERSION"
+            echo "sourceRef=${GITHUB_REF}"
+            echo "sourceSha=${GITHUB_SHA}"
+            echo "variant=release"
+            echo "packageId=com.riccardopinato.wonderlog"
+            echo "workflowRun=${GITHUB_RUN_ID}"
+            echo "distributionChannel=GitHub Actions production artifact"
+            echo "validationLevel=ARTIFACT_BUILT"
+            echo "signingMode=PERSISTENT_UPLOAD_KEY"
+          } > build/production-artifacts/RELEASE_EVIDENCE.txt
+
+          cd build/production-artifacts
+          sha256sum *.apk *.aab > SHA256SUMS.txt
+          du -h *.apk *.aab > SIZES.txt
+
+      - name: Upload signed production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wonderlog-android-production-${{ github.sha }}
+          path: |
+            flutter/build/production-artifacts/*
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Remove materialized signing files
+        if: always()
+        run: |
+          rm -f android/key.properties android/app/wonderlog-upload.jks
