@@ -50,10 +50,19 @@ resolution metadata.
 
 Step 27 adds a fail-closed pre-open safety snapshot for the detected production
 Room database. DB + present WAL/SHM sidecars are copied into private migration
-backup storage and SHA-256 verified before Drift may open the legacy file.
-A Room-v6-shaped -> Drift-v9 fixture is CI-green, and a separate drill harness
-migrates only a working copy of an actual legacy DB. Real-user-copy and
-physical-device migration evidence is still required before production cutover.
+backup storage and SHA-256 verified before any schema mutation.
+
+The existing Flutter/Drift v9 physical schema remains snake_case. For the
+canonical Room v6 baseline only, a transactional/idempotent normalizer renames
+Room's camelCase physical columns to that existing Drift contract while keeping
+`user_version = 6`; Drift then performs v6 -> v9. Room v4/v5/v7/v8 are
+rejected until an explicit certified migration exists.
+
+The canonical Room-v6 -> Drift-v9 fixture is built from the donor Kotlin entity
+contract, and a separate drill harness normalizes/migrates only a working copy
+of an actual legacy DB. A regression test also reopens an existing Flutter v9
+snake_case database. Real-user-copy and physical-device migration evidence is
+still required before production cutover.
 
 Fresh installs and non-Android platforms use the Flutter database path.
 
