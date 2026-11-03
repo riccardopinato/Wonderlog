@@ -7,6 +7,7 @@ import '../../../core/runtime/wonderlog_services_scope.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../export/application/journey_pdf_export_service.dart';
 import '../../export/presentation/journey_pdf_export_page.dart';
+import '../../gpx/presentation/gpx_preview_page.dart';
 import '../../map_memories/presentation/journey_map_page.dart';
 import '../../memories/data/photo_import_service.dart';
 import '../../memories/domain/memory_models.dart';
@@ -84,6 +85,16 @@ final class JourneyDetailPage extends StatelessWidget {
                   onSelected: (action) =>
                       _handleJourneyAction(context, journey, action),
                   itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'gpxPreview',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.route_outlined),
+                        title: Text(
+                          AppLocalizations.of(context).gpxPreviewTitle,
+                        ),
+                      ),
+                    ),
                     PopupMenuItem(
                       value: 'edit',
                       child: ListTile(
@@ -168,6 +179,14 @@ final class JourneyDetailPage extends StatelessWidget {
     String action,
   ) async {
     switch (action) {
+      case 'gpxPreview':
+        await Navigator.push<void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (_) => const GpxPreviewPage(),
+          ),
+        );
+        break;
       case 'edit':
         await showEditJourneyDialog(context, repository, journey);
         break;
