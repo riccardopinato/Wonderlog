@@ -35,7 +35,9 @@ abstract final class SpatialReferenceClustering {
     if (a.latitude == b.latitude &&
         (a.longitude == b.longitude ||
          (a.longitude.abs() == 180 && b.longitude.abs() == 180) ||
-         a.latitude.abs() == 90)) return 0;
+         a.latitude.abs() == 90)) {
+      return 0;
+    }
     const radians = math.pi / 180;
     final phiA = a.latitude * radians;
     final phiB = b.latitude * radians;
