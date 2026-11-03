@@ -397,6 +397,7 @@
   "rediscoverSubtitle": "Quelques anciens moments qui méritent d'être revus.",
   "searchTitle": "Rechercher",
   "searchHint": "Rechercher des voyages, souvenirs, lieux ou tags",
+  "searchIncludeRelatedTerms": "Inclure des termes associés",
   "searchStartTyping": "Commencez à écrire pour rechercher dans votre Wonderlog.",
   "searchNoResults": "Aucun voyage ou souvenir correspondant.",
   "journeyTimeline": "Chronologie",

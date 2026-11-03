@@ -24,6 +24,7 @@ final class GlobalSearchPage extends StatefulWidget {
 final class _GlobalSearchPageState extends State<GlobalSearchPage> {
   final _controller = TextEditingController();
   String _query = '';
+  bool _includeRelatedTerms = false;
 
   @override
   void dispose() {
@@ -60,6 +61,20 @@ final class _GlobalSearchPageState extends State<GlobalSearchPage> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: WonderlogSpacing.medium,
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: FilterChip(
+                selected: _includeRelatedTerms,
+                label: Text(strings.searchIncludeRelatedTerms),
+                onSelected: (value) =>
+                    setState(() => _includeRelatedTerms = value),
+              ),
+            ),
+          ),
           Expanded(
             child: StreamBuilder<List<Journey>>(
               stream: widget.repository.watchJourneys(),
@@ -75,6 +90,7 @@ final class _GlobalSearchPageState extends State<GlobalSearchPage> {
                       query: _query,
                       journeys: journeySnapshot.data!,
                       memories: memorySnapshot.data!,
+                      includeRelatedTerms: _includeRelatedTerms,
                     );
 
                     if (_query.trim().isEmpty) {
