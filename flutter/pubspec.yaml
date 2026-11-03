@@ -24,6 +24,9 @@ dependencies:
   http: ^1.5.0
   xml: ^6.6.1
   pdf: ^3.11.3
+  # image 4.11.0 calls ZLibDecoder.decodeLazy, introduced by archive 4.4.0.
+  # Constrain this transitive API pairing until upstream selection is stable.
+  archive: 4.4.0
   path_provider: ^2.1.5
   path: ^1.9.1
   file_picker: 10.3.10
