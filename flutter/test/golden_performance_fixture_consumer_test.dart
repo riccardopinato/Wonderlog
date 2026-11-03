@@ -25,10 +25,33 @@ void main() {
           updatedAt:DateTime.utc(2026),
         )
     ];
-    const fallbackSha='5e6db031e300f09f5b64db3e1416c62c036907c9';
-    final envSha=Platform.environment['GITHUB_SHA']??fallbackSha;
-    final verifiedSourceSha=RegExp(r'^[a-f0-9]{40}$').hasMatch(envSha)
-        ? envSha : fallbackSha;
+    final gitResult = Process.runSync('git', ['rev-parse', 'HEAD']);
+    final verifiedSourceSha = gitResult.exitCode == 0
+        ? gitResult.stdout.toString().trim()
+        : '';
+    expect(verifiedSourceSha, matches(RegExp(r'^[a-f0-9]{40}
+    final result=ReferencePerformanceHarness.measure(
+      sourceSha:verifiedSourceSha,
+      fixtureId:'wonderlog-300',
+      operation:'WonderlogSearchEngine.search literal',
+      runnerProfile:'Flutter-test-' + Platform.operatingSystem,
+      sampleIterations:5,warmupIterations:2,
+      perform:()=>WonderlogSearchEngine.search(query:'montagna',
+        journeys:trips,memories:const [],limit:80)
+          .whereType<JourneySearchResult>()
+          .map((hit)=>hit.journey.id)
+          .toList(),
+    );
+    expect(result.outputCount,80);
+    expect(result.sampleMicros,hasLength(5));
+    expect(result.p95Micros,greaterThanOrEqualTo(result.p50Micros));
+    expect(result.toJson()['runnerProfile'],contains('Flutter-test'));
+    // Inspectable source-pinned benchmark receipt in GitHub Actions logs.
+    debugPrint('GOLDEN_FIXTURE_EVIDENCE '+jsonEncode(result.toJson()));
+  });
+}
+)),
+        reason: 'Benchmark evidence requires an actual checked-out Git SHA');
     final result=ReferencePerformanceHarness.measure(
       sourceSha:verifiedSourceSha,
       fixtureId:'wonderlog-300',
