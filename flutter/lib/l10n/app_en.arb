@@ -90,6 +90,7 @@
   "rediscoverSubtitle": "A few older moments worth seeing again.",
   "searchTitle": "Search",
   "searchHint": "Search journeys, memories, places or tags",
+  "searchIncludeRelatedTerms": "Include related terms",
   "searchStartTyping": "Start typing to search your Wonderlog.",
   "searchNoResults": "No matching journeys or memories.",
   "journeyTimeline": "Timeline",
