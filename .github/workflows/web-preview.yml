@@ -111,3 +111,32 @@ jobs:
       - name: Deploy exact Pages artifact
         id: deployment
         uses: actions/deploy-pages@v4
+
+  verify-live:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+
+    steps:
+      - name: Verify real GitHub Pages distribution
+        run: |
+          set -euo pipefail
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          WEB_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/"
+          for attempt in $(seq 1 24); do
+            echo "Checking public Pages assets (attempt $attempt/24)"
+            if curl --fail --location --silent --show-error --max-time 15 "${WEB_URL}index.html" -o /tmp/wonderlog_index.html \
+              && curl --fail --location --silent --show-error --max-time 15 "${WEB_URL}sqlite3.wasm" -o /tmp/wonderlog_sqlite3.wasm \
+              && curl --fail --location --silent --show-error --max-time 15 "${WEB_URL}drift_worker.js" -o /tmp/wonderlog_drift_worker.js; then
+              if grep -q 'flutter_bootstrap.js' /tmp/wonderlog_index.html \
+                && printf '%s  %s\n' \
+                     '922a76b182b6af69b030c8e2fdd3283ecc8e827248b20e4b1f3f3db170b52117' /tmp/wonderlog_sqlite3.wasm \
+                     'f0a9b87085f732fd7b6ee7eb34d3858c556f05d221eb1febfc443649cd365752' /tmp/wonderlog_drift_worker.js | sha256sum --check --status; then
+                echo "Wonderlog public Web assets verified at $WEB_URL"
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "::error::Public Pages URL or runtime assets are unavailable or stale."
+          exit 1
