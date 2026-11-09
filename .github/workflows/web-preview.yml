@@ -54,6 +54,20 @@ jobs:
           dart run build_runner build --delete-conflicting-outputs
           flutter analyze
 
+      - name: Prepare verified Drift Web runtime
+        run: |
+          set -euo pipefail
+          # flutter create regenerates web/; add the runtime *after* generation.
+          # The code and binary checksums are pinned to the resolved dependencies.
+          python3 tool/check_web_bundle.py --deps
+          curl --fail --location --retry 3 --retry-delay 2 \
+            https://github.com/simolus3/drift/releases/download/drift-2.31.0/drift_worker.js \
+            --output web/drift_worker.js
+          curl --fail --location --retry 3 --retry-delay 2 \
+            https://github.com/simolus3/sqlite3.dart/releases/download/sqlite3-2.9.4/sqlite3.wasm \
+            --output web/sqlite3.wasm
+          python3 tool/check_web_bundle.py --assets
+
       - name: Build stable Web preview
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -63,7 +77,13 @@ jobs:
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
           BASE_HREF="/${REPO_NAME}/"
           WEB_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io/${REPO_NAME}/"
-          flutter build web --release             --base-href "$BASE_HREF"             --dart-define="WONDERLOG_WEB_AUTH_REDIRECT=$WEB_URL"             --dart-define="SUPABASE_URL=$SUPABASE_URL"             --dart-define="SUPABASE_PUBLISHABLE_KEY=$SUPABASE_PUBLISHABLE_KEY"
+          flutter build web --release \
+            --base-href "$BASE_HREF" \
+            --dart-define="WONDERLOG_WEB_AUTH_REDIRECT=$WEB_URL" \
+            --dart-define="SUPABASE_URL=$SUPABASE_URL" \
+            --dart-define="SUPABASE_PUBLISHABLE_KEY=$SUPABASE_PUBLISHABLE_KEY"
+          # Reject a deceptively green Flutter build with missing SQLite assets.
+          python3 tool/check_web_bundle.py --dist
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
