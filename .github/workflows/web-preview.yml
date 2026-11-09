@@ -85,6 +85,22 @@ jobs:
           # Reject a deceptively green Flutter build with missing SQLite assets.
           python3 tool/check_web_bundle.py --dist
 
+      - name: Smoke compiled Pages app in headless Chrome
+        run: |
+          set -euo pipefail
+          SITE_ROOT="$(mktemp -d)"
+          ln -s "$PWD/build/web" "$SITE_ROOT/Wonderlog"
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory "$SITE_ROOT" > /tmp/wonderlog_pages_http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true; rm -rf "$SITE_ROOT"' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:8765/Wonderlog/; then break; fi
+            sleep 1
+          done
+          curl --fail --silent --output /dev/null http://127.0.0.1:8765/Wonderlog/
+          npm install --prefix /tmp/wonderlog-web-smoke --no-audit --no-fund --no-package-lock --no-save playwright-core@1.57.0
+          NODE_PATH=/tmp/wonderlog-web-smoke/node_modules node tool/web_boot_smoke.cjs
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:
