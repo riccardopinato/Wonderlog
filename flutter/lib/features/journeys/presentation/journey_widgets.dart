@@ -11,6 +11,7 @@ import '../../memories/domain/wonderlog_repository.dart';
 import '../../premium/domain/premium_gate.dart';
 import '../../premium/presentation/premium_page.dart';
 import '../domain/journey.dart';
+import '../domain/trip_planner_template.dart';
 
 final class JourneyCard extends StatelessWidget {
   const JourneyCard({
@@ -152,10 +153,15 @@ Future<void> showCreateJourneyDialog(
   final destinationController = TextEditingController();
   var startDate = DateTime.now();
   var endDate = DateTime.now();
+  var useTemplate = false;
+  var includeIdeas = true;
+  var includePacking = true;
+  var saving = false;
 
   try {
     await showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
           final locale = Localizations.localeOf(context).toLanguageTag();
@@ -205,63 +211,154 @@ Future<void> showCreateJourneyDialog(
                     textInputAction: TextInputAction.done,
                   ),
                   const SizedBox(height: WonderlogSpacing.medium),
+                  SwitchListTile(
+                    key: const ValueKey<String>('journey-trip-planner-toggle'),
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(strings.tripPlannerUseTemplate),
+                    subtitle: Text(strings.tripPlannerIntro),
+                    value: useTemplate,
+                    onChanged: saving
+                        ? null
+                        : (value) => setDialogState(() => useTemplate = value),
+                  ),
+                  if (useTemplate) ...[
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(strings.tripPlannerIdeas),
+                      value: includeIdeas,
+                      onChanged: saving
+                          ? null
+                          : (value) => setDialogState(
+                                () => includeIdeas = value ?? false,
+                              ),
+                    ),
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(strings.tripPlannerPacking),
+                      value: includePacking,
+                      onChanged: saving
+                          ? null
+                          : (value) => setDialogState(
+                                () => includePacking = value ?? false,
+                              ),
+                    ),
+                  ],
+                  const SizedBox(height: WonderlogSpacing.medium),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(strings.startDate),
                     subtitle: Text(formatter.format(startDate)),
                     trailing: const Icon(Icons.calendar_today_outlined),
-                    onTap: pickStart,
+                    onTap: saving ? null : pickStart,
                   ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(strings.endDate),
                     subtitle: Text(formatter.format(endDate)),
                     trailing: const Icon(Icons.calendar_today_outlined),
-                    onTap: pickEnd,
+                    onTap: saving ? null : pickEnd,
                   ),
                 ],
               ),
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
+                onPressed: saving ? null : () => Navigator.pop(dialogContext),
                 child: Text(strings.cancel),
               ),
               FilledButton(
-                onPressed: () async {
-                  final title = titleController.text.trim();
-                  final destination = destinationController.text.trim();
-                  if (title.isEmpty || destination.isEmpty) return;
+                onPressed: saving
+                    ? null
+                    : () async {
+                        final title = titleController.text.trim();
+                        final destination = destinationController.text.trim();
+                        if (title.isEmpty ||
+                            destination.isEmpty ||
+                            endDate.isBefore(startDate)) {
+                          return;
+                        }
+                        setDialogState(() => saving = true);
+                        try {
+                          final description = useTemplate
+                              ? buildTripPlannerDescription(
+                                  ideasHeading: strings.tripPlannerIdeas,
+                                  packingHeading: strings.tripPlannerPacking,
+                                  includeIdeas: includeIdeas,
+                                  includePacking: includePacking,
+                                )
+                              : '';
+                          if (useTemplate) {
+                            final confirmed = await showDialog<bool>(
+                              context: dialogContext,
+                              builder: (summaryContext) => AlertDialog(
+                                title: Text(strings.tripPlannerSummary),
+                                content: SingleChildScrollView(
+                                  child: Text(
+                                    '$title\n$destination\n'
+                                    '${DateFormat.yMMMd(Localizations.localeOf(summaryContext).toLanguageTag()).format(startDate)}'
+                                    ' – ${DateFormat.yMMMd(Localizations.localeOf(summaryContext).toLanguageTag()).format(endDate)}'
+                                    '\n\n$description',
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(summaryContext, false),
+                                    child: Text(strings.cancel),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () => Navigator.pop(summaryContext, true),
+                                    child: Text(strings.tripPlannerConfirm),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirmed != true || !dialogContext.mounted) return;
+                          }
 
-                  final creationGate =
-                      await services.premiumAccessPolicy.canCreateJourney();
-                  if (creationGate is PremiumLimitReached) {
-                    if (dialogContext.mounted) Navigator.pop(dialogContext);
-                    if (context.mounted) {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (_) => PremiumPage(
-                            service: services.controller.premiumService,
-                          ),
-                        ),
-                      );
-                    }
-                    return;
-                  }
+                          // Recheck immediately before write; never bypass Premium.
+                          final creationGate =
+                              await services.premiumAccessPolicy.canCreateJourney();
+                          if (creationGate is PremiumLimitReached) {
+                            if (dialogContext.mounted) Navigator.pop(dialogContext);
+                            if (context.mounted) {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (_) => PremiumPage(
+                                    service: services.controller.premiumService,
+                                  ),
+                                ),
+                              );
+                            }
+                            return;
+                          }
 
-                  await repository.createJourney(
-                    title: title,
-                    destination: destination,
-                    startDate: startDate,
-                    endDate: endDate,
-                  );
-
-                  if (dialogContext.mounted) {
-                    Navigator.pop(dialogContext);
-                  }
-                },
-                child: Text(strings.save),
+                          await repository.createJourney(
+                            title: title,
+                            destination: destination,
+                            startDate: startDate,
+                            endDate: endDate,
+                            description: description,
+                          );
+                          if (dialogContext.mounted) Navigator.pop(dialogContext);
+                        } catch (_) {
+                          if (dialogContext.mounted) {
+                            ScaffoldMessenger.of(dialogContext).showSnackBar(
+                              SnackBar(content: Text(strings.tripPlannerSaveFailed)),
+                            );
+                          }
+                        } finally {
+                          if (dialogContext.mounted) {
+                            setDialogState(() => saving = false);
+                          }
+                        }
+                      },
+                child: saving
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(strings.save),
               ),
             ],
           );
