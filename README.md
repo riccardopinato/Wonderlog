@@ -112,3 +112,8 @@ See:
 - `docs/GOLDEN_ECOSYSTEM_BRIDGE_CONTRACT_v1_DRAFT.txt`
 - `ROADMAP.md`
 - `docs/AUDIT_2026-10-06.md`
+
+
+## Template Notion (ricerca)
+
+[Catalogo per Wonderlog](docs/TEMPLATE_NOTION/README.md). Non sono template Notion installati né funzionalità di vendita attivate.
