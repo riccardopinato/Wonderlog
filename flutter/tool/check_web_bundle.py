@@ -42,8 +42,8 @@ def verify_dependencies() -> None:
     for package, expected in RESOLVED.items():
         if packages.get(package) != expected:
             raise RuntimeError(
-                f"Unexpected ${package}: ${packages.get(package)!r}; "
-                f"web assets require ${expected}. Update their upstream "
+                f"Unexpected {package}: {packages.get(package)!r}; "
+                f"web assets require {expected}. Update their upstream "
                 "release and hashes together, do not silently upgrade."
             )
 
@@ -52,15 +52,15 @@ def verify_assets(root: Path) -> None:
     for filename, (expected_size, digest) in ASSETS.items():
         path = root / filename
         if not path.is_file():
-            raise RuntimeError(f"Missing required browser runtime: ${path}")
+            raise RuntimeError(f"Missing required browser runtime: {path}")
         raw = path.read_bytes()
         if len(raw) != expected_size:
-            raise RuntimeError(f"Unexpected asset size: ${path}")
+            raise RuntimeError(f"Unexpected asset size: {path}")
         actual = hashlib.sha256(raw).hexdigest()
         if actual != digest:
-            raise RuntimeError(f"Unverified upstream asset: ${path}")
-        if filename.endswith(".wasm") and raw[:4] != b"\\x00asm":
-            raise RuntimeError(f"Invalid WASM header: ${path}")
+            raise RuntimeError(f"Unverified upstream asset: {path}")
+        if filename.endswith(".wasm") and raw[:4] != bytes((0, 97, 115, 109)):
+            raise RuntimeError(f"Invalid WASM header: {path}")
 
 
 def verify_distribution() -> None:
