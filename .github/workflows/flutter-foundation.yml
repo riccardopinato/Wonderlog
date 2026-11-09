@@ -103,8 +103,13 @@ jobs:
       - name: Test
         run: flutter test
 
+      - name: Prepare verified Drift Web runtime
+        run: bash tool/prepare_web_runtime.sh
+
       - name: Build Web release
-        run: flutter build web --release
+        run: |
+          flutter build web --release
+          python3 tool/check_web_bundle.py --dist --base-href /
 
       - name: Build Android release APKs by ABI
         run: flutter build apk --release --split-per-abi
