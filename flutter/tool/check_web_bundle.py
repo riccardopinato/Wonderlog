@@ -63,7 +63,7 @@ def verify_assets(root: Path) -> None:
             raise RuntimeError(f"Invalid WASM header: {path}")
 
 
-def verify_distribution() -> None:
+def verify_distribution(expected_base_href: str) -> None:
     output = Path("build/web")
     verify_assets(output)
     index = output / "index.html"
@@ -71,13 +71,14 @@ def verify_distribution() -> None:
     if not index.is_file() or not bootstrap.is_file():
         raise RuntimeError("Missing Flutter Web index/bootstrap from output")
     html = index.read_text(encoding="utf-8")
-    if '<base href="/Wonderlog/">' not in html:
-        raise RuntimeError("Missing GitHub Pages /Wonderlog/ base href")
+    if f'<base href="{expected_base_href}">' not in html:
+        raise RuntimeError(f"Incorrect Web base href: expected {expected_base_href}")
     # Upload this exact directory; do not copy another build afterwards.
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--base-href", default="/Wonderlog/")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--deps", action="store_true")
     group.add_argument("--assets", action="store_true")
@@ -88,7 +89,7 @@ def main() -> int:
     elif args.assets:
         verify_assets(Path("web"))
     elif args.dist:
-        verify_distribution()
+        verify_distribution(args.base_href)
     print("Wonderlog Web distribution gate: PASS")
     return 0
 
